@@ -123,70 +123,13 @@ $defs:
                 nodes:
                   type: array
                   items:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        pattern: "^node_[a-z0-9_]+$"
-                      label:
-                        type: string
-                        description: "Display label (use ubiquitous language)"
-                      bounded_context:
-                        type: string
-                        description: "Associated DDD bounded context"
-                        pattern: "^bc_[a-z0-9_]+$"
-                      url:
-                        type: string
-                        description: "URL path"
-                      children:
-                        type: array
-                        items:
-                          type: string
-                        description: "Child node IDs"
+                    $ref: "#/$defs/hierarchy_node"
 
       facets:
         type: array
         description: "Faceted classification dimensions"
         items:
-          type: object
-          required: [facet_id, label, type]
-          properties:
-            facet_id:
-              type: string
-              pattern: "^facet_[a-z0-9_]+$"
-            label:
-              type: string
-              description: "Display label"
-            type:
-              type: string
-              enum: [single_select, multi_select, range, hierarchy, autocomplete]
-            ddd_mapping:
-              type: string
-              description: "Maps to DDD value object or property"
-              example: "vo_location.work_mode"
-            values:
-              type: array
-              description: "Available facet values (for select types)"
-              items:
-                type: object
-                properties:
-                  value:
-                    type: string
-                  label:
-                    type: string
-                  count:
-                    type: integer
-                    description: "Number of items with this value (dynamic)"
-            range:
-              type: object
-              description: "For range facets"
-              properties:
-                min:
-                  type: number
-                max:
-                  type: number
-                step:
-                  type: number
+          $ref: "#/$defs/facet"
 
       navigation_systems:
         type: object
@@ -204,25 +147,7 @@ $defs:
             type: boolean
 
       search_system:
-        type: object
-        description: "Search configuration"
-        properties:
-          type:
-            type: string
-            enum: [simple, advanced, faceted]
-          scope:
-            type: string
-            enum: [global, contextual, bounded_context]
-          features:
-            type: array
-            items:
-              type: string
-              enum: [autocomplete, suggestions, filters, saved_searches, recent_searches]
-          indexed_fields:
-            type: array
-            items:
-              type: string
-            description: "Fields included in search index"
+        $ref: "#/$defs/search_system"
 
       labeling_system:
         type: object
@@ -600,15 +525,7 @@ $defs:
             type: string
             enum: [single_column, two_column, three_column, sidebar_left, sidebar_right, grid, custom]
           responsive:
-            type: object
-            properties:
-              mobile:
-                type: string
-                description: "Mobile layout pattern"
-              tablet:
-                type: string
-              desktop:
-                type: string
+            $ref: "#/$defs/responsive_config"
 
       behaviors:
         type: array
@@ -669,16 +586,7 @@ $defs:
         description: "Remains visible on scroll"
 
       responsive:
-        type: object
-        description: "Responsive behavior"
-        properties:
-          mobile:
-            type: string
-            enum: [show, hide, collapse, reorder]
-          tablet:
-            type: string
-          desktop:
-            type: string
+        $ref: "#/$defs/responsive_config"
 
 # =============================================================================
 # COMPONENTS
@@ -819,25 +727,7 @@ $defs:
             description: "Milliseconds (for temporary feedback)"
 
       validation:
-        type: object
-        description: "Validation behavior"
-        properties:
-          timing:
-            type: string
-            enum: [on_blur, on_change, on_submit, real_time, debounced]
-          debounce_ms:
-            type: integer
-            description: "Debounce delay (milliseconds)"
-          rules:
-            type: array
-            items:
-              type: object
-              properties:
-                rule:
-                  type: string
-                  description: "Validation rule (reference VO rules)"
-                error_message:
-                  type: string
+        $ref: "#/$defs/validation_config"
 
       async_operation:
         type: object
@@ -874,20 +764,7 @@ $defs:
                 type: string
 
       animation:
-        type: object
-        description: "Animation specification"
-        properties:
-          type:
-            type: string
-            enum: [fade, slide, scale, rotate, morph, custom]
-          duration:
-            type: integer
-            description: "Milliseconds"
-          easing:
-            type: string
-            enum: [linear, ease_in, ease_out, ease_in_out, spring]
-          trigger:
-            type: string
+        $ref: "#/$defs/animation"
 
       domain_event_response:
         type: object
@@ -1103,6 +980,150 @@ $defs:
           desktop:
             type: integer
             example: 1440
+
+  hierarchy_node:
+    type: object
+    description: "Node in a hierarchical information architecture"
+    properties:
+      id:
+        type: string
+        pattern: "^node_[a-z0-9_]+$"
+      label:
+        type: string
+        description: "Display label (use ubiquitous language)"
+      bounded_context:
+        type: string
+        description: "Associated DDD bounded context"
+        pattern: "^bc_[a-z0-9_]+$"
+      url:
+        type: string
+        description: "URL path"
+      children:
+        type: array
+        items:
+          type: string
+        description: "Child node IDs"
+
+  facet_value:
+    type: object
+    description: "Value within a faceted classification dimension"
+    properties:
+      value:
+        type: string
+      label:
+        type: string
+      count:
+        type: integer
+        description: "Number of items with this value (dynamic)"
+
+  facet:
+    type: object
+    description: "Faceted classification dimension for filtering and navigation"
+    required: [facet_id, label, type]
+    properties:
+      facet_id:
+        type: string
+        pattern: "^facet_[a-z0-9_]+$"
+      label:
+        type: string
+        description: "Display label"
+      type:
+        type: string
+        enum: [single_select, multi_select, range, hierarchy, autocomplete]
+      ddd_mapping:
+        type: string
+        description: "Maps to DDD value object or property"
+        example: "vo_location.work_mode"
+      values:
+        type: array
+        description: "Available facet values (for select types)"
+        items:
+          $ref: "#/$defs/facet_value"
+      range:
+        type: object
+        description: "For range facets"
+        properties:
+          min:
+            type: number
+          max:
+            type: number
+          step:
+            type: number
+
+  search_system:
+    type: object
+    description: "Search configuration"
+    properties:
+      type:
+        type: string
+        enum: [simple, advanced, faceted]
+      scope:
+        type: string
+        enum: [global, contextual, bounded_context]
+      features:
+        type: array
+        items:
+          type: string
+          enum: [autocomplete, suggestions, filters, saved_searches, recent_searches]
+      indexed_fields:
+        type: array
+        items:
+          type: string
+        description: "Fields included in search index"
+
+  responsive_config:
+    type: object
+    description: "Responsive behavior configuration across device breakpoints"
+    properties:
+      mobile:
+        type: string
+        enum: [show, hide, collapse, reorder, single_column, stack]
+        description: "Mobile layout pattern"
+      tablet:
+        type: string
+        enum: [show, hide, collapse, reorder, single_column, two_column, stack]
+        description: "Tablet layout pattern"
+      desktop:
+        type: string
+        enum: [show, hide, collapse, reorder, single_column, two_column, three_column, grid]
+        description: "Desktop layout pattern"
+
+  animation:
+    type: object
+    description: "Animation specification"
+    properties:
+      type:
+        type: string
+        enum: [fade, slide, scale, rotate, morph, custom]
+      duration:
+        type: integer
+        description: "Milliseconds"
+      easing:
+        type: string
+        enum: [linear, ease_in, ease_out, ease_in_out, spring]
+      trigger:
+        type: string
+
+  validation_config:
+    type: object
+    description: "Validation behavior configuration"
+    properties:
+      timing:
+        type: string
+        enum: [on_blur, on_change, on_submit, real_time, debounced]
+      debounce_ms:
+        type: integer
+        description: "Debounce delay (milliseconds)"
+      rules:
+        type: array
+        items:
+          type: object
+          properties:
+            rule:
+              type: string
+              description: "Validation rule (reference VO rules)"
+            error_message:
+              type: string
 
 # =============================================================================
 # METADATA

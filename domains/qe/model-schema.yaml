@@ -141,6 +141,7 @@ $defs:
     last_modified_date: date
     automated: boolean
     automation_framework: string  # Jest, Playwright, Cypress, etc.
+    test_script_ref: string  # Reference to test_script
     tags: []
 
 # Contract Test Definition (Consumer-Driven Contract Testing)
@@ -291,6 +292,123 @@ $defs:
       setup_function: string
       teardown_function: string
 
+# Test Script Definition (ROoST)
+  test_script:
+    script_id: string  # ts_[context]_[name]
+    test_case_ref: string  # Reference to test_case
+    language: enum [javascript, typescript, python, java, csharp, ruby]
+    code: string  # Actual test script code
+    automation_framework: string  # Jest, Playwright, Cypress, Selenium, Pytest, etc.
+    maintainer: string  # Team or person responsible for maintaining this script
+
+# Test Configuration Definition (ROoST)
+  test_configuration:
+    config_id: string  # config_[environment]_[name]
+    environment_ref: string  # Reference to test_environment
+    browsers: []  # Array of browsers: chrome, firefox, safari, edge
+    devices: []  # Array of devices for mobile testing
+    os: []  # Array of operating systems: windows, macos, linux, ios, android
+    versions: {}  # Version specifications for browsers/devices/os
+
+# Incident Report Definition (ROoST)
+  incident_report:
+    incident_id: string  # inc_[number]
+    severity: enum [critical, high, medium, low]
+    description: string
+    test_case_ref: string  # Reference to test_case that found the incident
+    defect_ref: string  # Reference to defect/bug report
+    steps_to_reproduce: []
+    attachments: []  # Screenshots, logs, etc.
+
+# Testing Technique Specification (ROoST)
+  testing_technique_spec:
+    technique_id: string  # technique_[category]_[name]
+    category: enum [black_box, white_box, model_based, mutation]
+    subcategory: string  # e.g., equivalence_partitioning, boundary_value, path_testing
+    application_criteria: string  # When and how to apply this technique
+
+# Test Tool Definition (ROoST)
+  test_tool:
+    tool_id: string  # tool_[category]_[name]
+    category: enum [management, automation, performance, static_analysis]
+    name: string
+    version: string
+    purpose: string  # What this tool is used for
+
+# Test Stakeholder Role Definition (ROoST)
+  test_stakeholder_role:
+    role_id: string  # role_[role_type]
+    role_type: enum [test_manager, qa_engineer, test_analyst, tester]
+    responsibilities: []  # List of responsibilities
+    bounded_context_ref: string  # bc_[name] - which context this role serves
+
+# Coverage Target Definition (ROoST)
+  coverage_target:
+    target_id: string  # target_[context]_[metric]
+    metric_type: enum [statement, branch, path, mutation]
+    target_percentage: float  # Target coverage percentage
+    bounded_context_ref: string  # bc_[name]
+    aggregate_ref: string  # agg_[name] - specific aggregate if applicable
+
+# Test Oracle Definition (Internal Utility)
+  test_oracle:
+    oracle_id: string  # oracle_[type]_[name]
+    type: enum [value, state, behavior]
+    expected_outcome: string  # Description of expected outcome
+    comparison_method: string  # How to compare actual vs expected
+
+# Test Fixture Definition (Internal Utility)
+  test_fixture:
+    fixture_id: string  # fixture_[name]
+    setup_code: string  # Code to set up the fixture
+    teardown_code: string  # Code to tear down the fixture
+    shared_data: {}  # Data shared across tests
+    scope: enum [test, suite, session]  # Fixture scope
+
+# Test Double Definition (Internal Utility)
+  test_double:
+    double_id: string  # double_[type]_[name]
+    type: enum [mock, stub, fake, spy]
+    target_interface: string  # Interface or class being doubled
+    behavior_specification: string  # How the double should behave
+
+# Test Assertion Definition (Internal Utility)
+  test_assertion:
+    assertion_id: string  # assert_[type]_[name]
+    type: enum [equality, containment, exception, state]
+    condition: string  # The assertion condition
+    failure_message: string  # Message to display on failure
+
+# Test Harness Definition (Internal Utility)
+  test_harness:
+    harness_id: string  # harness_[framework]_[name]
+    framework: string  # Testing framework used
+    configuration: {}  # Framework configuration
+    parallel_execution: boolean  # Whether parallel execution is enabled
+    reporting_config: {}  # Reporting configuration
+
+# Test Coverage Type Definition (Internal Utility)
+  test_coverage_type:
+    coverage_type_id: string  # cov_type_[name]
+    name: enum [statement, branch, path, mutation, mcdc]
+    calculation_method: string  # How this coverage type is calculated
+
+# Test Priority Scheme Definition (Internal Utility)
+  test_priority_scheme:
+    scheme_id: string  # priority_scheme_[name]
+    criteria: string  # Criteria for prioritizing tests
+    priority_levels: []  # Array of priority level definitions
+      # - level: critical, definition: "Tests blocking deployments"
+      # - level: high, definition: "Tests for core functionality"
+      # - level: medium, definition: "Tests for important features"
+      # - level: low, definition: "Tests for nice-to-have features"
+
+# Test Execution Order Definition (Internal Utility)
+  test_execution_order:
+    order_id: string  # order_[strategy]_[name]
+    strategy: enum [sequential, parallel, randomized, dependency_based]
+    configuration: {}  # Strategy-specific configuration
+
 # Test Execution Plan
 # Test Strategy Definition (Systematic approach to testing)
   test_strategy:
@@ -363,8 +481,12 @@ $defs:
     test_suite_refs: []
     test_case_refs: []
 
+    # Configuration reference
+    test_configuration_ref: string  # Reference to test_configuration
+
     # Execution Strategy
     execution_order: enum [sequential, parallel, priority_based]
+    execution_order_ref: string  # Reference to test_execution_order
     max_parallel: integer
 
     # Environment
