@@ -11,15 +11,15 @@ System average closure: 100.0%
 Target: >95%
 
 ✓ AGILE: 100.0% closure
-   (28/28 concepts resolved)
+   (43/43 concepts resolved)
 ✓ DATA-ENG: 100.0% closure
-   (14/14 concepts resolved)
+   (26/26 concepts resolved)
 ✓ DDD: 100.0% closure
    (13/13 concepts resolved)
 ✓ QE: 100.0% closure
-   (18/18 concepts resolved)
+   (33/33 concepts resolved)
 ✓ UX: 100.0% closure
-   (12/12 concepts resolved)
+   (19/19 concepts resolved)
 
 ## Overall Status
 ✓ PRODUCTION READY
