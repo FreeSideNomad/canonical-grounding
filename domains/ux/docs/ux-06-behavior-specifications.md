@@ -1271,3 +1271,81 @@ const JobSearch: React.FC = () => {
 
 *Document created: 2025-10-04*
 *Part of UX Research Phase 7: Behavioral Specifications*
+
+---
+
+## 3. Validation Specifications
+
+### validation_config
+
+**Purpose**: Defines validation rules for form fields and user inputs, ensuring data quality and alignment with domain value object invariants.
+
+**Used in**: `behavior.validation`, `workflow.steps[].validation`
+
+**Schema fields**:
+- `timing`: on_blur | on_change | on_submit
+- `debounce_ms`: Milliseconds to wait before validating (for on_change)
+- `rules`: Array of validation rules
+  - `type`: required | pattern | range | custom | ddd_value_object
+  - `message`: Error message to display
+  - `value_object_ref`: Optional DDD value object for validation
+
+**DDD Grounding:**
+```
+validation_config.rules[].value_object_ref → ddd:value_object
+```
+
+Validation rules map to value object invariants, ensuring UI validation matches domain constraints.
+
+**Example:**
+```yaml
+behavior:
+  id: bhv_email_input
+  validation_config:
+    timing: on_blur
+    debounce_ms: 300
+    rules:
+      - type: required
+        message: "Email address is required"
+      - type: pattern
+        pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        message: "Please enter a valid email address"
+      - type: ddd_value_object
+        value_object_ref: "ddd:ValueObject:email_address"
+        message: "Email address failed domain validation"
+```
+
+**Job Seeker Example:**
+```yaml
+workflow:
+  id: wf_profile_setup
+  steps:
+    - step_id: step_skills
+      validation_config:
+        timing: on_submit
+        rules:
+          - type: required
+            message: "At least one skill is required"
+          - type: range
+            min: 1
+            max: 20
+            message: "Select between 1 and 20 skills"
+          - type: ddd_value_object
+            value_object_ref: "ddd:ValueObject:skills"
+            message: "Selected skills must match our skill taxonomy"
+```
+
+**Benefits of DDD Grounding:**
+- **Consistency**: UI validation matches backend domain validation
+- **Type Safety**: Validation rules reference domain value objects
+- **Single Source of Truth**: Domain invariants defined once, validated everywhere
+- **Reduced Errors**: Frontend validation prevents invalid submissions
+
+**When to Use:**
+- Form field validation
+- Multi-step workflow validation
+- Real-time input validation
+- Domain-driven validation rules
+
+---
+

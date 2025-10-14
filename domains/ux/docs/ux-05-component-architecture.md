@@ -1419,3 +1419,198 @@ const JobsList: React.FC<{jobs: JobPosting[]}> = ({jobs}) => {
 
 *Document created: 2025-10-04*
 *Part of UX Research Phase 6: Component Architecture*
+
+---
+
+## 4. Responsive Design
+
+### responsive_config
+
+**Purpose**: Configuration for responsive behavior across different device breakpoints.
+
+**Used in**: `component.responsive_config`, `page.responsive_config`, `page_section.responsive_config`
+
+**Schema fields**:
+- `mobile`: Configuration for mobile devices (< 768px)
+- `tablet`: Configuration for tablet devices (768px - 1024px)
+- `desktop`: Configuration for desktop devices (> 1024px)
+- `breakpoints`: Custom breakpoint definitions
+
+**Example**:
+```yaml
+component:
+  id: comp_product_card
+  responsive_config:
+    mobile:
+      columns: 1
+      font_size: 14px
+      image_size: small
+    tablet:
+      columns: 2
+      font_size: 16px
+      image_size: medium
+    desktop:
+      columns: 4
+      font_size: 16px
+      image_size: large
+```
+
+---
+
+## 5. Design System
+
+### design_tokens
+
+**Purpose**: Atomic design values (colors, spacing, typography) used consistently across the application.
+
+**Used in**: Component styling, theme configuration
+
+**Schema fields**:
+- `colors`: Color palette (primary, secondary, semantic colors)
+- `spacing`: Spacing scale (margins, padding)
+- `typography`: Font families, sizes, weights
+- `breakpoints`: Responsive breakpoints
+
+**Example**:
+```yaml
+design_tokens:
+  colors:
+    primary: "#007bff"
+    secondary: "#6c757d"
+    success: "#28a745"
+    error: "#dc3545"
+  spacing:
+    xs: 4px
+    sm: 8px
+    md: 16px
+    lg: 24px
+    xl: 32px
+  typography:
+    font_family: "Inter, sans-serif"
+    sizes:
+      small: 12px
+      base: 14px
+      large: 16px
+      h1: 32px
+      h2: 24px
+  breakpoints:
+    mobile: 768px
+    tablet: 1024px
+    desktop: 1440px
+```
+
+---
+
+## 6. Page Structure
+
+### page_section
+
+**Purpose**: Logical sections within a page (header, main content, sidebar, footer).
+
+**Used in**: `page.sections`
+
+**Schema fields**:
+- `section_id`: Unique identifier
+- `type`: header | main | sidebar | footer | nav
+- `components`: Array of component references
+- `layout`: Grid or flex layout configuration
+
+**Example**:
+```yaml
+page:
+  id: page_product_detail
+  sections:
+    - page_section:
+        section_id: sec_header
+        type: header
+        components: [comp_nav, comp_breadcrumb]
+    - page_section:
+        section_id: sec_main
+        type: main
+        components: [comp_product_gallery, comp_product_info, comp_add_to_cart]
+    - page_section:
+        section_id: sec_sidebar
+        type: sidebar
+        components: [comp_recommendations, comp_reviews_summary]
+```
+
+---
+
+## 7. Data Presentation
+
+### pagination_config
+
+**Purpose**: Configuration for paginated data display.
+
+**Used in**: `component.pagination`, `page.pagination`
+
+**Schema fields**:
+- `page_size`: Items per page
+- `total_items`: Total number of items
+- `current_page`: Active page number
+- `show_page_numbers`: Boolean
+- `show_prev_next`: Boolean
+
+**Example**:
+```yaml
+component:
+  id: comp_product_list
+  pagination_config:
+    page_size: 20
+    total_items: 500
+    current_page: 1
+    show_page_numbers: true
+    show_prev_next: true
+    max_visible_pages: 5
+```
+
+### caching_config
+
+**Purpose**: Client-side caching strategy for performance optimization.
+
+**Used in**: `page.caching`, `component.caching`
+
+**Schema fields**:
+- `strategy`: cache_first | network_first | stale_while_revalidate
+- `ttl`: Time-to-live in seconds
+- `invalidation_keys`: Keys that trigger cache invalidation
+
+**Example**:
+```yaml
+page:
+  id: page_product_catalog
+  caching_config:
+    strategy: stale_while_revalidate
+    ttl: 300
+    invalidation_keys: [products_updated, inventory_changed]
+```
+
+### accessibility_spec
+
+**Purpose**: Accessibility requirements and WCAG compliance specifications.
+
+**Used in**: `component.accessibility`, `page.accessibility`
+
+**Schema fields**:
+- `wcag_level`: A | AA | AAA
+- `aria_labels`: Required ARIA attributes
+- `keyboard_navigation`: Keyboard shortcuts and tab order
+- `screen_reader_text`: Alternative text for screen readers
+
+**Example**:
+```yaml
+component:
+  id: comp_modal_dialog
+  accessibility_spec:
+    wcag_level: AA
+    aria_labels:
+      role: dialog
+      aria_labelledby: modal_title
+      aria_describedby: modal_description
+    keyboard_navigation:
+      esc_closes: true
+      trap_focus: true
+      focus_first_element: true
+    screen_reader_text: "Modal dialog opened. Press Escape to close."
+```
+
