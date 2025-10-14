@@ -4,6 +4,8 @@
 
 **Target:** Achieve >95% closure for all canons (currently QE: 75%, Agile: 72%) and make all implicit domain references explicit.
 
+**Total Steps:** 21 (includes automated validation with Python script in virtual environment)
+
 ---
 
 ## Context: Key Negative Findings from Research
@@ -56,7 +58,7 @@ Each domain contains:
 
 ---
 
-## Enhancement Steps (20 Steps)
+## Enhancement Steps (21 Steps)
 
 ### Phase 1: Analysis and Inventory (Steps 1-4)
 
@@ -491,28 +493,72 @@ groundings:
 ```
 **Update closure calculations to reflect improvements**
 
-### Phase 5: Validation and Documentation (Steps 18-20)
+### Phase 5: Validation and Documentation (Steps 18-21)
 
-#### Step 18: Run Closure Validation on Enhanced Schemas
-**Action:** Calculate new closure percentages after enhancements
-**Validation Method:**
-```python
-# Pseudocode for closure validation
-for each canon in [qe, agile]:
-    all_references = extract_external_references(canon.schema)
-    resolved_references = 0
-    for ref in all_references:
-        if ref resolves via grounds_in:
-            resolved_references += 1
-    closure_pct = (resolved_references / len(all_references)) * 100
-    print(f"{canon.name}: {closure_pct}% closure")
+#### Step 18: Create Python Validation Script with Virtual Environment
+**Action:** Create automated validation tool to verify schema changes and calculate closure
+**Location:** `tools/validate-schemas.py`
+**Setup:**
+```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install pyyaml jsonschema
+```
+**Script Requirements:**
+1. **YAML Schema Validation:** Validate all .yaml schemas are syntactically correct
+2. **JSON Schema Validation:** Validate grounding-schema.json against JSON Schema spec
+3. **Closure Calculation:** Calculate closure percentage for each canon
+4. **Grounding Validation:** Verify all referenced canons exist and are declared
+5. **Circular Dependency Check:** Ensure no cycles in grounding graph
+6. **Reference Resolution:** Verify all cross-canon references resolve
+**Expected Output:**
+```
+Schema Validation Results:
+✓ domains/ddd/model-schema.yaml: Valid YAML
+✓ domains/data-eng/model.schema.yaml: Valid YAML
+✓ domains/ux/model-schema.yaml: Valid YAML
+✓ domains/qe/model-schema.yaml: Valid YAML
+✓ domains/agile/model.schema.yaml: Valid YAML
+✓ research-output/grounding-schema.json: Valid JSON Schema
+
+Closure Analysis:
+✓ DDD: 100.0% closure (48/48 references resolved)
+✓ Data-Eng: 100.0% closure (52/52 references resolved)
+✓ UX: 96.0% closure (72/75 references resolved)
+✓ QE: 95.2% closure (80/84 references resolved) [TARGET ACHIEVED]
+✓ Agile: 94.8% closure (89/94 references resolved) [TARGET ACHIEVED]
+
+System Average: 97.2% closure
+
+Grounding Validation:
+✓ All grounding targets exist
+✓ No circular dependencies detected
+✓ All referenced canons declared in grounds_in
+
+Status: PRODUCTION READY ✓
+```
+**Acceptance Criteria:**
+- All schemas pass YAML/JSON validation
+- QE closure ≥95%
+- Agile closure ≥95%
+- No validation errors
+
+#### Step 19: Run Closure Validation on Enhanced Schemas
+**Action:** Execute validation script to verify enhancements
+**Command:**
+```bash
+cd /Users/igor/code/canonical-grounding
+source venv/bin/activate
+python tools/validate-schemas.py
 ```
 **Expected Results:**
-- QE: 75% → 90-95% (target achieved)
-- Agile: 72% → 90-95% (target achieved)
-**Acceptance Criteria:** Both canons reach >95% closure
+- QE: 75% → 95%+ (target achieved)
+- Agile: 72% → 95%+ (target achieved)
+- System average: 89% → 97%+
+**Acceptance Criteria:** Script exits with code 0 (success), all targets met
 
-#### Step 19: Update Research Documentation with Improvements
+#### Step 20: Update Research Documentation with Improvements
 **Action:** Update research-output documents to reflect enhancements
 **Files to Update:**
 1. `research-output/interdomain-map.yaml` - Add new groundings, update closure stats
@@ -521,7 +567,7 @@ for each canon in [qe, agile]:
 4. `research-output/README.md` - Update status from "not production-ready" to "production-ready"
 **Key Message:** "Schemas enhanced to >95% closure, now production-ready"
 
-#### Step 20: Create Enhancement Summary and Migration Guide
+#### Step 21: Create Enhancement Summary and Migration Guide
 **Action:** Document all changes made and provide migration guidance
 **Create File:** `domains/ENHANCEMENT-SUMMARY.md`
 **Contents:**
@@ -647,12 +693,12 @@ Enhanced QE and Agile schemas from 75% and 72% closure to >95% closure by making
 **Medium Priority (Complete Second):**
 - Steps 12-14: Additional Agile groundings (refines relationships)
 - Steps 7-8: Additional QE groundings (achieves >95% target)
-- Steps 18-19: Validation and documentation (proves success)
+- Steps 18-20: Validation and documentation (proves success)
 
 **Lower Priority (Complete Last):**
 - Steps 1-4: Analysis (use for validation, not blocking)
 - Steps 15-16: Metadata and validation rules (improves automation)
-- Step 20: Migration guide (helps adoption)
+- Step 21: Migration guide (helps adoption)
 
 ---
 
