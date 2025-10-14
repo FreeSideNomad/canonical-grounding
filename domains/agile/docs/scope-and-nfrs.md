@@ -455,3 +455,120 @@
    - [ ] Contributing guidelines present
    - [ ] Code of conduct present
    - [ ] Issue templates configured
+
+---
+
+## Additional NFR Concepts
+
+### non_functional_requirement
+
+**Purpose**: Specifies quality attributes, constraints, and system-wide requirements that define how the system should behave rather than what it should do.
+
+**Schema fields**:
+- `nfr_id`: Unique identifier
+- `category`: performance | security | scalability | usability | reliability | maintainability
+- `description`: Detailed requirement statement
+- `acceptance_criteria`: Measurable success criteria
+- `related_features`: Features impacted by this NFR
+- `quality_metric_refs`: References to QE quality metrics
+
+**DDD Grounding:**
+```
+non_functional_requirement.quality_metric_refs → qe:quality_characteristics
+```
+
+**Example:**
+```yaml
+non_functional_requirement:
+  nfr_id: nfr_api_response_time
+  category: performance
+  description: "All API endpoints must respond within 500ms at p95"
+  acceptance_criteria:
+    - metric: response_time_p95
+      target: 500ms
+      measurement: load_test
+  related_features:
+    - feature:job-search-api
+    - feature:profile-retrieval
+  quality_metric_refs:
+    - qe:QualityCharacteristics:performance
+```
+
+**Job Seeker Example:**
+```yaml
+non_functional_requirement:
+  nfr_id: nfr_matching_accuracy
+  category: reliability
+  description: "Job matching algorithm must achieve 85% relevance score"
+  acceptance_criteria:
+    - metric: match_relevance_score
+      target: 0.85
+      measurement: a_b_test
+  related_features:
+    - feature:intelligent-matching
+  quality_metric_refs:
+    - qe:QualityCharacteristics:accuracy
+```
+
+---
+
+## Vision & Release Management
+
+### release_vision
+
+**Purpose**: Strategic vision statement for a specific release, connecting product vision to tactical release planning.
+
+**Schema fields**:
+- `vision_id`: Unique identifier
+- `release_ref`: Reference to release
+- `vision_statement`: Concise vision (1-2 sentences)
+- `success_criteria`: Measurable outcomes
+- `key_themes`: Strategic themes
+- `target_users`: User segments targeted
+
+**Example:**
+```yaml
+release_vision:
+  vision_id: rv_q4_2025
+  release_ref: release:2025-q4
+  vision_statement: "Empower job seekers with AI-powered career guidance"
+  success_criteria:
+    - "50% adoption of AI career coach within 30 days"
+    - "25% increase in successful job placements"
+  key_themes:
+    - AI-powered recommendations
+    - Personalized career paths
+    - Skills gap analysis
+  target_users:
+    - Mid-career professionals
+    - Career changers
+```
+
+### metadata
+
+**Purpose**: Structured metadata for tracking, categorization, and reporting.
+
+**Schema fields**:
+- `created_at`: Creation timestamp
+- `updated_at`: Last update timestamp
+- `created_by`: Creator identifier
+- `tags`: Array of tags for categorization
+- `custom_fields`: Key-value pairs for domain-specific metadata
+
+**Example:**
+```yaml
+user_story:
+  id: story_profile_update
+  title: "Update candidate profile"
+  metadata:
+    created_at: "2025-10-14T10:30:00Z"
+    updated_at: "2025-10-14T15:45:00Z"
+    created_by: "product-owner-alice"
+    tags: [profile, mvp, high-priority]
+    custom_fields:
+      customer_request_id: "cr-12345"
+      compliance_review: "approved"
+```
+
+---
+

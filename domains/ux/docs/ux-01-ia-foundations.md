@@ -213,6 +213,153 @@ Job Types: "Remote", "Full-time" (DDD: vo_job_type)
 
 ---
 
+### 2.3 Hierarchical Navigation
+
+#### hierarchy_node
+
+A **hierarchy_node** represents a node in a tree-structured information architecture. Each node defines a location in the navigation hierarchy with its own identity, label, and optional bounded context alignment.
+
+**Schema Properties:**
+- `id`: Unique node identifier (format: `node_<name>`)
+- `label`: Display text shown to users
+- `bounded_context_ref`: Optional DDD context alignment (grounding)
+- `url`: Navigation target URL
+- `children`: Array of child node references
+- `parent`: Reference to parent node (optional)
+- `level`: Depth in hierarchy (1 = top level)
+
+**Example:**
+```yaml
+hierarchy_node:
+  id: node_products
+  label: Products
+  bounded_context_ref: ddd:BoundedContext:product-catalog
+  url: /products
+  level: 1
+  children:
+    - node_electronics
+    - node_clothing
+    - node_home
+
+hierarchy_node:
+  id: node_electronics
+  label: Electronics
+  bounded_context_ref: ddd:BoundedContext:product-catalog
+  url: /products/electronics
+  level: 2
+  parent: node_products
+  children:
+    - node_laptops
+    - node_phones
+    - node_accessories
+```
+
+**DDD Grounding:**
+```
+hierarchy_node.bounded_context_ref → ddd:bounded_context
+```
+
+Hierarchy nodes map to bounded context boundaries, ensuring navigation structure aligns with domain boundaries. This enables:
+- **Domain-aligned IA**: Navigation mirrors domain model
+- **Clear ownership**: Each nav section has a domain owner
+- **Consistent language**: Labels use ubiquitous language from DDD
+- **Scalable structure**: Hierarchy grows with domain boundaries
+
+**When to Use:**
+- Multi-level navigation structures
+- Category/subcategory organization
+- Tree-based browsing experiences
+- Domain-aligned information architecture
+
+---
+
+### 2.4 Faceted Classification
+
+#### facet_value
+
+**facet_value** instances represent individual filter values within a facet. Each value includes display metadata and optional domain grounding.
+
+**Schema Properties:**
+- `value_id`: Unique identifier for this facet value
+- `label`: Display text shown to users
+- `count`: Number of items matching this value (for display)
+- `ddd_value_object_ref`: Optional grounding to DDD value object
+- `selected`: Boolean indicating if currently selected
+- `disabled`: Boolean indicating if unavailable in current context
+
+**Example Facet with Values:**
+```yaml
+facet:
+  facet_id: facet_brand
+  label: Brand
+  type: multiselect
+  ddd_value_object_refs:
+    - ddd:ValueObject:product_brand
+  values:
+    - facet_value:
+        value_id: brand_apple
+        label: Apple
+        count: 245
+        ddd_value_object_ref: ddd:ValueObject:product_brand:apple
+        selected: false
+    - facet_value:
+        value_id: brand_dell
+        label: Dell
+        count: 189
+        ddd_value_object_ref: ddd:ValueObject:product_brand:dell
+        selected: true
+    - facet_value:
+        value_id: brand_hp
+        label: HP
+        count: 156
+        ddd_value_object_ref: ddd:ValueObject:product_brand:hp
+        selected: false
+```
+
+**DDD Grounding:**
+```
+facet.ddd_value_object_refs → ddd:value_object
+facet_value.ddd_value_object_ref → ddd:value_object
+```
+
+Facet values map to domain value objects, ensuring:
+- **Validated options**: Filter values match domain constraints
+- **Business rules**: Value availability follows domain logic
+- **Consistent terminology**: Labels use ubiquitous language
+- **Type safety**: Values are validated against domain types
+
+**Job Seeker Example:**
+```yaml
+facet:
+  facet_id: facet_experience
+  label: Experience Level
+  type: single_select
+  values:
+    - facet_value:
+        value_id: exp_entry
+        label: Entry Level (0-2 years)
+        count: 342
+        ddd_value_object_ref: ddd:ValueObject:experience_level:entry
+    - facet_value:
+        value_id: exp_mid
+        label: Mid Level (3-5 years)
+        count: 567
+        ddd_value_object_ref: ddd:ValueObject:experience_level:mid
+    - facet_value:
+        value_id: exp_senior
+        label: Senior (6+ years)
+        count: 234
+        ddd_value_object_ref: ddd:ValueObject:experience_level:senior
+```
+
+**When to Use:**
+- Search and filter interfaces
+- Product catalog faceted navigation
+- Multi-dimensional data exploration
+- User-driven content discovery
+
+---
+
 ### 3. Navigation Systems
 
 Navigation systems help users understand where they are, where they've been, and where they can go.

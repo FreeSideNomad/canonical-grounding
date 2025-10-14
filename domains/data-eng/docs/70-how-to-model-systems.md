@@ -529,6 +529,71 @@ stages:
 
 ---
 
+## Pipeline Templates
+
+### data_pipeline_template
+
+Reusable pipeline patterns that can be instantiated for common use cases. Templates provide a starting point with best practices baked in.
+
+**Common Templates:**
+
+1. **CDC Ingestion Template**
+   ```yaml
+   template_id: tpl-cdc-ingestion
+   description: Change Data Capture from OLTP to data lake
+   stages:
+     - id: stg-cdc-capture
+       uses_patterns: [pat-cdc-outbox, pat-idempotent]
+       transforms:
+         - type: cdc-extract
+     - id: stg-dlq-handler
+       uses_patterns: [pat-dlq]
+   checks:
+     - type: freshness
+       threshold: 5m
+   ```
+
+2. **Batch ETL Template**
+   ```yaml
+   template_id: tpl-batch-etl
+   description: Daily batch extract-transform-load
+   schedule:
+     type: cron
+     expression: "0 2 * * *"
+   stages:
+     - id: stg-extract
+       uses_patterns: [pat-incremental-load]
+     - id: stg-transform
+       uses_patterns: [pat-idempotent, pat-scd-type2]
+     - id: stg-load
+       uses_patterns: [pat-upsert]
+   ```
+
+3. **Streaming Aggregation Template**
+   ```yaml
+   template_id: tpl-streaming-agg
+   description: Real-time windowed aggregation
+   mode: streaming
+   stages:
+     - id: stg-ingest
+       uses_patterns: [pat-exactly-once, pat-watermarking]
+     - id: stg-aggregate
+       uses_patterns: [pat-windowed-aggregation]
+       transforms:
+         - type: tumbling-window
+           window: 5m
+   ```
+
+**How to Use Templates:**
+
+1. Copy template structure to your model
+2. Customize IDs, dataset refs, and business logic
+3. Add domain-specific transforms
+4. Validate with conformance rules
+5. Deploy to production
+
+---
+
 ## Example: Complete Minimal Model
 
 See `/model/model.example.min.yaml` for a tiny but valid example, and `/model/examples/retail/model.example.yaml` for a realistic end-to-end system.

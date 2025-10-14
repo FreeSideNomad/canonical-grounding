@@ -324,6 +324,21 @@ Process of reprocessing historical data after schema changes, bug fixes, or new 
 ### Exactly-Once
 Delivery guarantee ensuring each message is processed once and only once, even with failures and retries.
 
+### Data Quality Dimension
+Standard quality measurement dimension (accuracy, completeness, timeliness, consistency) used to assess dataset quality.
+
+### Data Transformation Function
+Common transformation type (filter, map, join, aggregate, upsert) applied in pipeline stages.
+
+### Data Validation Rule Type
+Category of validation rule (range, format, referential integrity, uniqueness) used in data quality checks.
+
+### Data Monitoring Metric
+Pipeline health metric (throughput, latency, error_rate, data_volume) for observability and alerting.
+
+### Data Pipeline Template
+Reusable pipeline pattern (CDC ingestion, batch ETL, streaming aggregation) for rapid development.
+
 ---
 
 ## Pattern Maturity Levels

@@ -838,3 +838,307 @@ pipeline:
 **Version:** 1.0
 **Date:** 2025-10-04
 **Next Steps:** Create YAML schema, executive summary
+
+---
+
+## 3.4 Test Oracles
+
+### test_oracle
+
+**Purpose**: Defines expected outcomes for test cases - the "oracle" that determines pass/fail.
+
+**Schema fields**:
+- `oracle_id`: Unique identifier
+- `type`: exact_match | range | pattern | property_based | differential
+- `expected_value`: Expected result (for exact_match)
+- `expected_range`: Min/max bounds (for range)
+- `expected_pattern`: Regex pattern (for pattern)
+- `comparison_function`: Custom comparison logic
+
+**Example:**
+```yaml
+test_oracle:
+  oracle_id: oracle_login_success
+  type: exact_match
+  expected_value:
+    status_code: 200
+    response_body:
+      success: true
+      user_id: "usr_123"
+
+test_oracle:
+  oracle_id: oracle_response_time
+  type: range
+  expected_range:
+    min: 0
+    max: 500ms
+  description: "API response time must be under 500ms"
+```
+
+**When to Use:**
+- Automated test assertions
+- Property-based testing
+- Performance testing thresholds
+- Differential testing (comparing implementations)
+
+---
+
+## 5.1 Coverage Targets
+
+### coverage_target
+
+**Purpose**: Defines test coverage goals at different granularities (aggregate, bounded context, system).
+
+**Schema fields**:
+- `target_id`: Unique identifier
+- `metric_type`: statement | branch | path | mutation | integration
+- `target_percentage`: Desired coverage percentage
+- `bounded_context_ref`: Optional DDD bounded context scope
+- `aggregate_ref`: Optional DDD aggregate scope
+- `status`: not_started | in_progress | met | exceeded
+
+**DDD Grounding:**
+```
+coverage_target.bounded_context_ref → ddd:bounded_context
+coverage_target.aggregate_ref → ddd:aggregate
+```
+
+Coverage targets map to domain boundaries, ensuring test coverage aligns with domain model granularity.
+
+**Example:**
+```yaml
+coverage_target:
+  target_id: cov_target_profile_agg
+  metric_type: branch
+  target_percentage: 85
+  bounded_context_ref: "ddd:BoundedContext:candidate-profile"
+  aggregate_ref: "ddd:Aggregate:candidate_profile"
+  status: met
+  current_coverage: 87.5
+
+coverage_target:
+  target_id: cov_target_matching_bc
+  metric_type: integration
+  target_percentage: 90
+  bounded_context_ref: "ddd:BoundedContext:job-matching"
+  status: in_progress
+  current_coverage: 82.3
+```
+
+**Benefits of DDD Grounding:**
+- **Domain-aligned coverage**: Test coverage matches domain boundaries
+- **Clear ownership**: Coverage targets owned by domain teams
+- **Aggregate-level precision**: Fine-grained coverage at aggregate level
+- **Traceability**: Map coverage to domain model elements
+
+---
+
+## 6. Testing Techniques
+
+### testing_technique_spec
+
+**Purpose**: Formal specification of testing techniques (black-box, white-box, model-based, etc.).
+
+**Schema fields**:
+- `technique_id`: Unique identifier
+- `category`: black_box | white_box | grey_box | model_based | mutation
+- `subcategory`: Specific technique (e.g., equivalence_partitioning, boundary_value)
+- `application_criteria`: When to apply this technique
+- `ddd_applicability`: Which DDD elements this technique applies to
+
+**DDD Grounding:**
+```
+testing_technique_spec.ddd_applicability → ddd:entity | ddd:value_object | ddd:aggregate
+```
+
+**Example:**
+```yaml
+testing_technique_spec:
+  technique_id: tech_equivalence_partitioning
+  category: black_box
+  subcategory: equivalence_partitioning
+  description: "Partition input domain into equivalence classes"
+  application_criteria:
+    - Input validation testing
+    - Value object testing
+  ddd_applicability:
+    - ddd:value_object
+    - ddd:entity
+
+testing_technique_spec:
+  technique_id: tech_mutation_testing
+  category: white_box
+  subcategory: mutation_testing
+  description: "Introduce faults to test test suite effectiveness"
+  application_criteria:
+    - Critical business logic
+    - Domain services
+    - Aggregates
+  ddd_applicability:
+    - ddd:aggregate
+    - ddd:domain_service
+```
+
+---
+
+## 7. Test Execution
+
+### test_harness
+
+**Purpose**: Framework and infrastructure for executing tests.
+
+**Schema fields**:
+- `harness_id`: Unique identifier
+- `type`: unit | integration | e2e | performance
+- `framework`: JUnit, pytest, Cypress, k6, etc.
+- `configuration`: Setup and teardown scripts
+
+**Example:**
+```yaml
+test_harness:
+  harness_id: harness_unit_java
+  type: unit
+  framework: JUnit5
+  configuration:
+    setup_script: "setup-db-fixtures.sh"
+    teardown_script: "cleanup-test-data.sh"
+    parallel_execution: true
+    max_threads: 4
+```
+
+### test_assertion
+
+**Purpose**: Individual assertion within a test case.
+
+**Schema fields**:
+- `assertion_id`: Unique identifier
+- `type`: equals | not_equals | greater_than | less_than | contains | matches
+- `actual`: Actual value expression
+- `expected`: Expected value (references test_oracle)
+- `message`: Failure message
+
+**Example:**
+```yaml
+test_assertion:
+  assertion_id: assert_status_200
+  type: equals
+  actual: "response.status_code"
+  expected: 200
+  message: "Expected HTTP 200 OK response"
+```
+
+### test_execution_order
+
+**Purpose**: Defines execution order strategy for test suites.
+
+**Schema fields**:
+- `strategy`: sequential | parallel | randomized | priority_based
+- `dependencies`: Test case dependencies
+- `max_parallelism`: Maximum parallel threads
+
+**Example:**
+```yaml
+test_suite:
+  id: suite_integration
+  test_execution_order:
+    strategy: priority_based
+    priorities:
+      - test_critical_paths (priority: 1)
+      - test_happy_paths (priority: 2)
+      - test_edge_cases (priority: 3)
+    max_parallelism: 8
+```
+
+### test_priority_scheme
+
+**Purpose**: Prioritization framework for test execution.
+
+**Schema fields**:
+- `scheme_id`: Unique identifier
+- `levels`: Array of priority levels (critical, high, medium, low)
+- `criteria`: Criteria for each level
+- `execution_frequency`: How often each priority runs
+
+**Example:**
+```yaml
+test_priority_scheme:
+  scheme_id: priority_ci_cd
+  levels:
+    - level: critical
+      criteria: "Blocks production deployment"
+      execution_frequency: every_commit
+    - level: high
+      criteria: "Core business functionality"
+      execution_frequency: every_pr
+    - level: medium
+      criteria: "Important but non-blocking"
+      execution_frequency: nightly
+    - level: low
+      criteria: "Edge cases and experimental"
+      execution_frequency: weekly
+```
+
+### test_coverage_type
+
+**Purpose**: Categorizes types of code coverage metrics.
+
+**Schema fields**:
+- `type`: statement | branch | path | condition | mutation | integration
+- `description`: What this metric measures
+- `target_threshold`: Typical target percentage
+
+**Example:**
+```yaml
+test_coverage_type:
+  type: branch
+  description: "Percentage of code branches executed"
+  target_threshold: 80
+
+test_coverage_type:
+  type: mutation
+  description: "Percentage of introduced mutations detected by tests"
+  target_threshold: 70
+```
+
+---
+
+## 8. Test Organization
+
+### test_stakeholder_role
+
+**Purpose**: Defines roles and responsibilities in testing process.
+
+**Schema fields**:
+- `role_id`: Unique identifier
+- `role_type`: test_manager | qa_engineer | test_automation_engineer | developer
+- `responsibilities`: Array of responsibilities
+- `bounded_context_ref`: Optional DDD context assignment
+
+**DDD Grounding:**
+```
+test_stakeholder_role.bounded_context_ref → ddd:bounded_context
+```
+
+**Example:**
+```yaml
+test_stakeholder_role:
+  role_id: role_qa_lead_profile
+  role_type: qa_engineer
+  name: "QA Lead - Profile Domain"
+  responsibilities:
+    - Define test strategies for Profile BC
+    - Review test coverage targets
+    - Coordinate with Profile domain team
+  bounded_context_ref: "ddd:BoundedContext:candidate-profile"
+
+test_stakeholder_role:
+  role_id: role_automation_eng
+  role_type: test_automation_engineer
+  responsibilities:
+    - Build and maintain test automation framework
+    - Implement CI/CD test pipelines
+    - Train team on automation tools
+```
+
+---
+
