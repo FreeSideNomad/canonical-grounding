@@ -2,7 +2,7 @@
 # Defines structure for modeling user interfaces and information architecture
 # Integrates with DDD Schema for domain-driven design alignment
 
-schema_version: "1.0"
+# schema_version: "1.0"
 schema_name: "UX Schema Definition"
 description: "Comprehensive schema for modeling user interface structure, navigation, workflows, components, and behaviors with DDD integration"
 
@@ -51,50 +51,50 @@ ux_system:
 
     information_architecture:
       type: reference
-      ref: "#/definitions/information_architecture"
+      ref: "#/$defs/information_architecture"
       description: "System-wide IA structure"
 
     navigation:
       type: reference
-      ref: "#/definitions/navigation"
+      ref: "#/$defs/navigation"
       description: "Navigation structures"
 
     workflows:
       type: array
       items:
         type: reference
-        ref: "#/definitions/workflow"
+        ref: "#/$defs/workflow"
       description: "User workflows"
 
     pages:
       type: array
       items:
         type: reference
-        ref: "#/definitions/page"
+        ref: "#/$defs/page"
       description: "Page definitions"
 
     components:
       type: array
       items:
         type: reference
-        ref: "#/definitions/component"
+        ref: "#/$defs/component"
       description: "Reusable component library"
 
     design_tokens:
       type: reference
-      ref: "#/definitions/design_tokens"
+      ref: "#/$defs/design_tokens"
       description: "Design system tokens"
 
     accessibility:
       type: reference
-      ref: "#/definitions/accessibility_spec"
+      ref: "#/$defs/accessibility_spec"
       description: "System-wide accessibility specifications"
 
 # =============================================================================
 # INFORMATION ARCHITECTURE
 # =============================================================================
 
-definitions:
+$defs:
   information_architecture:
     type: object
     description: "Defines how information is organized, labeled, and accessed"
@@ -589,7 +589,7 @@ definitions:
         type: array
         items:
           type: reference
-          ref: "#/definitions/page_section"
+          ref: "#/$defs/page_section"
         description: "Page sections"
 
       layout:
@@ -614,12 +614,12 @@ definitions:
         type: array
         items:
           type: reference
-          ref: "#/definitions/behavior"
+          ref: "#/$defs/behavior"
         description: "Page-level behaviors"
 
       accessibility:
         type: reference
-        ref: "#/definitions/accessibility_spec"
+        ref: "#/$defs/accessibility_spec"
 
       scalability:
         type: object
@@ -627,14 +627,14 @@ definitions:
         properties:
           pagination:
             type: reference
-            ref: "#/definitions/pagination_config"
+            ref: "#/$defs/pagination_config"
           lazy_loading:
             type: boolean
           virtual_scrolling:
             type: boolean
           caching:
             type: reference
-            ref: "#/definitions/caching_config"
+            ref: "#/$defs/caching_config"
 
   page_section:
     type: object
@@ -757,11 +757,11 @@ definitions:
         type: array
         items:
           type: reference
-          ref: "#/definitions/behavior"
+          ref: "#/$defs/behavior"
 
       accessibility:
         type: reference
-        ref: "#/definitions/accessibility_spec"
+        ref: "#/$defs/accessibility_spec"
 
       examples:
         type: array
