@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Schema Validation Tool for Canonical Grounding
+Schema Validation Tool for Canonical Domain Model Grounding
 Validates YAML schemas, calculates closure, and checks grounding relationships.
 """
 
@@ -18,12 +18,12 @@ class SchemaValidator:
         self.research_path = base_path / "research-output"
         self.errors = []
         self.warnings = []
-        self.canon_schemas = {}
+        self.canon_schemas = {}  # canonical domain model schemas
         self.grounding_map = None
 
     def load_schemas(self) -> bool:
-        """Load all canon schemas."""
-        print("\n=== Loading Canon Schemas ===")
+        """Load all canonical domain model schemas."""
+        print("\n=== Loading Canonical Domain Model Schemas ===")
 
         canons = ["ddd", "data-eng", "ux", "qe", "agile"]
         for canon in canons:
@@ -157,7 +157,7 @@ class SchemaValidator:
         return references
 
     def calculate_closure(self) -> Dict[str, float]:
-        """Calculate closure percentage for each canon."""
+        """Calculate closure percentage for each canonical model."""
         print("\n=== Calculating Closure ===")
 
         closures = {}
@@ -202,18 +202,26 @@ class SchemaValidator:
             # Count grounded references (external refs that have explicit groundings in grounding map)
             grounded_external_refs = 0
             if self.grounding_map and len(references) > 0:
-                canon_key = f"canon_{canon.replace('-', '_')}"
+                # Support both old canon_* and new model_* IDs
+                canon_key_old = f"canon_{canon.replace('-', '_')}"
+                canon_key_new = f"model_{canon.replace('-', '_')}"
+
                 # For each external reference, check if there's a grounding for it
                 for ref in references:
                     # Check if any grounding from this canon covers this reference
                     for grounding in self.grounding_map.get('groundings', []):
-                        if grounding.get('source') == canon_key:
+                        source = grounding.get('source')
+                        if source == canon_key_old or source == canon_key_new:
                             # Check if grounding target matches the reference's canon
                             target = grounding.get('target')
                             ref_canon = ref.split(':')[0] if ':' in ref else None
-                            target_canon_key = f"canon_{ref_canon.replace('-', '_')}" if ref_canon else None
 
-                            if target == target_canon_key or (isinstance(target, list) and target_canon_key in target):
+                            # Try both old and new formats for target
+                            target_canon_key_old = f"canon_{ref_canon.replace('-', '_')}" if ref_canon else None
+                            target_canon_key_new = f"model_{ref_canon.replace('-', '_')}" if ref_canon else None
+
+                            if target == target_canon_key_old or target == target_canon_key_new or \
+                               (isinstance(target, list) and (target_canon_key_old in target or target_canon_key_new in target)):
                                 grounded_external_refs += 1
                                 break  # This reference is grounded, move to next
 
@@ -257,6 +265,13 @@ class SchemaValidator:
 
         all_valid = True
         canon_mapping = {
+            # New model_* IDs (v2.0)
+            'model_ddd': 'ddd',
+            'model_data_eng': 'data-eng',
+            'model_ux': 'ux',
+            'model_qe': 'qe',
+            'model_agile': 'agile',
+            # Legacy canon_* IDs (v1.0) for backward compatibility
             'canon_ddd': 'ddd',
             'canon_data_eng': 'data-eng',
             'canon_ux': 'ux',
@@ -269,23 +284,23 @@ class SchemaValidator:
             source = grounding.get('source')
             target = grounding.get('target')
 
-            # Check source canon exists
+            # Check source model exists
             if source not in canon_mapping:
-                self.errors.append(f"{grounding_id}: Invalid source canon '{source}'")
-                print(f"✗ {grounding_id}: Invalid source canon '{source}'")
+                self.errors.append(f"{grounding_id}: Invalid source model '{source}'")
+                print(f"✗ {grounding_id}: Invalid source model '{source}'")
                 all_valid = False
 
-            # Check target canon(s) exist
+            # Check target model(s) exist
             if isinstance(target, str):
                 if target not in canon_mapping:
-                    self.errors.append(f"{grounding_id}: Invalid target canon '{target}'")
-                    print(f"✗ {grounding_id}: Invalid target canon '{target}'")
+                    self.errors.append(f"{grounding_id}: Invalid target model '{target}'")
+                    print(f"✗ {grounding_id}: Invalid target model '{target}'")
                     all_valid = False
             elif isinstance(target, list):
                 for t in target:
                     if t not in canon_mapping:
-                        self.errors.append(f"{grounding_id}: Invalid target canon '{t}'")
-                        print(f"✗ {grounding_id}: Invalid target canon '{t}'")
+                        self.errors.append(f"{grounding_id}: Invalid target model '{t}'")
+                        print(f"✗ {grounding_id}: Invalid target model '{t}'")
                         all_valid = False
 
         if all_valid:
@@ -345,7 +360,7 @@ class SchemaValidator:
         """Generate validation report."""
         report = []
         report.append("\n" + "="*70)
-        report.append("CANONICAL GROUNDING SCHEMA VALIDATION REPORT")
+        report.append("CANONICAL DOMAIN MODEL SCHEMA VALIDATION REPORT")
         report.append("="*70)
 
         # Schema validation
@@ -394,7 +409,7 @@ class SchemaValidator:
 
     def run(self) -> bool:
         """Run complete validation."""
-        print("Starting Canonical Grounding Schema Validation...")
+        print("Starting Canonical Domain Model Schema Validation...")
 
         # Load all schemas
         if not self.load_schemas():

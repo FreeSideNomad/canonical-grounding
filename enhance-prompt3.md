@@ -338,9 +338,9 @@ Each model represents authoritative knowledge within a specific domain:
 **Action:** Update pilot-results.csv if needed
 
 **Review:**
-- Do experiment descriptions need terminology updates?
-- Should "canon" in experiment notes become "model"?
-- Are closure percentages still accurate?
+- Do experiment descriptions need terminology updates? - yes
+- Should "canon" in experiment notes become "model"? yes
+- Are closure percentages still accurate? no
 
 **Update:** `research-output/pilot-results.csv` comments and descriptions
 
@@ -487,8 +487,6 @@ For readers of v1.0 research:
 
 **Files to update:**
 - `README.md` (if exists in root)
-- `enhance-prompt.md` (mark as superseded)
-- `enhance-prompt2.md` (mark as superseded)
 - Create new `TERMINOLOGY.md` explaining the system
 
 **TERMINOLOGY.md content:**

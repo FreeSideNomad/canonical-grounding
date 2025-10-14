@@ -1,4 +1,4 @@
-# Canonical Grounding Report
+# Canonical Domain Model Grounding Report
 
 **Date:** 2025-10-14
 **Status:** ✅ Production Ready
@@ -8,20 +8,20 @@
 
 ## Executive Summary
 
-This report documents the concrete concept-to-concept grounding relationships across all five domain canons. All 30 grounding relationships have been explicitly defined and validated.
+This report documents the concrete concept-to-concept grounding relationships across all five canonical domain models. All 30 grounding relationships have been explicitly defined and validated.
 
-**Canons:**
+**Canonical Domain Models:**
 - **DDD** (Domain-Driven Design): 13 concepts, 0 external dependencies
-- **Data-Eng** (Data Engineering): 14 concepts, 0 external dependencies (foundation)
+- **Data-Eng** (Data Engineering): 14 concepts, 0 external dependencies (foundation model)
 - **UX** (User Experience): 12 concepts (11 internal + 1 external), 7 outbound groundings
 - **QE** (Quality Engineering): 18 concepts (12 internal + 6 external), 14 outbound groundings
 - **Agile**: 28 concepts (21 internal + 7 external), 9 outbound groundings
 
 ---
 
-## Grounding Relationships by Canon
+## Grounding Relationships by Model
 
-### Agile Canon → Other Canons (9 relationships)
+### Agile Model → Other Models (9 relationships)
 
 | Source Concept | Target Concept | Via Field | Type | Strength | Validation |
 |----------------|----------------|-----------|------|----------|------------|
@@ -36,13 +36,13 @@ This report documents the concrete concept-to-concept grounding relationships ac
 | `agile:Feature` | `data_eng:Pipeline` | `includes_pipelines` | epistemic | weak | optional |
 
 **Summary:**
-- **Target Canons:** DDD (1), UX (3), QE (4), Data-Eng (1)
+- **Target Models:** DDD (1), UX (3), QE (4), Data-Eng (1)
 - **Strongest Groundings:** Feature → BoundedContext (required)
-- **Recent Enhancements:** All Agile groundings strengthened from weak to strong
+- **Recent Enhancements:** All Agile model groundings strengthened from weak to strong
 
 ---
 
-### QE Canon → Other Canons (14 relationships)
+### QE Model → Other Models (14 relationships)
 
 | Source Concept | Target Concept | Via Field | Type | Strength | Validation |
 |----------------|----------------|-----------|------|----------|------------|
@@ -62,17 +62,17 @@ This report documents the concrete concept-to-concept grounding relationships ac
 | `qe:test_strategy.domain_pattern_coverage.data_patterns` | `data_eng:Pattern` | `pattern_ref` | procedural | strong | optional |
 
 **Summary:**
-- **Target Canons:** DDD (3), UX (3), Data-Eng (5), multi-canon (3)
+- **Target Models:** DDD (3), UX (3), Data-Eng (5), multi-canonical model (3)
 - **Strongest Groundings:** Invariant validation, contract testing, test strategy pattern coverage
 - **Recent Enhancements:**
   - Added `contract_test` with Data-Eng grounding
   - Added `invariants_under_test` for explicit DDD invariant validation
   - Added `workflow_validation` for UX workflow testing
-  - Added `test_strategy` with multi-canon pattern coverage
+  - Added `test_strategy` with multi-canonical model pattern coverage
 
 ---
 
-### UX Canon → Other Canons (7 relationships)
+### UX Model → Other Models (7 relationships)
 
 | Source Concept | Target Concept | Via Field | Type | Strength | Validation |
 |----------------|----------------|-----------|------|----------|------------|
@@ -85,7 +85,7 @@ This report documents the concrete concept-to-concept grounding relationships ac
 | `ux:Page.pagination` | `data_eng:Dataset.partitioning` | - | semantic | strong | - |
 
 **Summary:**
-- **Target Canons:** DDD (5), Data-Eng (2)
+- **Target Models:** DDD (5), Data-Eng (2)
 - **Strongest Groundings:** Page → BoundedContext, Workflow → Aggregate (both required)
 - **Key Principle:** UX is grounded in domain concepts and data sources
 
@@ -127,9 +127,9 @@ This report documents the concrete concept-to-concept grounding relationships ac
 
 ---
 
-## Canon Closure Metrics
+## Canonical Model Closure Metrics
 
-| Canon | Internal Concepts | External Refs | Grounded Refs | Total | Closure |
+| canonical model | Internal Concepts | External Refs | Grounded Refs | Total | Closure |
 |-------|------------------|---------------|---------------|-------|---------|
 | **DDD** | 13 | 0 | 0 | 13 | 100.0% |
 | **Data-Eng** | 14 | 0 | 0 | 14 | 100.0% |
@@ -149,12 +149,12 @@ The following graph shows all concept-to-concept grounding relationships:
 
 ### Graph Legend
 
-**Node Colors (by Canon):**
-- 🔵 **DDD Canon** - Light blue background
-- 🟡 **Data-Eng Canon** - Light yellow background
-- 🟣 **UX Canon** - Light purple background
-- 🟢 **QE Canon** - Light green background
-- 🟠 **Agile Canon** - Light orange background
+**Node Colors (by canonical model):**
+- 🔵 **DDD canonical model** - Light blue background
+- 🟡 **Data-Eng canonical model** - Light yellow background
+- 🟣 **UX canonical model** - Light purple background
+- 🟢 **QE canonical model** - Light green background
+- 🟠 **Agile canonical model** - Light orange background
 
 **Edge Colors (by Type):**
 - 🔵 **Blue** - Structural groundings
@@ -177,16 +177,16 @@ The following graph shows all concept-to-concept grounding relationships:
 - No circular dependencies detected
 - Validation infrastructure in place
 
-### ✅ Enhanced Agile Canon
+### ✅ Enhanced Agile canonical model
 - Feature → BoundedContext: weak → **strong (required)**
 - UserStory → UX artifacts: added **structured grounding**
 - Sprint → QE validation: added **Definition of Done grounding**
 
-### ✅ Enhanced QE Canon
+### ✅ Enhanced QE canonical model
 - Added `contract_test` with **Data-Eng grounding**
 - Added `invariants_under_test` for **DDD invariant validation**
 - Added `workflow_validation` for **UX workflow testing**
-- Added `test_strategy` with **multi-canon pattern coverage**
+- Added `test_strategy` with **multi-canonical model pattern coverage**
 
 ### ✅ Maintained Strong Foundations
 - **DDD** and **Data-Eng** remain foundational (no external dependencies)

@@ -10,29 +10,29 @@
 <title>CanonicalGrounding</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-3281 1138.5,-3281 1138.5,4 -4,4"/>
 <g id="clust1" class="cluster">
-<title>cluster_canon_agile</title>
-<polygon fill="#fff3e0" stroke="lightgrey" points="82.62,-1132 82.62,-1395 717.88,-1395 717.88,-1132 82.62,-1132"/>
-<text text-anchor="middle" x="400.25" y="-1377.7" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00">Agile Canon</text>
+<title>cluster_model_agile</title>
+<polygon fill="#f5f5f5" stroke="lightgrey" points="82.62,-1132 82.62,-1395 717.88,-1395 717.88,-1132 82.62,-1132"/>
+<text text-anchor="middle" x="400.25" y="-1377.7" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00">model_agile</text>
 </g>
 <g id="clust2" class="cluster">
-<title>cluster_canon_data_eng</title>
-<polygon fill="#fff4e6" stroke="lightgrey" points="612,-2341 612,-2792 1093.12,-2792 1093.12,-2341 612,-2341"/>
-<text text-anchor="middle" x="852.56" y="-2774.7" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00">Data Engineering Canon</text>
+<title>cluster_model_data_eng</title>
+<polygon fill="#f5f5f5" stroke="lightgrey" points="612,-2341 612,-2792 1093.12,-2792 1093.12,-2341 612,-2341"/>
+<text text-anchor="middle" x="852.56" y="-2774.7" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00">model_data_eng</text>
 </g>
 <g id="clust3" class="cluster">
-<title>cluster_canon_ddd</title>
-<polygon fill="#e8f4f8" stroke="lightgrey" points="609,-8 609,-271 1126.5,-271 1126.5,-8 609,-8"/>
-<text text-anchor="middle" x="867.75" y="-253.7" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00">DDD Canon</text>
+<title>cluster_model_ddd</title>
+<polygon fill="#f5f5f5" stroke="lightgrey" points="609,-8 609,-271 1126.5,-271 1126.5,-8 609,-8"/>
+<text text-anchor="middle" x="867.75" y="-253.7" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00">model_ddd</text>
 </g>
 <g id="clust4" class="cluster">
-<title>cluster_canon_qe</title>
-<polygon fill="#e8f5e9" stroke="lightgrey" points="8,-1589 8,-2322 738.88,-2322 738.88,-1589 8,-1589"/>
-<text text-anchor="middle" x="373.44" y="-2304.7" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00">Quality Engineering Canon</text>
+<title>cluster_model_qe</title>
+<polygon fill="#f5f5f5" stroke="lightgrey" points="8,-1589 8,-2322 738.88,-2322 738.88,-1589 8,-1589"/>
+<text text-anchor="middle" x="373.44" y="-2304.7" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00">model_qe</text>
 </g>
 <g id="clust5" class="cluster">
-<title>cluster_canon_ux</title>
-<polygon fill="#f3e5f5" stroke="lightgrey" points="128,-290 128,-647 740.38,-647 740.38,-290 128,-290"/>
-<text text-anchor="middle" x="434.19" y="-629.7" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00">UX Canon</text>
+<title>cluster_model_ux</title>
+<polygon fill="#f5f5f5" stroke="lightgrey" points="128,-290 128,-647 740.38,-647 740.38,-290 128,-290"/>
+<text text-anchor="middle" x="434.19" y="-629.7" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00">model_ux</text>
 </g>
 <g id="clust6" class="cluster">
 <title>cluster_legend</title>
