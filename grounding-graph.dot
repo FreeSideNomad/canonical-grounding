@@ -9,11 +9,11 @@ digraph CanonicalGrounding {
   ranksep=1.5;
   nodesep=0.8;
 
-  subgraph cluster_canon_agile {
-    label="Agile Canon";
+  subgraph cluster_model_agile {
+    label="model_agile";
     style=filled;
     color=lightgrey;
-    fillcolor="#FFF3E0";
+    fillcolor="#F5F5F5";
     fontsize=14;
     fontname="Helvetica-Bold";
 
@@ -23,11 +23,11 @@ digraph CanonicalGrounding {
     agile_UserStory [label="UserStory"];
   }
 
-  subgraph cluster_canon_data_eng {
-    label="Data Engineering Canon";
+  subgraph cluster_model_data_eng {
+    label="model_data_eng";
     style=filled;
     color=lightgrey;
-    fillcolor="#FFF4E6";
+    fillcolor="#F5F5F5";
     fontsize=14;
     fontname="Helvetica-Bold";
 
@@ -42,11 +42,11 @@ digraph CanonicalGrounding {
     ux_Pattern [label="Pattern"];
   }
 
-  subgraph cluster_canon_ddd {
-    label="DDD Canon";
+  subgraph cluster_model_ddd {
+    label="model_ddd";
     style=filled;
     color=lightgrey;
-    fillcolor="#E8F4F8";
+    fillcolor="#F5F5F5";
     fontsize=14;
     fontname="Helvetica-Bold";
 
@@ -61,11 +61,11 @@ digraph CanonicalGrounding {
     ux_Pattern [label="Pattern"];
   }
 
-  subgraph cluster_canon_qe {
-    label="Quality Engineering Canon";
+  subgraph cluster_model_qe {
+    label="model_qe";
     style=filled;
     color=lightgrey;
-    fillcolor="#E8F5E9";
+    fillcolor="#F5F5F5";
     fontsize=14;
     fontname="Helvetica-Bold";
 
@@ -87,11 +87,11 @@ digraph CanonicalGrounding {
     qe_test_strategy_domain_pattern_coverage_ux_patterns [label="test_strategy.domain_pattern_coverage.ux_patterns"];
   }
 
-  subgraph cluster_canon_ux {
-    label="UX Canon";
+  subgraph cluster_model_ux {
+    label="model_ux";
     style=filled;
     color=lightgrey;
-    fillcolor="#F3E5F5";
+    fillcolor="#F5F5F5";
     fontsize=14;
     fontname="Helvetica-Bold";
 

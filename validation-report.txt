@@ -1,6 +1,6 @@
 
 ======================================================================
-CANONICAL GROUNDING SCHEMA VALIDATION REPORT
+CANONICAL DOMAIN MODEL SCHEMA VALIDATION REPORT
 ======================================================================
 
 ## Schema Validation

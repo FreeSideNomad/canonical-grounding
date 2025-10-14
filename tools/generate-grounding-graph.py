@@ -128,11 +128,11 @@ class GroundingGraphGenerator:
 
             # Define subgraphs for each canon
             canon_labels = {
-                'canon_ddd': 'DDD Canon',
+                'canon_ddd': 'DDD Canonical Model',
                 'canon_data_eng': 'Data Engineering Canon',
-                'canon_ux': 'UX Canon',
+                'canon_ux': 'UX Canonical Model',
                 'canon_qe': 'Quality Engineering Canon',
-                'canon_agile': 'Agile Canon'
+                'canon_agile': 'Agile Canonical Model'
             }
 
             for canon, concepts in sorted(canon_concepts.items()):
@@ -223,7 +223,7 @@ class GroundingGraphGenerator:
     def generate_summary(self, relationships: List[Dict]):
         """Generate text summary of groundings."""
         print("\n" + "="*70)
-        print("CONCEPT-TO-CONCEPT GROUNDING RELATIONSHIPS")
+        print("CONCEPT-TO-CONCEPT GROUNDING RELATIONSHIPS ACROSS CANONICAL DOMAIN MODELS")
         print("="*70)
 
         # Group by source canon
@@ -262,7 +262,7 @@ class GroundingGraphGenerator:
 
     def run(self):
         """Run grounding graph generation."""
-        print("Generating Canonical Grounding Concept Graph...\n")
+        print("Generating Canonical Domain Model Concept Graph...\n")
 
         if not self.load_grounding_map():
             return False
