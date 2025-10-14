@@ -1,27 +1,32 @@
 # Canonical Grounding: Inter-Domain Dependency Map
 # Version: 1.0.0
 # Date: 2025-10-13
-# Purpose: Complete graph of canonical dependencies and grounding relationships
+# Purpose: Complete graph of canonical domain model dependencies and grounding relationships
 
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
+  terminology_version: "2.0"
+  terminology_change_date: "2025-10-14"
+  terminology_change: "Canon → Canonical Domain Model"
+  backward_compat: "Old field names preserved in comments for reference"
+  schema_version: "1.0.0"  # Schema structure unchanged
   created: "2025-10-13"
-  description: "Formal specification of grounding relationships between domain canons"
-  total_canons: 5
+  description: "Formal specification of grounding relationships between canonical domain models"
+  total_canonical_models: 5  # formerly: total_canons
   total_groundings: 15
   graph_properties:
     acyclic: true
     layered: true
-    foundation_canons: 2
-    derived_canons: 2
-    meta_canons: 1
+    foundation_models: 2  # formerly: foundation_canons
+    derived_models: 2  # formerly: derived_canons
+    meta_models: 1  # formerly: meta_canons
 
 # ============================================================================
-# CANONS
+# CANONICAL DOMAIN MODELS
 # ============================================================================
 
-canons:
-  - id: "canon_ddd"
+canonical_models:  # formerly: canons
+  - id: "model_ddd"
     name: "Domain-Driven Design"
     version: "1.0.0"
     layer: "foundation"
@@ -43,13 +48,13 @@ canons:
       - AggregatePattern
       - FactoryPattern
       - SpecificationPattern
-    grounds_in: []  # Foundation canon
+    grounds_in: []  # Foundation model (no external dependencies)
     grounded_by:
-      - canon_ux
-      - canon_qe
-      - canon_agile
+      - model_ux
+      - model_qe
+      - model_agile
 
-  - id: "canon_data_eng"
+  - id: "model_data_eng"
     name: "Data Engineering"
     version: "1.0.0"
     layer: "foundation"
@@ -70,13 +75,13 @@ canons:
       - MedallionArchitecture
       - DeltaArchitecture
       - DataMesh
-    grounds_in: []  # Foundation canon
+    grounds_in: []  # Foundation model (no external dependencies)
     grounded_by:
-      - canon_ux
-      - canon_qe
-      - canon_agile
+      - model_ux
+      - model_qe
+      - model_agile
 
-  - id: "canon_ux"
+  - id: "model_ux"
     name: "User Experience"
     version: "1.0.0"
     layer: "derived"
@@ -93,13 +98,13 @@ canons:
       - WorkflowPattern
       - PagePattern
     grounds_in:
-      - canon_ddd
-      - canon_data_eng
+      - model_ddd
+      - model_data_eng
     grounded_by:
-      - canon_qe
-      - canon_agile
+      - model_qe
+      - model_agile
 
-  - id: "canon_qe"
+  - id: "model_qe"
     name: "Quality Engineering"
     version: "1.0.0"
     layer: "derived"
@@ -117,14 +122,14 @@ canons:
       - ContractTesting
       - PropertyBasedTesting
     grounds_in:
-      - canon_ddd
-      - canon_ux
-      - canon_data_eng
+      - model_ddd
+      - model_ux
+      - model_data_eng
     grounded_by:
-      - canon_agile
+      - model_agile
     notes: "Incomplete - needs additional grounding declarations"
 
-  - id: "canon_agile"
+  - id: "model_agile"
     name: "Agile/SAFe"
     version: "1.0.0"
     layer: "meta"
@@ -145,10 +150,10 @@ canons:
       - SAFePattern
       - StoryMapping
     grounds_in:
-      - canon_ddd
-      - canon_ux
-      - canon_qe
-      - canon_data_eng
+      - model_ddd
+      - model_ux
+      - model_qe
+      - model_data_eng
     grounded_by: []
     notes: "Incomplete - grounding relationships need to be made explicit"
 
@@ -159,8 +164,8 @@ canons:
 groundings:
   # UX → DDD Groundings
   - id: "grounding_ux_ddd_001"
-    source: "canon_ux"
-    target: "canon_ddd"
+    source: "model_ux"
+    target: "model_ddd"
     type: "structural"
     strength: "strong"
     description: "UX pages reference DDD bounded contexts"
@@ -176,8 +181,8 @@ groundings:
       - "CustomerProfilePage → CustomerRelations BoundedContext"
 
   - id: "grounding_ux_ddd_002"
-    source: "canon_ux"
-    target: "canon_ddd"
+    source: "model_ux"
+    target: "model_ddd"
     type: "structural"
     strength: "strong"
     description: "UX workflows reference DDD aggregates"
@@ -193,8 +198,8 @@ groundings:
       - "RegistrationWorkflow → [User, Account]"
 
   - id: "grounding_ux_ddd_003"
-    source: "canon_ux"
-    target: "canon_ddd"
+    source: "model_ux"
+    target: "model_ddd"
     type: "semantic"
     strength: "strong"
     description: "UX navigation mirrors DDD domain structure"
@@ -206,8 +211,8 @@ groundings:
     constraint: "Primary navigation sections should correspond to major domain boundaries"
 
   - id: "grounding_ux_ddd_004"
-    source: "canon_ux"
-    target: "canon_ddd"
+    source: "model_ux"
+    target: "model_ddd"
     type: "semantic"
     strength: "strong"
     description: "UX labels use DDD ubiquitous language"
@@ -219,8 +224,8 @@ groundings:
     constraint: "User-facing labels should use terms from DDD glossary >80% match"
 
   - id: "grounding_ux_ddd_005"
-    source: "canon_ux"
-    target: "canon_ddd"
+    source: "model_ux"
+    target: "model_ddd"
     type: "procedural"
     strength: "strong"
     description: "UX workflows respect DDD aggregate boundaries"
@@ -233,8 +238,8 @@ groundings:
 
   # UX → Data-Eng Groundings
   - id: "grounding_ux_data_001"
-    source: "canon_ux"
-    target: "canon_data_eng"
+    source: "model_ux"
+    target: "model_data_eng"
     type: "structural"
     strength: "strong"
     description: "UX components reference data sources"
@@ -249,8 +254,8 @@ groundings:
       - "CustomerChart → customer_metrics_dataset"
 
   - id: "grounding_ux_data_002"
-    source: "canon_ux"
-    target: "canon_data_eng"
+    source: "model_ux"
+    target: "model_data_eng"
     type: "semantic"
     strength: "strong"
     description: "UX pagination depends on dataset partitioning"
@@ -263,8 +268,8 @@ groundings:
 
   # QE → DDD Groundings
   - id: "grounding_qe_ddd_001"
-    source: "canon_qe"
-    target: "canon_ddd"
+    source: "model_qe"
+    target: "model_ddd"
     type: "procedural"
     strength: "strong"
     description: "QE tests validate DDD invariants"
@@ -278,8 +283,8 @@ groundings:
     coverage_target: "100% of documented invariants"
 
   - id: "grounding_qe_ddd_002"
-    source: "canon_qe"
-    target: "canon_ddd"
+    source: "model_qe"
+    target: "model_ddd"
     type: "structural"
     strength: "strong"
     description: "QE integration tests reference DDD aggregates"
@@ -291,8 +296,8 @@ groundings:
     rationale: "Integration tests validate aggregate interactions"
 
   - id: "grounding_qe_ddd_003"
-    source: "canon_qe"
-    target: "canon_ddd"
+    source: "model_qe"
+    target: "model_ddd"
     type: "semantic"
     strength: "strong"
     description: "QE test cases explicitly validate DDD invariants"
@@ -310,8 +315,8 @@ groundings:
 
   # QE → UX Groundings
   - id: "grounding_qe_ux_001"
-    source: "canon_qe"
-    target: "canon_ux"
+    source: "model_qe"
+    target: "model_ux"
     type: "procedural"
     strength: "strong"
     description: "QE UI tests validate UX workflows"
@@ -324,8 +329,8 @@ groundings:
     constraint: "Critical workflows should have E2E test coverage"
 
   - id: "grounding_qe_ux_002"
-    source: "canon_qe"
-    target: "canon_ux"
+    source: "model_qe"
+    target: "model_ux"
     type: "procedural"
     strength: "strong"
     description: "QE test cases validate UX workflow steps and state transitions"
@@ -345,8 +350,8 @@ groundings:
 
   # QE → Data-Eng Groundings
   - id: "grounding_qe_data_001"
-    source: "canon_qe"
-    target: "canon_data_eng"
+    source: "model_qe"
+    target: "model_data_eng"
     type: "procedural"
     strength: "strong"
     description: "QE contract tests validate data contracts"
@@ -359,8 +364,8 @@ groundings:
     constraint: "Breaking contract changes must be detected in CI"
 
   - id: "grounding_qe_data_002"
-    source: "canon_qe"
-    target: "canon_data_eng"
+    source: "model_qe"
+    target: "model_data_eng"
     type: "structural"
     strength: "strong"
     description: "QE contract tests reference data-eng schemas and quality rules"
@@ -392,8 +397,8 @@ groundings:
 
   # QE Test Strategy → Multi-Canon Grounding
   - id: "grounding_qe_multi_001"
-    source: "canon_qe"
-    target: ["canon_ddd", "canon_ux", "canon_data_eng"]
+    source: "model_qe"
+    target: ["model_ddd", "model_ux", "model_data_eng"]
     type: "procedural"
     strength: "strong"
     description: "QE test strategies explicitly cover domain patterns from DDD, UX, and Data-Eng"
@@ -421,8 +426,8 @@ groundings:
 
   # Agile → DDD Grounding
   - id: "grounding_agile_ddd_001"
-    source: "canon_agile"
-    target: "canon_ddd"
+    source: "model_agile"
+    target: "model_ddd"
     type: "epistemic"
     strength: "strong"
     description: "Agile features map to DDD bounded contexts"
@@ -438,8 +443,8 @@ groundings:
 
   # Agile → UX Grounding
   - id: "grounding_agile_ux_001"
-    source: "canon_agile"
-    target: "canon_ux"
+    source: "model_agile"
+    target: "model_ux"
     type: "procedural"
     strength: "strong"
     description: "Agile stories implement UX pages, components, or workflows"
@@ -465,8 +470,8 @@ groundings:
 
   # Agile → QE Grounding
   - id: "grounding_agile_qe_001"
-    source: "canon_agile"
-    target: "canon_qe"
+    source: "model_agile"
+    target: "model_qe"
     type: "epistemic"
     strength: "strong"
     description: "Agile definition of done references QE test criteria and validation"
@@ -498,8 +503,8 @@ groundings:
 
   # Agile → Data-Eng Grounding
   - id: "grounding_agile_data_001"
-    source: "canon_agile"
-    target: "canon_data_eng"
+    source: "model_agile"
+    target: "model_data_eng"
     type: "epistemic"
     strength: "weak"
     description: "Agile features include data pipeline work"
@@ -521,55 +526,55 @@ graph_analysis:
     type: "directed_acyclic_graph"
     layers:
       - name: "foundation"
-        canons: ["canon_ddd", "canon_data_eng"]
+        canonical_models:  # formerly: canons ["model_ddd", "model_data_eng"]
         in_degree: 0
         out_degree_avg: 3.5
       - name: "derived"
-        canons: ["canon_ux", "canon_qe"]
+        canonical_models:  # formerly: canons ["model_ux", "model_qe"]
         in_degree_avg: 2
         out_degree_avg: 1.5
       - name: "meta"
-        canons: ["canon_agile"]
+        canonical_models:  # formerly: canons ["model_agile"]
         in_degree: 4
         out_degree: 0
 
   centrality:
     betweenness:
-      - canon: "canon_ddd"
+      - model: "model_ddd"
         score: 0.65
-        interpretation: "Central hub - most paths go through DDD"
-      - canon: "canon_data_eng"
+        interpretation: "Central hub - most dependency paths go through DDD model"
+      - model: "model_data_eng"
         score: 0.45
         interpretation: "Important foundation for data flow"
-      - canon: "canon_ux"
+      - model: "model_ux"
         score: 0.30
         interpretation: "Intermediate - bridges DDD and QE"
-      - canon: "canon_qe"
+      - model: "model_qe"
         score: 0.15
         interpretation: "Leaf validator"
-      - canon: "canon_agile"
+      - model: "model_agile"
         score: 0.10
         interpretation: "Leaf coordinator"
 
     in_degree:
-      - canon: "canon_ddd"
+      - model: "model_ddd"
         score: 3
         interpretation: "Most depended upon"
-      - canon: "canon_data_eng"
+      - model: "model_data_eng"
         score: 3
         interpretation: "Highly depended upon"
-      - canon: "canon_ux"
+      - model: "model_ux"
         score: 2
         interpretation: "Moderately depended upon"
-      - canon: "canon_qe"
+      - model: "model_qe"
         score: 1
         interpretation: "Less depended upon"
-      - canon: "canon_agile"
+      - model: "model_agile"
         score: 0
         interpretation: "Not depended upon (meta-level)"
 
   semantic_distance:
-    description: "Shortest path between canons"
+    description: "Shortest path between canonical models"
     matrix:
       ddd_to_data_eng: 2  # DDD ← UX → Data-Eng
       ddd_to_ux: 1        # Direct grounding
@@ -603,24 +608,24 @@ validation:
   closure_check:
     status: "partial"
     results:
-      - canon: "canon_ddd"
+      - model: "model_ddd"
         closure: 100
         status: "PASS"
-      - canon: "canon_data_eng"
+      - model: "model_data_eng"
         closure: 100
         status: "PASS"
-      - canon: "canon_ux"
+      - model: "model_ux"
         closure: 96
         status: "PASS"
         issues:
           - "4% of references lack explicit grounding (data_source field)"
-      - canon: "canon_qe"
+      - model: "model_qe"
         closure: 75
         status: "INCOMPLETE"
         issues:
           - "25% of references lack explicit grounding"
           - "Missing grounding to data_eng contract validation"
-      - canon: "canon_agile"
+      - model: "model_agile"
         closure: 72
         status: "INCOMPLETE"
         issues:
@@ -644,11 +649,11 @@ validation:
   completeness_check:
     status: "PARTIAL"
     missing_groundings:
-      - source: "canon_qe"
-        target: "canon_data_eng"
+      - source: "model_qe"
+        target: "model_data_eng"
         type: "procedural"
         description: "Data quality tests should reference dataset contracts"
-      - source: "canon_agile"
+      - source: "model_agile"
         target: "all"
         type: "epistemic"
         description: "Agile concepts need explicit domain references"
@@ -663,26 +668,26 @@ evolution:
       date: "2025-10-13"
       changes:
         - "Initial release"
-        - "5 canons defined"
+        - "5 canonical domain models defined"
         - "15 grounding relationships established"
         - "Foundation and derived layers complete"
         - "Meta layer (Agile) needs completion"
 
   planned_changes:
     - version: "1.1.0"
-      description: "Complete QE and Agile grounding"
+      description: "Complete QE and Agile model grounding"
       changes:
         - "Add missing QE → Data-Eng grounding"
         - "Make Agile domain references explicit"
-        - "Target: 95% closure for all canons"
+        - "Target: 95% closure for all models"
 
     - version: "2.0.0"
       description: "Add new domains"
       changes:
-        - "Add Compliance canon"
-        - "Add DevOps canon"
-        - "Add Security canon"
-        - "Define groundings for new canons"
+        - "Add Compliance canonical model"
+        - "Add DevOps canonical model"
+        - "Add Security canonical model"
+        - "Define groundings for new models"
 
   deprecation_policy:
     breaking_changes: "Major version bump (x.0.0)"
@@ -700,7 +705,7 @@ usage:
 
   consumers:
     - name: "LLM Reasoning Systems"
-      usage: "Load relevant canons and groundings for task context"
+      usage: "Load relevant canonical models and groundings for task context"
     - name: "Schema Validators"
       usage: "Validate closure, acyclicity, and consistency"
     - name: "Architecture Tools"
@@ -715,7 +720,7 @@ usage:
     - "Check strength field to determine validation severity"
 
   maintenance:
-    - "Update when new domains added"
+    - "Update when new canonical domain models added"
     - "Update when domain schemas evolve"
     - "Validate after each change"
     - "Version bump according to deprecation policy"

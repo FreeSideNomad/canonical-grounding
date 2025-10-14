@@ -5,18 +5,18 @@
 **Canonical Grounding** is a meta-methodological framework for structuring interdependent knowledge domains in LLM-assisted reasoning systems through:
 
 **Core Components:**
-- **Canon (Κ)**: A formally specified, internally consistent domain model comprising:
+- **Canonical Domain Model (M)**: A formally specified, internally consistent domain model comprising:
   - Entities: Core domain concepts (e.g., DDD Aggregate, UX Page, Data Pipeline)
   - Patterns: Reusable structural templates (e.g., Repository pattern, Medallion architecture)
   - Constraints: Invariants and validation rules (e.g., "aggregate root must be entity")
   - Vocabulary: Ubiquitous language terms with precise semantics
 
-- **Grounding Relationship (γ: Κ₁ → Κ₂)**: A directed dependency where canon Κ₂ references and depends upon concepts from canon Κ₁, such that:
-  - **Structural grounding**: Κ₂ entities reference Κ₁ entity identifiers (e.g., `ux:Page.bounded_context_ref → ddd:BoundedContext.id`)
-  - **Semantic grounding**: Κ₂ terminology inherits meaning from Κ₁ vocabulary
-  - **Constraint propagation**: Κ₁ invariants constrain valid Κ₂ configurations
+- **Grounding Relationship (γ: M₁ → M₂)**: A directed dependency where canonical model M₂ references and depends upon concepts from model M₁, such that:
+  - **Structural grounding**: M₂ entities reference M₁ entity identifiers (e.g., `ux:Page.bounded_context_ref → ddd:BoundedContext.id`)
+  - **Semantic grounding**: M₂ terminology inherits meaning from M₁ vocabulary
+  - **Constraint propagation**: M₁ invariants constrain valid M₂ configurations
 
-- **Ontology (Ω)**: The complete graph of canons and grounding relationships: Ω = (C, Γ) where C = {Κ₁, Κ₂, ...Κₙ} and Γ = {γᵢⱼ | Κᵢ grounds Κⱼ}
+- **Ontology (Ω)**: The complete graph of canonical models and grounding relationships: Ω = (M, Γ) where M = {M₁, M₂, ...Mₙ} and Γ = {γᵢⱼ | Mᵢ grounds Mⱼ}
 
 **Reference Case: UX → DDD Grounding**
 
@@ -41,7 +41,7 @@ In the concrete implementation, UX pages explicitly reference DDD bounded contex
 
 - **vs. Dogma**: Canonical grounding is descriptive (models existing patterns) rather than prescriptive (demands belief). DDD patterns describe observed effective practices, not theological truths.
 
-- **vs. Canon**: Traditional canon (biblical, legal) is monolithic and centrally governed. Canonical grounding is compositional—multiple canons coexist with explicit dependency relationships.
+- **vs. Canon**: Traditional canon (biblical, legal) is monolithic and centrally governed. Canonical grounding is compositional—multiple canonical models coexist with explicit dependency relationships.
 
 - **vs. Axiom**: Axioms are unprovable starting points. Canonical patterns are empirically derived from successful practice and revisable as practice evolves.
 
@@ -61,8 +61,8 @@ In the concrete implementation, UX pages explicitly reference DDD bounded contex
 - Categories of Understanding parallel domain concepts
 
 **Quinean Holism:**
-- Web of Belief: Domain canons form interconnected webs, not foundational hierarchies
-- Ontological Commitment: "to exist in domain Κ is to be referenceable by Κ's schema"
+- Web of Belief: Canonical domain models form interconnected webs, not foundational hierarchies
+- Ontological Commitment: "to exist in domain M is to be referenceable by M's schema"
 
 **Grounding in Metaphysics (Fine, Schaffer):**
 - Grounding as Explanatory Priority: UX patterns grounded in DDD patterns because DDD provides explanatory basis
@@ -81,7 +81,7 @@ Bender & Koller argue LLMs lack grounding in meaning. Canonical grounding addres
 ## 5. "Canon" in Multiple Contexts
 
 **Knowledge Representation:**
-- CYC's Microtheories: Separate canonized knowledge modules with lifting rules ≈ canonical grounding's domains with grounding relationships
+- CYC's Microtheories: Separate canonized knowledge modules with lifting rules ≈ canonical grounding's domain models with grounding relationships
 
 **Theology:**
 - Biblical Canon: Authoritative texts selected by councils parallels domain patterns selected through community consensus
@@ -91,12 +91,12 @@ Bender & Koller argue LLMs lack grounding in meaning. Canonical grounding addres
 
 **Software Engineering:**
 - Design Patterns: Canonical solutions to recurring problems
-- DDD's "Ubiquitous Language" as Canon: Within each bounded context, ubiquitous language functions as local canon
+- DDD's "Ubiquitous Language" as Canonical Model: Within each bounded context, ubiquitous language functions as local canonical model
 
 ## 6. Internal Consistency vs. Inter-Domain Dependency
 
 **Internal Consistency (Canonical Coherence):**
-Each domain must maintain internal consistency—no contradictions within the canon. DDD schema ensures you cannot have repository for non-aggregate, cannot have aggregate without root.
+Each domain must maintain internal consistency—no contradictions within the canonical model. DDD schema ensures you cannot have repository for non-aggregate, cannot have aggregate without root.
 
 **Inter-Domain Dependency (Grounding Relationships):**
 Domains reference concepts from other domains while maintaining their own coherence. UX workflow remains internally consistent while grounding in DDD (workflow affects specific aggregate, invokes application service).
@@ -107,13 +107,13 @@ Domains reference concepts from other domains while maintaining their own cohere
 
 ## 7. Properties of Canonical Grounding
 
-**Completeness:** A canon is complete if it provides sufficient concepts to model all relevant domain scenarios. DDD schema achieves ~90% completeness for canonical DDD patterns.
+**Completeness:** A canonical model is complete if it provides sufficient concepts to model all relevant domain scenarios. DDD schema achieves ~90% completeness for canonical DDD patterns.
 
-**Closure:** A canon achieves closure if internal references resolve within the canon or explicitly ground in external canons. DDD achieves closure (all internal references resolve). UX achieves explicit non-closure with declared dependencies.
+**Closure:** A canonical model achieves closure if internal references resolve within the model or explicitly ground in external models. DDD achieves closure (all internal references resolve). UX achieves explicit non-closure with declared dependencies.
 
-**Coherence:** A canon is coherent if its rules and patterns don't contradict. DDD is coherent (patterns follow from rules).
+**Coherence:** A canonical model is coherent if its rules and patterns don't contradict. DDD is coherent (patterns follow from rules).
 
-**Composability:** Canons compose if grounding relationships enable combining multiple canons without contradiction. UX + DDD demonstrates successful composition.
+**Composability:** Canonical models compose if grounding relationships enable combining multiple models without contradiction. UX + DDD demonstrates successful composition.
 
 ## 8. Typology of Grounding
 

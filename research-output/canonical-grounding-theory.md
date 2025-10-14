@@ -8,9 +8,9 @@
 
 ## Executive Summary
 
-**Canonical Grounding** is a meta-methodological framework for organizing interdependent domain knowledge into formally specified **canons** connected by explicit **grounding relationships**, enabling consistent multi-paradigm reasoning in complex systems, particularly LLM-assisted software engineering.
+**Canonical Grounding** is a meta-methodological framework for organizing interdependent domain knowledge into formally specified **canonical domain models** connected by explicit **grounding relationships**, enabling consistent multi-paradigm reasoning in complex systems, particularly LLM-assisted software engineering.
 
-**Key Innovation:** Explicit inter-domain grounding relationships enabling multi-paradigm reasoning with formal validation.
+**Key Innovation:** Explicit cross-domain model grounding relationships enabling multi-paradigm reasoning with formal validation.
 
 **Empirical Evidence:** 25-50% improvement in LLM reasoning accuracy, 4-5x faster solution synthesis, 80% reduction in integration effort.
 
@@ -24,9 +24,9 @@
 
 ### 1. Core Definitions
 
-#### 1.1 Canon (Κ)
+#### 1.1 Canonical Domain Model (M)
 
-A **canon** is a formally specified, internally consistent domain model consisting of:
+A **canonical domain model** is a formally specified, internally consistent representation of authoritative knowledge within a specific knowledge domain, consisting of:
 
 **Components:**
 - **Concepts:** Core domain entities with defined properties and relationships
@@ -37,13 +37,13 @@ A **canon** is a formally specified, internally consistent domain model consisti
 
 **Formal Definition:**
 ```
-Κ = ⟨ID, Concepts, Patterns, Constraints, Grounds_In, Evolution⟩
+M = ⟨ID, Concepts, Patterns, Constraints, Grounds_In, Evolution⟩
 
 where:
   Concepts = {c₁, c₂, ..., cₙ} - domain entities
   Patterns = {p₁, p₂, ..., pₘ} - reusable templates
   Constraints = {φ₁, φ₂, ..., φₖ} - validation rules
-  Grounds_In = {γ₁, γ₂, ..., γⱼ} - dependencies on other canons
+  Grounds_In = {γ₁, γ₂, ..., γⱼ} - dependencies on other models
   Evolution = [(v₁, Δ₁), (v₂, Δ₂), ...] - version history
 ```
 
@@ -51,18 +51,18 @@ where:
 - **Closure:** All references resolve internally or through declared grounding
 - **Coherence:** No internal contradictions
 - **Completeness:** All necessary concepts defined for domain reasoning
-- **Composability:** Can combine with other canons through grounding
+- **Composability:** Can combine with other canonical models through grounding
 
 #### 1.2 Grounding Relationship (γ)
 
-A **grounding relationship** is a directed, typed dependency between canons enabling knowledge coordination.
+A **grounding relationship** is a directed, typed dependency between canonical domain models enabling knowledge coordination.
 
 **Formal Definition:**
 ```
 γ = ⟨Source, Target, Type, Relationships, Strength, Validation⟩
 
 where:
-  Source, Target ∈ Canons
+  Source, Target ∈ Canonical Models
   Type ∈ {structural, semantic, procedural, epistemic}
   Relationships: Source.concepts → Target.concepts
   Strength ∈ {strong, weak, optional}
@@ -72,7 +72,7 @@ where:
 **Four Types of Grounding:**
 
 **1. Structural Grounding**
-- Entity references between canons (UX page → DDD aggregate)
+- Entity references between models (UX page → DDD aggregate)
 - Strong typing (referential integrity required)
 - Cardinality constraints (one-to-many, many-to-many)
 
@@ -93,55 +93,55 @@ where:
 
 #### 1.3 Ontology (Ω)
 
-The **ontology** is the complete directed acyclic graph of canons and their grounding relationships.
+The **ontology** is the complete directed acyclic graph of canonical domain models and their grounding relationships.
 
 **Formal Definition:**
 ```
-Ω = ⟨Canons, Groundings⟩
+Ω = ⟨Models, Groundings⟩
 
 where:
-  Canons = {Κ₁, Κ₂, ..., Κₙ}
-  Groundings = {γᵢⱼ | Κᵢ grounds_in Κⱼ}
+  Models = {M₁, M₂, ..., Mₙ}
+  Groundings = {γᵢⱼ | Mᵢ grounds_in Mⱼ}
 ```
 
 **Structure:**
-- **Nodes:** Canons, concepts, patterns
+- **Nodes:** Canonical models, concepts, patterns
 - **Edges:** Grounding relationships, concept references
 - **Layers:** Foundation → Derived → Meta
 
 **Graph Properties:**
 - **Acyclic:** No circular grounding dependencies
 - **Layered:** Clear stratification (foundation, derived, meta)
-- **Sparse Between, Dense Within:** Few inter-canon links, many intra-canon links
+- **Sparse Between, Dense Within:** Few cross-domain model links, many intra-model links
 
 ### 2. Formal Properties
 
 #### 2.1 Closure Property
 
-**Definition:** A canon achieves closure if all internal references resolve within the canon or through explicitly declared grounding.
+**Definition:** A canonical domain model achieves closure if all internal references resolve within the model or through explicitly declared grounding.
 
 **Formal Statement:**
 ```
-Closure(Κ) ⟺ ∀c ∈ Κ.concepts: ∀r ∈ c.references:
-    (r ∈ Κ.concepts) ∨ (∃γ ∈ Κ.grounds_in: r ∈ γ.target.concepts)
+Closure(M) ⟺ ∀c ∈ M.concepts: ∀r ∈ c.references:
+    (r ∈ M.concepts) ∨ (∃γ ∈ M.grounds_in: r ∈ γ.target.concepts)
 ```
 
 **Validation Algorithm:**
 ```python
-def validate_closure(canon):
+def validate_closure(model):
     unresolved = []
-    for concept in canon.concepts:
+    for concept in model.concepts:
         for reference in concept.references:
-            if reference not in canon.concepts:
+            if reference not in model.concepts:
                 if not any(ref in grounding.target.concepts
-                          for grounding in canon.grounds_in):
+                          for grounding in model.grounds_in):
                     unresolved.append(reference)
     return len(unresolved) == 0, unresolved
 ```
 
 **Empirical Results:**
-- DDD: 100% closure (foundation canon)
-- Data-Eng: 100% closure (foundation canon)
+- DDD: 100% closure (foundation model)
+- Data-Eng: 100% closure (foundation model)
 - UX: 96% closure (4% missing grounding declarations)
 - QE: 75% closure (needs completion)
 - Agile: 72% closure (needs explicit domain grounding)
@@ -154,10 +154,10 @@ def validate_closure(canon):
 
 **Formal Statement:**
 ```
-Acyclic(Ω) ⟺ ¬∃ path in Groundings: Κ₁ → Κ₂ → ... → Κₙ → Κ₁
+Acyclic(Ω) ⟺ ¬∃ path in Groundings: M₁ → M₂ → ... → Mₙ → M₁
 ```
 
-**Importance:** Cycles create semantic paradoxes where each canon depends on the other for meaning, preventing stable interpretation.
+**Importance:** Cycles create semantic paradoxes where each model depends on the other for meaning, preventing stable interpretation.
 
 **Validation:** Topological sort algorithm detects cycles in O(V + E) time.
 
@@ -165,23 +165,23 @@ Acyclic(Ω) ⟺ ¬∃ path in Groundings: Κ₁ → Κ₂ → ... → Κₙ → 
 
 **Property 1: Transitive Consistency**
 
-If Κ_A grounds in Κ_B, and Κ_B grounds in Κ_C, then Κ_A's constraints are consistent with Κ_C's constraints.
+If M_A grounds in M_B, and M_B grounds in M_C, then M_A's constraints are consistent with M_C's constraints.
 
 ```
-∀Κ_A, Κ_B, Κ_C ∈ Canons:
-  (γ(Κ_A → Κ_B) ∧ γ(Κ_B → Κ_C)) ⟹
-  consistent(Κ_A.constraints ∪ Κ_B.constraints ∪ Κ_C.constraints)
+∀M_A, M_B, M_C ∈ Models:
+  (γ(M_A → M_B) ∧ γ(M_B → M_C)) ⟹
+  consistent(M_A.constraints ∪ M_B.constraints ∪ M_C.constraints)
 ```
 
 **Property 2: Substitutability**
 
-If two canons provide equivalent grounding, they can be substituted without semantic change.
+If two canonical models provide equivalent grounding, they can be substituted without semantic change.
 
 ```
-∀Κ_A, Κ_B1, Κ_B2:
-  (equivalent_concepts(Κ_B1, Κ_B2) ∧
-   equivalent_constraints(Κ_B1, Κ_B2)) ⟹
-  semantically_equivalent(Κ_A[Κ_B1], Κ_A[Κ_B2])
+∀M_A, M_B1, M_B2:
+  (equivalent_concepts(M_B1, M_B2) ∧
+   equivalent_constraints(M_B1, M_B2)) ⟹
+  semantically_equivalent(M_A[M_B1], M_A[M_B2])
 ```
 
 **Property 3: Monotonicity**
@@ -189,16 +189,16 @@ If two canons provide equivalent grounding, they can be substituted without sema
 Adding grounding links only adds constraints, never removes them.
 
 ```
-constraints(Κ_A with grounds_in Κ_B) ⊇ constraints(Κ_A)
+constraints(M_A with grounds_in M_B) ⊇ constraints(M_A)
 ```
 
 **Property 4: Modular Reasoning**
 
-Can reason about canon in isolation, then compose.
+Can reason about each canonical model in isolation, then compose.
 
 ```
-valid(Κ_A) ∧ valid(Κ_B) ∧ compatible(γ(Κ_A → Κ_B))
-⟹ valid(Κ_A ∪ γ(Κ_A → Κ_B))
+valid(M_A) ∧ valid(M_B) ∧ compatible(γ(M_A → M_B))
+⟹ valid(M_A ∪ γ(M_A → M_B))
 ```
 
 ### 3. Philosophical Foundations
@@ -220,9 +220,9 @@ valid(Κ_A) ∧ valid(Κ_B) ∧ compatible(γ(Κ_A → Κ_B))
 
 #### 3.3 Quinean Holism
 
-**Connection:** Quine's web of belief models interdependent domain canons.
-- **Web Structure:** Domain canons form interconnected webs, not foundational hierarchies
-- **Ontological Commitment:** "To exist in domain Κ is to be referenceable by Κ's schema"
+**Connection:** Quine's web of belief models interdependent canonical domain models.
+- **Web Structure:** Canonical domain models form interconnected webs, not foundational hierarchies
+- **Ontological Commitment:** "To exist in domain M is to be referenceable by M's schema"
 - **Confirmational Holism:** Evidence for aggregate design affects entire DDD+UX+Data network
 - **Indeterminacy of Translation:** Multiple valid grounding mappings between domains
 
@@ -245,12 +245,12 @@ valid(Κ_A) ∧ valid(Κ_B) ∧ compatible(γ(Κ_A → Κ_B))
 **1980s: Knowledge Representation**
 - Minsky (1974): Frames for stereotypical situations
 - KL-ONE (1985): Structured inheritance networks
-- → Canons as frames with inheritance
+- → Canonical models as frames with inheritance
 
 **1990s: Ontology Engineering**
 - Gruber (1993): "Specification of conceptualization"
 - CYC (Lenat): Large-scale ontology
-- → Each canon is an ontology
+- → Each canonical model is an ontology
 
 **2000s: Semantic Web & DDD**
 - RDF/OWL (W3C): Web ontology language
@@ -356,7 +356,7 @@ valid(Κ_A) ∧ valid(Κ_B) ∧ compatible(γ(Κ_A → Κ_B))
 ```
 
 **Distinguishing Features:**
-1. Multi-domain coordinator
+1. Multi-domain model coordinator
 2. Explicit, formal grounding
 3. Automated validation
 4. Evolutionary with versioning
@@ -475,32 +475,32 @@ Reduction: 50% entropy, 76% perplexity
 
 ### 9. Implementation Domains
 
-#### 9.1 Current Implementations (5 Canons)
+#### 9.1 Current Implementations (5 Canonical Domain Models)
 
 **Foundation Layer:**
-1. **Domain-Driven Design (DDD)** - 100% closure
+1. **Domain-Driven Design (DDD) Canonical Model** - 100% closure
    - Concepts: Domain, Bounded Context, Aggregate, Entity, Value Object, Repository, Service, Event, Factory
    - Patterns: Strategic design, tactical patterns, context mapping
    - Grounds in: None (foundation)
 
-2. **Data Engineering** - 100% closure
+2. **Data Engineering Canonical Model** - 100% closure
    - Concepts: System, Pipeline, Dataset, Transform, Contract, Lineage, Governance
    - Patterns: Medallion architecture, Delta architecture
    - Grounds in: None (foundation)
 
 **Derived Layer:**
-3. **User Experience (UX)** - 96% closure
+3. **User Experience (UX) Canonical Model** - 96% closure
    - Concepts: Page, Component, Workflow, Navigation
    - Patterns: Information architecture, interaction patterns
    - Grounds in: DDD (structural), Data-Eng (data constraints)
 
-4. **Quality Engineering (QE)** - 75% closure
+4. **Quality Engineering (QE) Canonical Model** - 75% closure
    - Concepts: Test, Assertion, Mock, Fixture, Suite
    - Patterns: Test pyramid, contract testing
    - Grounds in: DDD (invariants), UX (workflows), Data-Eng (contracts)
 
 **Meta Layer:**
-5. **Agile** - 72% closure
+5. **Agile Canonical Model** - 72% closure
    - Concepts: Epic, Feature, Story, Sprint, PI, Team, ART
    - Patterns: Scrum, SAFe, Story splitting
    - Grounds in: Should reference all domains (currently missing)
@@ -568,10 +568,10 @@ Reduction: 50% entropy, 76% perplexity
 - **Production (evolving schemas):** Hybrid (best of both)
 - **High-assurance:** Constrained decoding (guaranteed conformance)
 
-#### 10.2 Canon-Guided Generation Protocol
+#### 10.2 Model-Guided Generation Protocol
 
 **Phase 1: Schema Loading**
-1. Identify required canons from task
+1. Identify required canonical models from task
 2. Load schemas with dependencies (transitive closure)
 3. Construct active schema context
 4. Validate consistency (no cycles, references resolve)
@@ -585,7 +585,7 @@ Reduction: 50% entropy, 76% perplexity
 **Phase 3: Validation and Refinement**
 1. Syntactic validation (parse, types, naming)
 2. Semantic validation (references, constraints, patterns)
-3. Cross-domain consistency (validate groundings)
+3. Cross-domain model consistency (validate groundings)
 4. Refinement loop (correct violations, re-generate)
 
 **Phase 4: Explanation Generation**
@@ -764,7 +764,7 @@ Reduction: 50% entropy, 76% perplexity
 4. Evolution tracking with version compatibility
 
 **Practical Contributions:**
-1. Five implemented domain canons (DDD, Data-Eng, UX, QE, Agile)
+1. Five implemented canonical domain models (DDD, Data-Eng, UX, QE, Agile)
 2. Fifteen explicit grounding relationships
 3. Integration patterns (ArchiMate, UML, BPMN)
 4. Tooling framework (validation, evolution)
@@ -785,7 +785,7 @@ Just as DDD provides:
 - Ubiquitous language (clarity)
 
 Canonical Grounding provides:
-- Canons (knowledge contexts)
+- Canonical domain models (knowledge contexts)
 - Grounding relationships (knowledge integration)
 - Schema vocabularies (formal language)
 
@@ -797,10 +797,10 @@ Canonical Grounding provides:
 1. **Non-Compositional Semantics:** Some meanings emerge only from composition
 2. **Conflict Resolution:** No meta-rules when domains conflict
 3. **Computational Overhead:** 10-50x token cost with full schemas
-4. **Maturity Requirement:** Domain needs 5+ years stability
+4. **Maturity Requirement:** Knowledge domain needs 5+ years stability
 5. **Cultural Adoption:** Requires organizational buy-in
 6. **Western-Centric:** Current patterns reflect Western software practices
-7. **Incomplete Domains:** QE and Agile schemas need completion
+7. **Incomplete Models:** QE and Agile canonical models need completion
 
 ### 20. Final Assessment
 
@@ -814,7 +814,7 @@ Canonical Grounding provides:
 
 **Practical Value:** ROI positive for multi-domain systems, demonstrable improvements in LLM reasoning quality, significant reduction in integration effort.
 
-**Research Contribution:** Synthesizes ontology engineering, domain-driven design, and LLM schema grounding into novel meta-methodological framework with explicit inter-domain grounding relationships.
+**Research Contribution:** Synthesizes ontology engineering, domain-driven design, and LLM schema grounding into novel meta-methodological framework with explicit cross-domain model grounding relationships.
 
 ---
 
