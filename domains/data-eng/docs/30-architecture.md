@@ -666,4 +666,197 @@ ci: validate-strict
 
 ---
 
+## 3. Data Products
+
+### What is a Data Product?
+
+A **data_product** is a self-contained, discoverable data asset designed for specific analytical or operational purposes. Data products represent a shift from pipeline-centric thinking to product-centric data delivery.
+
+**Core Properties:**
+- **product_id**: Unique identifier (format: `dp-<name>`)
+- **name**: Human-readable product name
+- **description**: Purpose and value proposition
+- **owner**: Accountable team or person (references `owner` entity)
+- **datasets**: Constituent datasets that comprise the product
+- **bounded_context_ref**: Optional DDD alignment (grounding to `ddd:bounded_context`)
+- **sla**: Service-level agreements (freshness, availability, quality)
+- **consumers**: Teams or systems consuming this product
+- **status**: draft | active | deprecated
+
+**Schema Pattern:**
+```yaml
+data_product:
+  product_id: dp-customer-360
+  name: Customer 360 View
+  description: Unified customer profile combining CRM, transactions, and behavioral data
+  owner: customer-analytics-team
+  datasets:
+    - ds-customer-profile-gold
+    - ds-customer-transactions-gold
+    - ds-customer-behavior-gold
+  bounded_context_ref: ddd:BoundedContext:customer-management
+  sla:
+    freshness: 24h
+    availability: 99.9%
+    quality_target: 95%
+  consumers:
+    - team: marketing-analytics
+      use_case: Customer segmentation
+    - team: customer-success
+      use_case: Health scoring
+  status: active
+```
+
+**DDD Grounding:**
+```
+data_product.bounded_context_ref → ddd:bounded_context
+```
+
+Data products map to bounded context boundaries, ensuring data ownership aligns with domain boundaries. This grounding enables domain-driven data mesh architectures.
+
+**Why Data Products Matter:**
+- **Ownership**: Clear accountability for data quality and availability
+- **Discoverability**: Products are cataloged and searchable
+- **SLA-Driven**: Explicit contracts with consumers
+- **Domain Alignment**: Maps to DDD bounded contexts
+- **Consumer-Focused**: Designed for specific use cases
+
+---
+
+## 4. Access Patterns
+
+### data_access_pattern
+
+**Purpose**: Describes how datasets and pipelines are accessed (read-heavy, write-heavy, mixed, batch, streaming).
+
+**Used in**: `dataset.access_pattern`, `pipeline.access_pattern`
+
+**Schema fields**:
+- `type`: read_heavy | write_heavy | mixed | batch | streaming
+- `peak_throughput`: Requests/second at peak
+- `typical_latency`: p95 response time
+
+**Example**:
+```yaml
+dataset:
+  id: ds-orders-gold
+  access_pattern:
+    type: read_heavy
+    peak_throughput: 5000
+    typical_latency: 50ms
+```
+
+---
+
+## 5. Cataloging
+
+### data_catalog_entry
+
+**Purpose**: Metadata about datasets for data catalog systems (searchability, tagging, business glossary).
+
+**Used in**: `dataset.catalog_entry`
+
+**Schema fields**:
+- `catalog_id`: Unique identifier in catalog system
+- `business_name`: Business-friendly name
+- `tags`: Searchable keywords
+- `glossary_terms`: References to business glossary
+
+**Example**:
+```yaml
+dataset:
+  id: ds-customer-profile
+  catalog_entry:
+    catalog_id: cat-cust-profile-001
+    business_name: Customer Master Profile
+    tags: [customer, pii, gold-tier]
+    glossary_terms: [customer, profile, demographic]
+```
+
+---
+
+## 6. Partitioning
+
+### data_partition_strategy
+
+**Purpose**: Defines how datasets are partitioned for performance and manageability.
+
+**Used in**: `dataset.partition_strategy`
+
+**Schema fields**:
+- `type`: time_based | hash_based | range_based | list_based
+- `partition_keys`: Fields used for partitioning
+- `partition_count`: Number of partitions (for hash/range)
+
+**Example**:
+```yaml
+dataset:
+  id: ds-transactions
+  partition_strategy:
+    type: time_based
+    partition_keys: [transaction_date]
+    granularity: daily
+```
+
+---
+
+## 7. Replication
+
+### data_replication_config
+
+**Purpose**: Configuration for data replication across regions or systems.
+
+**Used in**: `dataset.replication`, `pipeline.replication`
+
+**Schema fields**:
+- `replication_type`: sync | async | active_active
+- `target_regions`: List of target regions
+- `consistency_model`: strong | eventual | causal
+
+**Example**:
+```yaml
+dataset:
+  id: ds-orders
+  replication:
+    replication_type: async
+    target_regions: [us-west-2, eu-central-1]
+    consistency_model: eventual
+    lag_tolerance: 5min
+```
+
+---
+
+## 8. Retention
+
+### data_retention_tier
+
+**Purpose**: Defines storage tiers for data lifecycle management (hot, warm, cold, archive).
+
+**Used in**: `dataset.retention_policy.tiers`, `governance.retention_tiers`
+
+**Schema fields**:
+- `tier_name`: hot | warm | cold | archive
+- `duration`: How long data stays in this tier
+- `storage_class`: Storage technology (S3 Standard, Glacier, etc.)
+
+**Example**:
+```yaml
+dataset:
+  id: ds-logs
+  governance:
+    retention_policy:
+      tiers:
+        - tier_name: hot
+          duration: 30d
+          storage_class: S3_Standard
+        - tier_name: warm
+          duration: 90d
+          storage_class: S3_IA
+        - tier_name: cold
+          duration: 365d
+          storage_class: S3_Glacier
+```
+
+---
+
 **Next**: See `/docs/80-diagrams.md` for how to generate visual diagrams from models, and `/docs/40-governance-and-rfc.md` for contribution and evolution processes.
