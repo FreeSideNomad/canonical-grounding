@@ -427,7 +427,18 @@ definitions:
       - id
       - title
       - type
+      - bounded_context_ref
     properties:
+      bounded_context_ref:
+        type: string
+        description: "DDD bounded context this feature belongs to (required - explicit grounding)"
+        pattern: "^ddd:BoundedContext:[a-z0-9_-]+$"
+        x-grounding:
+          target_canon: "ddd"
+          target_concept: "BoundedContext"
+          grounding_type: "epistemic"
+          strength: "strong"
+          rationale: "Features must be scoped to a bounded context to ensure domain alignment"
       id:
         type: string
         pattern: "^FEAT-[0-9]+$"
@@ -525,6 +536,33 @@ definitions:
       - iWant
       - soThat
     properties:
+      ux_artifact_refs:
+        type: object
+        description: "UX artifacts implementing this story (explicit grounding)"
+        x-grounding:
+          target_canon: "ux"
+          grounding_type: "procedural"
+          strength: "strong"
+          rationale: "Stories are implemented through UX artifacts (pages, components, workflows)"
+        properties:
+          page_refs:
+            type: array
+            items:
+              type: string
+              pattern: "^ux:Page:[a-z0-9_-]+$"
+            description: "Page IDs where this story is implemented"
+          component_refs:
+            type: array
+            items:
+              type: string
+              pattern: "^ux:Component:[a-z0-9_-]+$"
+            description: "Component IDs implementing this story"
+          workflow_refs:
+            type: array
+            items:
+              type: string
+              pattern: "^ux:Workflow:[a-z0-9_-]+$"
+            description: "Workflow IDs implementing this story"
       id:
         type: string
         pattern: "^US-[0-9]+$"
@@ -707,6 +745,38 @@ definitions:
       teamId:
         type: string
         description: "Team running this sprint"
+
+      definitionOfDone:
+        type: object
+        description: "Checklist that must be met before story is considered done (explicit grounding to QE)"
+        x-grounding:
+          target_canon: "qe"
+          grounding_type: "epistemic"
+          strength: "strong"
+          rationale: "DoD criteria must be validated through QE test strategies"
+        properties:
+          test_criteria_refs:
+            type: array
+            description: "QE test criteria IDs that validate DoD"
+            items:
+              type: string
+              pattern: "^qe:TestCriteria:[a-z0-9_-]+$"
+          checklist:
+            type: array
+            description: "DoD checklist items"
+            items:
+              type: object
+              properties:
+                item:
+                  type: string
+                  description: "DoD requirement"
+                qe_validation_ref:
+                  type: string
+                  pattern: "^qe:(TestCase|TestSuite|TestStrategy):[a-z0-9_-]+$"
+                  description: "QE artifact that validates this DoD item"
+                verified:
+                  type: boolean
+                  description: "Whether this DoD item has been verified"
 
       ceremonies:
         type: object

@@ -1,0 +1,162 @@
+digraph CanonicalGrounding {
+  // Graph attributes
+  rankdir=LR;
+  node [shape=box, style=rounded];
+  edge [fontsize=10];
+  compound=true;
+  newrank=true;
+  splines=ortho;
+  ranksep=1.5;
+  nodesep=0.8;
+
+  subgraph cluster_canon_agile {
+    label="Agile Canon";
+    style=filled;
+    color=lightgrey;
+    fillcolor="#FFF3E0";
+    fontsize=14;
+    fontname="Helvetica-Bold";
+
+    agile_Feature [label="Feature"];
+    agile_Sprint_definitionOfDone [label="Sprint.definitionOfDone"];
+    agile_Sprint_definitionOfDone_checklist [label="Sprint.definitionOfDone.checklist"];
+    agile_UserStory [label="UserStory"];
+  }
+
+  subgraph cluster_canon_data_eng {
+    label="Data Engineering Canon";
+    style=filled;
+    color=lightgrey;
+    fillcolor="#FFF4E6";
+    fontsize=14;
+    fontname="Helvetica-Bold";
+
+    data_eng_Contract [label="Contract"];
+    data_eng_Dataset [label="Dataset"];
+    data_eng_Dataset_partitioning [label="Dataset.partitioning"];
+    data_eng_Pattern [label="Pattern"];
+    data_eng_Pipeline [label="Pipeline"];
+    data_eng_QualityRule [label="QualityRule"];
+    data_eng_Schema [label="Schema"];
+    ddd_Pattern [label="Pattern"];
+    ux_Pattern [label="Pattern"];
+  }
+
+  subgraph cluster_canon_ddd {
+    label="DDD Canon";
+    style=filled;
+    color=lightgrey;
+    fillcolor="#E8F4F8";
+    fontsize=14;
+    fontname="Helvetica-Bold";
+
+    data_eng_Pattern [label="Pattern"];
+    ddd_Aggregate [label="Aggregate"];
+    ddd_Aggregate_invariants [label="Aggregate.invariants"];
+    ddd_BoundedContext [label="BoundedContext"];
+    ddd_Domain [label="Domain"];
+    ddd_Invariant [label="Invariant"];
+    ddd_Pattern [label="Pattern"];
+    ddd_UbiquitousLanguage [label="UbiquitousLanguage"];
+    ux_Pattern [label="Pattern"];
+  }
+
+  subgraph cluster_canon_qe {
+    label="Quality Engineering Canon";
+    style=filled;
+    color=lightgrey;
+    fillcolor="#E8F5E9";
+    fontsize=14;
+    fontname="Helvetica-Bold";
+
+    qe_ContractTest [label="ContractTest"];
+    qe_IntegrationTest [label="IntegrationTest"];
+    qe_Test [label="Test"];
+    qe_TestCase [label="TestCase"];
+    qe_TestCriteria [label="TestCriteria"];
+    qe_TestStrategy [label="TestStrategy"];
+    qe_TestSuite [label="TestSuite"];
+    qe_UITest [label="UITest"];
+    qe_contract_test [label="contract_test"];
+    qe_contract_test_validation_rules [label="contract_test.validation_rules"];
+    qe_test_case_ddd_references_invariants_under_test [label="test_case.ddd_references.invariants_under_test"];
+    qe_test_case_ux_references_workflow_validation [label="test_case.ux_references.workflow_validation"];
+    qe_test_case_ux_references_workflow_validation_step_transitions [label="test_case.ux_references.workflow_validation.step_transitions"];
+    qe_test_strategy_domain_pattern_coverage_data_patterns [label="test_strategy.domain_pattern_coverage.data_patterns"];
+    qe_test_strategy_domain_pattern_coverage_ddd_patterns [label="test_strategy.domain_pattern_coverage.ddd_patterns"];
+    qe_test_strategy_domain_pattern_coverage_ux_patterns [label="test_strategy.domain_pattern_coverage.ux_patterns"];
+  }
+
+  subgraph cluster_canon_ux {
+    label="UX Canon";
+    style=filled;
+    color=lightgrey;
+    fillcolor="#F3E5F5";
+    fontsize=14;
+    fontname="Helvetica-Bold";
+
+    data_eng_Pattern [label="Pattern"];
+    ddd_Pattern [label="Pattern"];
+    ux_Component [label="Component"];
+    ux_Component_label [label="Component.label"];
+    ux_Navigation [label="Navigation"];
+    ux_Page [label="Page"];
+    ux_Page_pagination [label="Page.pagination"];
+    ux_Pattern [label="Pattern"];
+    ux_Workflow [label="Workflow"];
+    ux_Workflow_steps [label="Workflow.steps"];
+  }
+
+  // Grounding relationships
+  ux_Page -> ddd_BoundedContext [label="bounded_context_ref\n[many-to-one]\n(required)", color="#1976D2", style=solid, penwidth=2, tooltip="UX pages reference DDD bounded contexts"];
+  ux_Workflow -> ddd_Aggregate [label="aggregate_refs\n[many-to-many]\n(required)", color="#1976D2", style=solid, penwidth=2, tooltip="UX workflows reference DDD aggregates"];
+  ux_Navigation -> ddd_Domain [label="[alignment]", color="#7B1FA2", style=solid, penwidth=2, tooltip="UX navigation mirrors DDD domain structure"];
+  ux_Component_label -> ddd_UbiquitousLanguage [label="[alignment]", color="#7B1FA2", style=solid, penwidth=2, tooltip="UX labels use DDD ubiquitous language"];
+  ux_Workflow_steps -> ddd_Aggregate_invariants [label="[constraint]", color="#388E3C", style=solid, penwidth=2, tooltip="UX workflows respect DDD aggregate boundaries"];
+  ux_Component -> data_eng_Dataset [label="data_sources\n[many-to-many]", color="#1976D2", style=solid, penwidth=2, tooltip="UX components reference data sources"];
+  ux_Page_pagination -> data_eng_Dataset_partitioning [label="[alignment]", color="#7B1FA2", style=solid, penwidth=2, tooltip="UX pagination depends on dataset partitioning"];
+  qe_Test -> ddd_Aggregate_invariants [label="validates_invariants\n[one-to-many]", color="#388E3C", style=solid, penwidth=2, tooltip="QE tests validate DDD invariants"];
+  qe_IntegrationTest -> ddd_Aggregate [label="aggregates_under_test\n[many-to-many]", color="#1976D2", style=solid, penwidth=2, tooltip="QE integration tests reference DDD aggregates"];
+  qe_test_case_ddd_references_invariants_under_test -> ddd_Invariant [label="invariant_id\n[one-to-many]\n(optional)", color="#7B1FA2", style=solid, penwidth=2, tooltip="QE test cases explicitly validate DDD invariants"];
+  qe_UITest -> ux_Workflow [label="validates_workflow\n[one-to-one]", color="#388E3C", style=solid, penwidth=2, tooltip="QE UI tests validate UX workflows"];
+  qe_test_case_ux_references_workflow_validation -> ux_Workflow [label="workflow_ref\n[one-to-one]\n(optional)", color="#388E3C", style=solid, penwidth=2, tooltip="QE test cases validate UX workflow steps and state transitions"];
+  qe_test_case_ux_references_workflow_validation_step_transitions -> ux_Workflow_steps [label="[validation]", color="#388E3C", style=solid, penwidth=2, tooltip="QE test cases validate UX workflow steps and state transitions"];
+  qe_ContractTest -> data_eng_Contract [label="validates_contract\n[one-to-one]", color="#388E3C", style=solid, penwidth=2, tooltip="QE contract tests validate data contracts"];
+  qe_contract_test -> data_eng_Schema [label="data_eng_references.schema_ref\n[one-to-many]\n(optional)", color="#1976D2", style=solid, penwidth=2, tooltip="QE contract tests reference data-eng schemas and quality rules"];
+  qe_contract_test -> data_eng_Contract [label="data_eng_references.contract_ref\n[one-to-one]\n(optional)", color="#1976D2", style=solid, penwidth=2, tooltip="QE contract tests reference data-eng schemas and quality rules"];
+  qe_contract_test -> data_eng_Pipeline [label="data_eng_references.pipeline_ref\n[one-to-one]\n(optional)", color="#1976D2", style=solid, penwidth=2, tooltip="QE contract tests reference data-eng schemas and quality rules"];
+  qe_contract_test_validation_rules -> data_eng_QualityRule [label="data_quality_rule_ref\n[many-to-many]\n(optional)", color="#1976D2", style=solid, penwidth=2, tooltip="QE contract tests reference data-eng schemas and quality rules"];
+  qe_test_strategy_domain_pattern_coverage_ddd_patterns -> ddd_Pattern [label="pattern_ref\n[one-to-many]\n(optional)", color="#388E3C", style=solid, penwidth=2, tooltip="QE test strategies explicitly cover domain patterns from DDD, UX, and Data-Eng"];
+  qe_test_strategy_domain_pattern_coverage_ux_patterns -> ux_Pattern [label="pattern_ref\n[one-to-many]\n(optional)", color="#388E3C", style=solid, penwidth=2, tooltip="QE test strategies explicitly cover domain patterns from DDD, UX, and Data-Eng"];
+  qe_test_strategy_domain_pattern_coverage_data_patterns -> data_eng_Pattern [label="pattern_ref\n[one-to-many]\n(optional)", color="#388E3C", style=solid, penwidth=2, tooltip="QE test strategies explicitly cover domain patterns from DDD, UX, and Data-Eng"];
+  agile_Feature -> ddd_BoundedContext [label="bounded_context_ref\n[many-to-one]\n(required)", color="#F57C00", style=solid, penwidth=2, tooltip="Agile features map to DDD bounded contexts"];
+  agile_UserStory -> ux_Page [label="ux_artifact_refs.page_refs\n[many-to-many]\n(optional)", color="#388E3C", style=solid, penwidth=2, tooltip="Agile stories implement UX pages, components, or workflows"];
+  agile_UserStory -> ux_Component [label="ux_artifact_refs.component_refs\n[many-to-many]\n(optional)", color="#388E3C", style=solid, penwidth=2, tooltip="Agile stories implement UX pages, components, or workflows"];
+  agile_UserStory -> ux_Workflow [label="ux_artifact_refs.workflow_refs\n[many-to-many]\n(optional)", color="#388E3C", style=solid, penwidth=2, tooltip="Agile stories implement UX pages, components, or workflows"];
+  agile_Sprint_definitionOfDone -> qe_TestCriteria [label="definitionOfDone.test_criteria_refs\n[one-to-many]\n(optional)", color="#F57C00", style=solid, penwidth=2, tooltip="Agile definition of done references QE test criteria and validation"];
+  agile_Sprint_definitionOfDone_checklist -> qe_TestCase [label="qe_validation_ref\n[one-to-one]\n(optional)", color="#F57C00", style=solid, penwidth=2, tooltip="Agile definition of done references QE test criteria and validation"];
+  agile_Sprint_definitionOfDone_checklist -> qe_TestSuite [label="qe_validation_ref\n[one-to-one]\n(optional)", color="#F57C00", style=solid, penwidth=2, tooltip="Agile definition of done references QE test criteria and validation"];
+  agile_Sprint_definitionOfDone_checklist -> qe_TestStrategy [label="qe_validation_ref\n[one-to-one]\n(optional)", color="#F57C00", style=solid, penwidth=2, tooltip="Agile definition of done references QE test criteria and validation"];
+  agile_Feature -> data_eng_Pipeline [label="includes_pipelines\n[one-to-many]\n(optional)", color="#F57C00", style=dotted, penwidth=2, tooltip="Agile features include data pipeline work"];
+
+  // Legend
+  subgraph cluster_legend {
+    label="Legend";
+    style=filled;
+    fillcolor=white;
+    fontsize=12;
+    rank=sink;
+
+    legend_structural [label="Structural", shape=plaintext, fontcolor="#1976D2"];
+    legend_semantic [label="Semantic", shape=plaintext, fontcolor="#7B1FA2"];
+    legend_procedural [label="Procedural", shape=plaintext, fontcolor="#388E3C"];
+    legend_epistemic [label="Epistemic", shape=plaintext, fontcolor="#F57C00"];
+
+    legend_strong [label="Strong", shape=plaintext];
+    legend_medium [label="Medium", shape=plaintext];
+    legend_weak [label="Weak", shape=plaintext];
+
+    legend_structural -> legend_semantic -> legend_procedural -> legend_epistemic [style=invis];
+    legend_strong -> legend_medium -> legend_weak [style=invis];
+  }
+}

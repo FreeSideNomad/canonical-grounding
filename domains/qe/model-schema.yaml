@@ -52,6 +52,19 @@ test_case:
     domain_event: string  # evt_[name]
     factory: string  # factory_[name]
 
+    # Invariant validation (STRENGTHENED GROUNDING)
+    invariants_under_test:
+      - invariant_id: string  # ddd:Invariant:[invariant_id]
+        invariant_description: string
+        invariant_type: enum [state_invariant, business_rule, consistency_rule, lifecycle_rule]
+        validation_method: string  # How this test validates the invariant
+        x-grounding:
+          target_canon: "ddd"
+          target_concept: "Invariant"
+          grounding_type: "semantic"
+          strength: "strong"
+          rationale: "Tests must explicitly validate aggregate invariants to ensure domain model integrity"
+
   # UX References (optional, when applicable)
   ux_references:
     page: string  # page_[name]
@@ -61,6 +74,25 @@ test_case:
     navigation_pattern: string
     interaction_pattern: string
     behavior_pattern: string
+
+    # Workflow validation (EXPLICIT GROUNDING)
+    workflow_validation:
+      workflow_ref: string  # ux:Workflow:[workflow_id]
+      workflow_step: string  # Which step in workflow is being tested
+      step_transitions:
+        - from_step: string
+          to_step: string
+          validation_rule: string  # What rule ensures valid transition
+      workflow_state_assertions:
+        - state_variable: string
+          expected_value: any
+          validation_method: string
+      x-grounding:
+        target_canon: "ux"
+        target_concept: "Workflow"
+        grounding_type: "procedural"
+        strength: "strong"
+        rationale: "Workflow tests must validate complete user journeys and state transitions"
 
   # Test Definition (BDD Style)
   given:  # Preconditions
@@ -108,6 +140,70 @@ test_case:
   automated: boolean
   automation_framework: string  # Jest, Playwright, Cypress, etc.
   tags: []
+
+# Contract Test Definition (Consumer-Driven Contract Testing)
+contract_test:
+  id: string  # ct_[consumer]_[provider]_[contract]
+  name: string
+  description: string  # What contract is being validated
+
+  # Contract parties
+  consumer: string  # Service/component consuming the contract
+  provider: string  # Service/component providing the contract
+
+  # Data Engineering References (EXPLICIT GROUNDING)
+  data_eng_references:
+    schema_ref: string  # data-eng:Schema:[schema_id] - formal schema definition
+    contract_ref: string  # data-eng:Contract:[contract_id] - formal contract specification
+    pipeline_ref: string  # data-eng:Pipeline:[pipeline_id] - if contract validates pipeline output
+    data_quality_rules: []  # data-eng:QualityRule:[rule_id] - quality expectations
+
+  # Grounding metadata
+  x-grounding:
+    target_canon: "data-eng"
+    grounding_type: "structural"
+    strength: "strong"
+    rationale: "Contract tests validate adherence to formal Data-Eng schemas and contracts"
+
+  # Contract specification
+  contract_spec:
+    endpoint: string  # API endpoint or interface
+    method: enum [GET, POST, PUT, DELETE, PATCH]
+    request_schema:
+      schema_ref: string  # Reference to data-eng schema
+      example: {}
+    response_schema:
+      schema_ref: string  # Reference to data-eng schema
+      example: {}
+      status_codes: []  # Expected HTTP status codes
+
+  # Contract validation rules
+  validation_rules:
+    - rule_id: string
+      description: string
+      data_quality_rule_ref: string  # data-eng:QualityRule:[rule_id]
+      assertion_type: enum [schema_conformance, data_quality, error_handling, performance]
+
+  # Test execution
+  test_scenarios:
+    - scenario_name: string
+      request: {}
+      expected_response: {}
+      validation_assertions: []
+
+  # DDD context (which bounded context owns this contract)
+  ddd_references:
+    bounded_context: string  # bc_[name] - owner of the contract
+
+  # Results
+  status: enum [not_run, passed, failed, blocked]
+  violations: []  # Contract violations found
+
+  # Metadata
+  pact_file: string  # Path to Pact contract file if using Pact framework
+  contract_version: string
+  last_verified: date
+  automated: boolean
 
 # Test Data Definition
 test_data:
@@ -194,10 +290,72 @@ test_automation:
       teardown_function: string
 
 # Test Execution Plan
+# Test Strategy Definition (Systematic approach to testing)
+test_strategy:
+  id: string  # strategy_[context]_[name]
+  name: string
+  description: string
+
+  # Scope
+  bounded_context: string  # bc_[name] - DDD context this strategy applies to
+  scope: enum [unit, integration, system, e2e, all]
+
+  # Domain Pattern Coverage (EXPLICIT GROUNDING)
+  domain_pattern_coverage:
+    ddd_patterns:
+      - pattern_name: string  # e.g., "Aggregate", "Repository", "Domain Event"
+        pattern_ref: string  # ddd:Pattern:[pattern_id]
+        testing_approach: string  # How to test this pattern
+        example_test_cases: []  # References to example test cases
+    ux_patterns:
+      - pattern_name: string  # e.g., "Workflow", "Component Composition"
+        pattern_ref: string  # ux:Pattern:[pattern_id]
+        testing_approach: string
+        example_test_cases: []
+    data_patterns:
+      - pattern_name: string  # e.g., "Schema Evolution", "Data Quality"
+        pattern_ref: string  # data-eng:Pattern:[pattern_id]
+        testing_approach: string
+        example_test_cases: []
+
+    x-grounding:
+      target_canons: ["ddd", "ux", "data-eng"]
+      grounding_type: "procedural"
+      strength: "strong"
+      rationale: "Test strategies must explicitly cover domain patterns to ensure comprehensive validation"
+
+  # Test Levels
+  test_level_strategy:
+    unit_test_coverage: string  # Approach to unit testing
+    integration_test_coverage: string  # Approach to integration testing
+    e2e_test_coverage: string  # Approach to E2E testing
+
+  # Quality criteria
+  coverage_targets:
+    code_coverage_percent: integer
+    branch_coverage_percent: integer
+    invariant_coverage_percent: integer  # % of DDD invariants tested
+    workflow_coverage_percent: integer  # % of UX workflows tested
+
+  # Entry/Exit Criteria
+  entry_criteria: []
+  exit_criteria: []
+
+  # Tools and frameworks
+  automation_tools: []
+  test_data_management: string
+
+  # Metadata
+  owner: string
+  last_reviewed: date
+
 test_execution_plan:
   id: string
   name: string
   description: string
+
+  # Strategy reference
+  strategy_ref: string  # Reference to test_strategy
 
   # Scope
   test_suite_refs: []
