@@ -1,0 +1,48 @@
+% Preamble to fix longtable in 2-column mode and math formatting
+% Redefine longtable to use regular tabular
+
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{array}
+
+% Better math formatting for narrow columns
+\usepackage{amsmath}
+\allowdisplaybreaks % Allow page breaks in math
+
+% Scale down large formulas to fit column width
+\usepackage{graphicx}
+\newcommand{\scalemath}[2]{\scalebox{#1}{\mbox{\ensuremath{\displaystyle #2}}}}
+
+% Make display math smaller if needed
+\usepackage{relsize}
+\AtBeginDocument{%
+  \abovedisplayskip=6pt plus 2pt minus 2pt
+  \belowdisplayskip=6pt plus 2pt minus 2pt
+}
+
+% Verbatim/code formatting for narrow columns
+\usepackage{fancyvrb}
+\fvset{fontsize=\scriptsize}
+
+% Save the original longtable environment
+\let\oldlongtable\longtable
+\let\oldendlongtable\endlongtable
+
+% Redefine longtable to be compatible with two-column mode
+% Need to handle optional [alignment] parameter
+\renewenvironment{longtable}[2][c]{%
+  \begin{table}[htbp]%
+  \centering%
+  \small%
+  \begin{tabular}{#2}%
+}{%
+  \end{tabular}%
+  \end{table}%
+}
+
+% Remove longtable-specific commands - gobble everything up to the command
+\def\endhead{}
+\def\endfirsthead{}
+\def\endfoot{}
+\def\endlastfoot{}
+\def\kill{}
