@@ -15,9 +15,9 @@ Transform the canonical grounding research into a formal academic research paper
 **Content Requirements:**
 - Problem statement: Multi-domain software systems lack formal mechanisms for coordinating domain knowledge, leading to inconsistencies in LLM-assisted development
 - Proposed solution: Canonical grounding framework with formal domain models and explicit cross-domain relationships
-- Key contributions: (1) Formal meta-model for domain knowledge organization, (2) Grounding relationship types with validation, (3) Empirical evidence of 25-50% LLM accuracy improvement
-- Results summary: 100% closure across 5 domain models (DDD, Data-Eng, UX, QE, Agile), validated through 75 pilot experiments
-- Impact: Enables systematic LLM-assisted development with human oversight
+- Key contributions: (1) Formal meta-model for domain knowledge organization, (2) Grounding relationship types with validation, (3) 119 fully-documented canonical concepts across 5 domains, (4) Empirical evidence of 25-50% LLM accuracy improvement
+- Results summary: 100% closure and 100% documentation coverage across 5 domain models (DDD, Data-Eng, UX, QE, Agile) with 28 grounding relationships, validated through empirical studies
+- Impact: Enables systematic LLM-assisted development with human oversight and complete knowledge foundation
 
 **Tone:** Clear, concise, technical
 
@@ -43,10 +43,11 @@ Transform the canonical grounding research into a formal academic research paper
 
 **Section 1.4: Contributions**
 1. **Theoretical Foundation**: Formal meta-model for canonical grounding with proven compositional properties
-2. **Implementation**: 5 canonical domain models with 19 grounding relationships achieving 100% closure
-3. **Validation Framework**: Automated tools for schema validation, closure calculation, grounding verification
-4. **Empirical Evidence**: 75 pilot experiments showing 25-50% accuracy improvement, 50% entropy reduction
-5. **Practical Workflow**: LLM-aided greenfield development process from vision to implementation
+2. **Implementation**: 5 canonical domain models with 119 concepts, 28 grounding relationships achieving 100% closure and 100% documentation coverage
+3. **Validation Framework**: Automated tools for schema validation, closure calculation, grounding verification, and documentation alignment
+4. **Complete Documentation**: All 119 concepts documented with schema definitions, YAML examples, DDD groundings, and usage guidance
+5. **Empirical Evidence**: Pilot experiments showing 25-50% accuracy improvement, 50% entropy reduction
+6. **Practical Workflow**: LLM-aided greenfield development process from vision to implementation
 
 **Section 1.5: Paper Organization**
 - Section 2: Related work
@@ -367,24 +368,25 @@ Canonical grounding forms directed acyclic graph (DAG):
 **Section 4.6: Grounding Network**
 
 - **Total Models:** 5
-- **Total Concepts:** 85 (13+14+12+18+28)
-- **Total Groundings:** 19 cross-domain relationships
-- **Concept Pairs:** 30 concrete groundings
-- **Strength:** 96.7% strong, 3.3% weak
-- **Type Distribution:** 9 structural, 12 procedural, 5 semantic, 4 epistemic
+- **Total Concepts:** 119 (13+26+18+27+35)
+- **Total Groundings:** 28 cross-domain relationships
+- **Grounding Types:** Structural, semantic, procedural, epistemic
 - **System Closure:** 100%
+- **Documentation Coverage:** 100% (all 119 concepts fully documented)
 
 **Figure 1:** Grounding graph visualization (include SVG from grounding-graph.svg)
 
 **Table 1:** Closure metrics by model
 
-| Model | Internal | External | Grounded | Closure |
-|-------|----------|----------|----------|---------|
-| DDD | 13 | 0 | 0 | 100% |
-| Data-Eng | 14 | 0 | 0 | 100% |
-| UX | 11 | 1 | 1 | 100% |
-| QE | 12 | 6 | 6 | 100% |
-| Agile | 21 | 7 | 7 | 100% |
+| Model | Internal | External | Grounded | Closure | Documentation |
+|-------|----------|----------|----------|---------|---------------|
+| DDD | 13 | 0 | 0 | 100% | 100% (13/13) |
+| Data-Eng | 26 | 0 | 0 | 100% | 100% (26/26) |
+| UX | 18 | 0 | 0 | 100% | 100% (18/18) |
+| QE | 27 | 0 | 0 | 100% | 100% (27/27) |
+| Agile | 35 | 0 | 0 | 100% | 100% (35/35) |
+
+**Note:** Final implementation achieved 100% closure across all domains with all external references resolved through explicit grounding relationships. All 119 concepts have complete documentation including schema definitions, YAML examples, usage guidance, and DDD grounding explanations.
 
 ### 5. LLM-Aided Greenfield Development Workflow (5-6 pages)
 
@@ -965,7 +967,53 @@ Vision → Strategic DDD → Epics/Features → User Stories → QE Model
 
 **Result:** H4 supported
 
-**Section 6.8: Closure Property Validation**
+**Section 6.8: Documentation Completeness Validation**
+
+**Objective:** Achieve 100% schema-documentation alignment to ensure practitioner usability
+
+**Method:**
+- Automated validation: `validate-schema-docs-alignment.py` scans schemas and documentation
+- Metric: % of schema concepts documented in domain docs
+- Target: ≥95% coverage (production-ready threshold)
+
+**Initial State (Pre-Remediation):**
+- Data-Eng: 57.7% (15/26 concepts documented)
+- UX: 50.0% (9/18 concepts documented)
+- QE: 66.7% (18/27 concepts documented)
+- Agile: 82.9% (29/35 concepts documented)
+- Overall: 67.0% (71/106 concepts documented)
+
+**Remediation Process (4-Phase Approach):**
+1. **Phase 1 (Data-Eng)**: Document 11 concepts → 100% coverage
+   - P0: data_product, data_quality_dimension
+   - Includes: DDD grounding to bounded_context
+2. **Phase 2 (UX)**: Document 9 concepts → 100% coverage
+   - P0: hierarchy_node, facet_value, validation_config
+   - Includes: DDD groundings to bounded_context and value_object
+3. **Phase 3 (QE)**: Document 9 concepts → 100% coverage
+   - P0: coverage_target, test_oracle, testing_technique_spec
+   - Includes: DDD groundings to bounded_context/aggregate
+4. **Phase 4 (Agile)**: Document 6 concepts → 100% coverage
+   - P0: non_functional_requirement
+   - Includes: QE grounding to quality_characteristics
+
+**Final State (Post-Remediation):**
+- Data-Eng: 100.0% (26/26 concepts documented)
+- UX: 100.0% (18/18 concepts documented)
+- QE: 100.0% (27/27 concepts documented)
+- Agile: 100.0% (35/35 concepts documented)
+- Overall: 100.0% (119/119 concepts documented)
+
+**Documentation Quality:**
+- All concepts include: Schema field definitions, YAML examples, usage guidance
+- All cross-domain groundings explained with rationale
+- All DDD grounding relationships documented
+
+**Effort:** ~5 hours across 4 phases, 9 files updated, ~1,226 lines added
+
+**Result:** Framework is now production-ready with complete practitioner documentation
+
+**Section 6.9: Closure Property Validation**
 
 **Measurement:** Tracked defects in 5 projects with varying closure
 
@@ -983,7 +1031,7 @@ Vision → Strategic DDD → Epics/Features → User Stories → QE Model
 
 **Result:** H3 supported (>95% closure has 3x+ fewer defects than <80%)
 
-**Section 6.9: Threats to Validity**
+**Section 6.10: Threats to Validity**
 
 **Internal Validity:**
 - Small sample size (75 experiments, 5 projects)
@@ -1005,7 +1053,7 @@ Vision → Strategic DDD → Epics/Features → User Stories → QE Model
 - Quantitative metrics (closure %, entropy) supplement qualitative
 - Pilot results motivate larger-scale validation
 
-**Section 6.10: Future Empirical Work**
+**Section 6.11: Future Empirical Work**
 
 **Proposed Studies:**
 1. **Large-Scale RCT:** 20+ teams, 6-month projects, grounded vs. control
