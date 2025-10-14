@@ -15,7 +15,7 @@
 
 ## Agile Domain
 
-### AgileReleaseTrain
+### agile_release_train
 
 **Domain:** Agile
 
@@ -34,11 +34,11 @@
 - `valueStream` (string) 
   - Value stream this ART supports
 - `teams` (array) *(required)*
-  - Teams in this ART
+  - teams in this ART
 
 ---
 
-### ArchitecturalRunway
+### architectural_runway
 
 **Domain:** Agile
 
@@ -55,7 +55,7 @@
 - `description` (string) *(required)*
   - Description of architectural runway
 - `enablers` (array) *(required)*
-  - Enabler work items that build runway
+  - enabler work items that build runway
 - `technicalDebtRefs` (array) 
   - Technical debt items addressed by this runway
 - `runwayScore` (number) 
@@ -63,7 +63,7 @@
 
 ---
 
-### Cadence
+### cadence
 
 **Domain:** Agile
 
@@ -78,7 +78,7 @@
 - `cadenceId` (string) *(required)*
   - Unique identifier for the cadence
 - `name` (string) *(required)*
-  - Name of the cadence (e.g., 'Sprint Cadence', 'PI Cadence')
+  - Name of the cadence (e.g., 'sprint cadence', 'PI cadence')
 - `frequency` (string) *(required)*
   - How often activities occur
 - `duration` (string) 
@@ -88,7 +88,7 @@
 
 ---
 
-### Ceremony
+### ceremony
 
 **Domain:** Agile
 
@@ -113,7 +113,7 @@
 
 ---
 
-### DefinitionOfReady
+### definition_of_ready
 
 **Domain:** Agile
 
@@ -130,13 +130,13 @@
 - `criteria` (array) *(required)*
   - Readiness criteria
 - `teamRef` (string) *(required)*
-  - Team that owns this DoR
+  - team that owns this DoR
 - `lastUpdated` (string) 
   - When DoR was last updated
 
 ---
 
-### Enabler
+### enabler
 
 **Domain:** Agile
 
@@ -155,13 +155,13 @@
 - `description` (string) *(required)*
   - Description of what the enabler provides
 - `relatedFeatures` (array) 
-  - Features that depend on this enabler
+  - features that depend on this enabler
 - `boundedContextRef` (string) 
   - DDD bounded context this enabler supports
 
 ---
 
-### Epic
+### epic
 
 **Domain:** Agile
 
@@ -179,11 +179,11 @@
   - Business epic delivers value, enabler extends runway
 - `description` (string) 
 - `hypothesis` (string) 
-  - Epic hypothesis statement
+  - epic hypothesis statement
 
 ---
 
-### EstimationTechnique
+### estimation_technique
 
 **Domain:** Agile
 
@@ -206,11 +206,11 @@
 
 ---
 
-### Feature
+### feature
 
 **Domain:** Agile
 
-**Description:** Service provided by the system, sized for a Program Increment
+**Description:** Service provided by the system, sized for a Program increment
 
 **Required Fields:** id, title, type, bounded_context_ref
 
@@ -227,7 +227,7 @@
 
 ---
 
-### FeedbackLoop
+### feedback_loop
 
 **Domain:** Agile
 
@@ -248,11 +248,11 @@
 - `participants` (array) 
   - Who participates in this feedback loop
 - `metricsReviewed` (array) 
-  - Metrics reviewed in this feedback loop
+  - metrics reviewed in this feedback loop
 
 ---
 
-### Impediment
+### impediment
 
 **Domain:** Agile
 
@@ -271,13 +271,13 @@
 - `severity` (string) *(required)*
   - Impact severity
 - `teamRef` (string) 
-  - Team affected by this impediment
+  - team affected by this impediment
 - `resolutionPlan` (string) 
   - Plan for resolving the impediment
 
 ---
 
-### Increment
+### increment
 
 **Domain:** Agile
 
@@ -292,7 +292,7 @@
 - `incrementId` (string) *(required)*
   - Unique identifier for the increment
 - `sprintRef` (string) *(required)*
-  - Sprint that produced this increment
+  - sprint that produced this increment
 - `deliverables` (array) *(required)*
   - What was delivered in this increment
 - `acceptanceStatus` (string) *(required)*
@@ -302,7 +302,7 @@
 
 ---
 
-### Iteration
+### iteration
 
 **Domain:** Agile
 
@@ -317,13 +317,13 @@
 - `id` (string) *(required)*
 - `name` (string) *(required)*
 - `number` (integer) 
-  - Iteration number within PI
+  - iteration number within PI
 - `startDate` (string) *(required)*
 - `endDate` (string) *(required)*
 
 ---
 
-### Metadata
+### metadata
 
 **Domain:** Agile
 
@@ -341,7 +341,7 @@
 
 ---
 
-### Metric
+### metric
 
 **Domain:** Agile
 
@@ -361,7 +361,7 @@
 
 ---
 
-### NonFunctionalRequirement
+### non_functional_requirement
 
 **Domain:** Agile
 
@@ -382,11 +382,11 @@
 - `acceptanceCriteria` (array) *(required)*
   - Testable criteria for meeting this NFR
 - `relatedFeatures` (array) 
-  - Features that must satisfy this NFR
+  - features that must satisfy this NFR
 
 ---
 
-### Portfolio
+### portfolio
 
 **Domain:** Agile
 
@@ -403,7 +403,7 @@
 
 ---
 
-### Product
+### product
 
 **Domain:** Agile
 
@@ -418,7 +418,7 @@
 - `id` (string) *(required)*
   - Unique identifier for the product
 - `name` (string) *(required)*
-  - Product name
+  - product name
 - `description` (string) 
   - Brief product description
 - `vision` (unknown) *(required)*
@@ -426,7 +426,7 @@
 
 ---
 
-### ProgramIncrement
+### program_increment
 
 **Domain:** Agile
 
@@ -446,11 +446,11 @@
 
 ---
 
-### Release
+### release
 
 **Domain:** Agile
 
-**Description:** Time-boxed delivery of value spanning one or more Program Increments
+**Description:** Time-boxed delivery of value spanning one or more Program increments
 
 **Required Fields:** id, name, vision, startDate, endDate
 
@@ -460,7 +460,7 @@
 
 - `id` (string) *(required)*
 - `name` (string) *(required)*
-  - Release name (e.g., 'Spring 2025 Release', 'Version 2.0')
+  - release name (e.g., 'Spring 2025 release', 'Version 2.0')
 - `version` (string) 
   - Semantic version number
 - `vision` (unknown) *(required)*
@@ -468,7 +468,7 @@
 
 ---
 
-### ReleaseVision
+### release_vision
 
 **Domain:** Agile
 
@@ -493,7 +493,7 @@
 
 ---
 
-### Risk
+### risk
 
 **Domain:** Agile
 
@@ -514,7 +514,7 @@
 
 ---
 
-### Roadmap
+### roadmap
 
 **Domain:** Agile
 
@@ -527,11 +527,11 @@
 **Key Properties:**
 
 - `level` (string) *(required)*
-  - Level of roadmap (Portfolio, Product, Release, or PI)
+  - Level of roadmap (portfolio, product, release, or PI)
 - `timeHorizon` (string) *(required)*
-  - Roadmap time horizon (e.g., '12 months', '4 PIs', '3 releases')
+  - roadmap time horizon (e.g., '12 months', '4 PIs', '3 releases')
 - `items` (array) *(required)*
-  - Roadmap items organized by timeframe
+  - roadmap items organized by timeframe
 - `lastReviewed` (string) 
   - When roadmap was last reviewed/updated
 - `reviewCadence` (string) 
@@ -539,7 +539,7 @@
 
 ---
 
-### Role
+### role
 
 **Domain:** Agile
 
@@ -554,7 +554,7 @@
 - `roleId` (string) *(required)*
   - Unique identifier for the role
 - `type` (string) *(required)*
-  - Role type
+  - role type
 - `responsibilities` (array) *(required)*
   - Key responsibilities of this role
 - `authorityLevel` (string) 
@@ -562,7 +562,7 @@
 
 ---
 
-### Sprint
+### sprint
 
 **Domain:** Agile
 
@@ -579,11 +579,11 @@
 - `startDate` (string) *(required)*
 - `endDate` (string) *(required)*
 - `goal` (string) *(required)*
-  - Sprint Goal - objective for this sprint
+  - sprint Goal - objective for this sprint
 
 ---
 
-### Stakeholder
+### stakeholder
 
 **Domain:** Agile
 
@@ -603,7 +603,7 @@
 
 ---
 
-### Task
+### task
 
 **Domain:** Agile
 
@@ -623,7 +623,7 @@
 
 ---
 
-### Team
+### team
 
 **Domain:** Agile
 
@@ -638,14 +638,14 @@
 - `id` (string) *(required)*
 - `name` (string) *(required)*
 - `type` (string) 
-  - Team methodology
+  - team methodology
 - `members` (array) *(required)*
-  - Team members
+  - team members
 - `roles` (object) 
 
 ---
 
-### TeamMember
+### team_member
 
 **Domain:** Agile
 
@@ -667,7 +667,7 @@
 
 ---
 
-### TeamTopology
+### team_topology
 
 **Domain:** Agile
 
@@ -682,7 +682,7 @@
 - `topologyId` (string) *(required)*
   - Unique identifier for the topology
 - `type` (string) *(required)*
-  - Team topology type
+  - team topology type
 - `responsibilities` (array) *(required)*
   - Key responsibilities of this team type
 - `interactionModes` (array) 
@@ -690,7 +690,7 @@
 
 ---
 
-### TechnicalDebt
+### technical_debt
 
 **Domain:** Agile
 
@@ -715,7 +715,7 @@
 
 ---
 
-### UserStory
+### user_story
 
 **Domain:** Agile
 
@@ -738,7 +738,7 @@
 
 ---
 
-### ValueStream
+### value_stream
 
 **Domain:** Agile
 
@@ -758,7 +758,7 @@
 
 ---
 
-### Vision
+### vision
 
 **Domain:** Agile
 
@@ -783,11 +783,11 @@
 
 ---
 
-### WorkingAgreement
+### working_agreement
 
 **Domain:** Agile
 
-**Description:** Team norms and practices
+**Description:** team norms and practices
 
 **Required Fields:** agreementId, teamRef, norms
 
@@ -798,9 +798,9 @@
 - `agreementId` (string) *(required)*
   - Unique identifier for the working agreement
 - `teamRef` (string) *(required)*
-  - Team that owns this agreement
+  - team that owns this agreement
 - `norms` (array) *(required)*
-  - Team norms and behavioral agreements
+  - team norms and behavioral agreements
 - `practices` (array) 
   - Engineering and collaboration practices
 - `createdDate` (string) 
@@ -2264,48 +2264,17 @@
 
 ## Alphabetical Index
 
-- **AgileReleaseTrain** (Agile)
-- **ArchitecturalRunway** (Agile)
-- **Cadence** (Agile)
-- **Ceremony** (Agile)
-- **DefinitionOfReady** (Agile)
-- **Enabler** (Agile)
-- **Epic** (Agile)
-- **EstimationTechnique** (Agile)
-- **Feature** (Agile)
-- **FeedbackLoop** (Agile)
-- **Impediment** (Agile)
-- **Increment** (Agile)
-- **Iteration** (Agile)
-- **Metadata** (Agile)
-- **Metric** (Agile)
-- **NonFunctionalRequirement** (Agile)
-- **Portfolio** (Agile)
-- **Product** (Agile)
-- **ProgramIncrement** (Agile)
-- **Release** (Agile)
-- **ReleaseVision** (Agile)
-- **Risk** (Agile)
-- **Roadmap** (Agile)
-- **Role** (Agile)
-- **Sprint** (Agile)
-- **Stakeholder** (Agile)
-- **Task** (Agile)
-- **Team** (Agile)
-- **TeamMember** (Agile)
-- **TeamTopology** (Agile)
-- **TechnicalDebt** (Agile)
-- **UserStory** (Agile)
-- **ValueStream** (Agile)
-- **Vision** (Agile)
-- **WorkingAgreement** (Agile)
 - **accessibility_spec** (UX)
 - **aggregate** (DDD)
+- **agile_release_train** (Agile)
 - **animation** (UX)
 - **application_service** (DDD)
+- **architectural_runway** (Agile)
 - **behavior** (UX)
 - **bounded_context** (DDD)
 - **caching_config** (UX)
+- **cadence** (Agile)
+- **ceremony** (Agile)
 - **check** (Data-Eng)
 - **component** (UX)
 - **context_mapping** (DDD)
@@ -2326,35 +2295,62 @@
 - **data_validation_rule_type** (Data-Eng)
 - **dataset** (Data-Eng)
 - **defect** (QE)
+- **definition_of_ready** (Agile)
 - **design_tokens** (UX)
 - **domain** (Data-Eng)
 - **domain_event** (DDD)
 - **domain_service** (DDD)
+- **enabler** (Agile)
 - **entity** (DDD)
+- **epic** (Agile)
+- **estimation_technique** (Agile)
 - **facet** (UX)
 - **facet_value** (UX)
 - **factory** (DDD)
+- **feature** (Agile)
+- **feedback_loop** (Agile)
 - **field** (Data-Eng)
 - **governance** (Data-Eng)
 - **hierarchy_node** (UX)
+- **impediment** (Agile)
 - **incident_report** (QE)
+- **increment** (Agile)
 - **information_architecture** (UX)
+- **iteration** (Agile)
 - **lineage** (Data-Eng)
+- **metadata** (Agile)
+- **metric** (Agile)
 - **navigation** (UX)
+- **non_functional_requirement** (Agile)
 - **observability** (Data-Eng)
 - **owner** (Data-Eng)
 - **page** (UX)
 - **page_section** (UX)
 - **pagination_config** (UX)
 - **pipeline** (Data-Eng)
+- **portfolio** (Agile)
+- **product** (Agile)
+- **program_increment** (Agile)
 - **quality_characteristics** (QE)
+- **release** (Agile)
+- **release_vision** (Agile)
 - **repository** (DDD)
 - **responsive_config** (UX)
+- **risk** (Agile)
+- **roadmap** (Agile)
+- **role** (Agile)
 - **schedule** (Data-Eng)
 - **search_system** (UX)
 - **specification** (DDD)
+- **sprint** (Agile)
 - **stage** (Data-Eng)
+- **stakeholder** (Agile)
 - **system** (Data-Eng)
+- **task** (Agile)
+- **team** (Agile)
+- **team_member** (Agile)
+- **team_topology** (Agile)
+- **technical_debt** (Agile)
 - **test_assertion** (QE)
 - **test_automation** (QE)
 - **test_case** (QE)
@@ -2378,6 +2374,10 @@
 - **test_tool** (QE)
 - **testing_technique_spec** (QE)
 - **transform** (Data-Eng)
+- **user_story** (Agile)
 - **validation_config** (UX)
 - **value_object** (DDD)
+- **value_stream** (Agile)
+- **vision** (Agile)
 - **workflow** (UX)
+- **working_agreement** (Agile)

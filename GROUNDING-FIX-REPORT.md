@@ -113,8 +113,8 @@ Concepts referenced in groundings don't exist in schemas:
 - `qe:quality_metric` (referenced by grounding_agile_qe_002)
 
 **Agile Schema Missing:**
-- `agile:nfr` (should be `NonFunctionalRequirement`, referenced by grounding_agile_qe_002)
-- `agile:technical_debt` (should be `TechnicalDebt`, referenced by grounding_agile_ddd_002)
+- `agile:nfr` (should be `non_functional_requirement`, referenced by grounding_agile_qe_002)
+- `agile:technical_debt` (should be `technical_debt`, referenced by grounding_agile_ddd_002)
 
 **Data-Eng Schema Missing:**
 - `data-eng:Schema` (referenced by grounding_qe_data_002)
@@ -139,8 +139,8 @@ Concepts referenced in groundings don't exist in schemas:
    - Add `quality_metric` concept
 
 3. **Fix Agile concept references:**
-   - `agile:nfr` → `agile:NonFunctionalRequirement`
-   - `agile:technical_debt` → `agile:TechnicalDebt`
+   - `agile:nfr` → `agile:non_functional_requirement`
+   - `agile:technical_debt` → `agile:technical_debt`
 
 ### Medium-term (3-4 hours)
 4. **Add pattern concepts** (if needed):
@@ -189,7 +189,7 @@ To achieve 100% valid groundings:
 - `research-output/interdomain-map.yaml` - Fix 2 case mismatches
 - `domains/qe/model-schema.yaml` - Add 6 missing concepts
 - `domains/data-eng/model.schema.yaml` - Add 2 missing concepts
-- `domains/agile/model.schema.yaml` - Verify NFR/TechnicalDebt naming
+- `domains/agile/model.schema.yaml` - Verify NFR/technical_debt naming
 
 ---
 
