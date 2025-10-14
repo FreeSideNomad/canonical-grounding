@@ -1598,3 +1598,115 @@ Start small, inspect and adapt, and remember: **individuals and interactions ove
 - Publisher: Pragmatic Bookshelf
 - Pages: 280
 - Amazon: https://www.amazon.com/dp/1934356581
+
+---
+
+## Team Dynamics & Collaboration
+
+### definition_of_ready
+
+**Purpose**: Checklist of criteria that a user story/feature must meet before it can be pulled into a sprint.
+
+**Schema fields**:
+- `checklist`: Array of readiness criteria
+- `acceptance_threshold`: Percentage of criteria that must be met
+- `responsible_role`: Role responsible for ensuring readiness
+
+**Example:**
+```yaml
+definition_of_ready:
+  checklist:
+    - "User story follows INVEST criteria"
+    - "Acceptance criteria clearly defined"
+    - "Dependencies identified and resolved"
+    - "Design mockups approved"
+    - "Technical approach reviewed"
+    - "Story points estimated by team"
+    - "No blocking impediments"
+  acceptance_threshold: 100
+  responsible_role: role:product-owner
+```
+
+### team_topology
+
+**Purpose**: Defines team organization pattern based on Team Topologies framework.
+
+**Schema fields**:
+- `topology_type`: stream_aligned | platform | enabling | complicated_subsystem
+- `description`: Team purpose and focus
+- `interaction_modes`: Collaboration, X-as-a-Service, Facilitating
+- `cognitive_load`: Estimated cognitive load (low, medium, high)
+
+**Example:**
+```yaml
+team:
+  id: team_matching_engine
+  name: "Job Matching Team"
+  team_topology:
+    topology_type: stream_aligned
+    description: "Deliver job matching features end-to-end"
+    interaction_modes:
+      - mode: collaboration
+        with_team: team_ml_platform
+        frequency: weekly
+      - mode: x_as_a_service
+        with_team: team_data_platform
+        services: [data-pipeline-api, feature-store]
+    cognitive_load: medium
+    domain_focus: "Job matching and recommendations"
+
+team:
+  id: team_data_platform
+  name: "Data Platform Team"
+  team_topology:
+    topology_type: platform
+    description: "Provide data infrastructure as a service"
+    interaction_modes:
+      - mode: x_as_a_service
+        consumers: [team_matching_engine, team_analytics, team_profile]
+    cognitive_load: high
+```
+
+### working_agreement
+
+**Purpose**: Team norms, practices, and commitments for how they work together.
+
+**Schema fields**:
+- `agreement_id`: Unique identifier
+- `team_ref`: Reference to team
+- `agreements`: Array of agreed practices
+- `review_cadence`: How often to review (e.g., quarterly)
+- `last_reviewed`: Last review date
+
+**Example:**
+```yaml
+working_agreement:
+  agreement_id: wa_team_matching
+  team_ref: team:matching-engine
+  agreements:
+    communication:
+      - "Slack is primary communication (response within 2 hours)"
+      - "Async-first: default to written communication"
+      - "Video calls for complex discussions only"
+    code_quality:
+      - "All code must have unit tests (≥80% coverage)"
+      - "PRs require 2 approvals"
+      - "CI must pass before merging"
+    meetings:
+      - "Daily standup at 9:30am (15 min max)"
+      - "Sprint planning: every 2 weeks (2 hours)"
+      - "Retro: end of each sprint (1 hour)"
+    work_hours:
+      - "Core hours: 10am-4pm (all present)"
+      - "Flexible outside core hours"
+      - "No meetings before 9am or after 5pm"
+    documentation:
+      - "ADRs for significant architectural decisions"
+      - "README for each service"
+      - "Runbooks for production issues"
+  review_cadence: quarterly
+  last_reviewed: "2025-09-01"
+```
+
+---
+
