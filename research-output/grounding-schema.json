@@ -1,0 +1,613 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://canonical-grounding.org/schemas/meta-schema/v1.0.0",
+  "title": "Canonical Grounding Meta-Schema",
+  "description": "JSON Schema specification for defining domain canons and their grounding relationships in the Canonical Grounding framework",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["schema_version", "canon", "grounds_in", "concepts", "patterns"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of this canon schema"
+    },
+    "canon": {
+      "$ref": "#/definitions/Canon"
+    },
+    "grounds_in": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GroundingLink"
+      },
+      "description": "Dependencies on other canons"
+    },
+    "concepts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Concept"
+      },
+      "minItems": 1,
+      "description": "Core domain concepts"
+    },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Pattern"
+      },
+      "description": "Reusable structural templates"
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Constraint"
+      },
+      "description": "Domain invariants and validation rules"
+    },
+    "ubiquitous_language": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+          "type": "object",
+          "required": ["term", "definition"],
+          "properties": {
+            "term": {"type": "string"},
+            "definition": {"type": "string"},
+            "synonyms": {"type": "array", "items": {"type": "string"}},
+            "antonyms": {"type": "array", "items": {"type": "string"}},
+            "examples": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      },
+      "description": "Canonical vocabulary for this domain"
+    },
+    "evolution": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EvolutionEntry"
+      },
+      "description": "Version history and migration notes"
+    },
+    "metadata": {
+      "$ref": "#/definitions/Metadata"
+    }
+  },
+  "definitions": {
+    "Canon": {
+      "type": "object",
+      "required": ["id", "name", "domain", "layer"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^canon_[a-z_]+$",
+          "description": "Unique identifier for this canon"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name"
+        },
+        "domain": {
+          "type": "string",
+          "description": "Domain this canon represents (e.g., 'Domain-Driven Design', 'Data Engineering')"
+        },
+        "layer": {
+          "type": "string",
+          "enum": ["foundation", "derived", "meta"],
+          "description": "Position in the grounding hierarchy"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version of this canon"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of canon scope and purpose"
+        },
+        "maturity": {
+          "type": "string",
+          "enum": ["draft", "experimental", "stable", "mature", "deprecated"],
+          "description": "Maturity level of this canon"
+        },
+        "closure_percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Percentage of references that resolve (target: >95%)"
+        }
+      }
+    },
+    "GroundingLink": {
+      "type": "object",
+      "required": ["target_canon", "grounding_type", "strength"],
+      "properties": {
+        "target_canon": {
+          "type": "string",
+          "pattern": "^canon_[a-z_]+$",
+          "description": "ID of the canon this grounds in"
+        },
+        "grounding_type": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["structural", "semantic", "procedural", "epistemic"]
+          },
+          "minItems": 1,
+          "description": "Type(s) of grounding relationship"
+        },
+        "strength": {
+          "type": "string",
+          "enum": ["strong", "weak", "optional"],
+          "description": "How tightly coupled this grounding is"
+        },
+        "relationships": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ConceptMapping"
+          },
+          "description": "Specific concept-to-concept mappings"
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this grounding exists"
+        },
+        "validation_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ValidationRule"
+          },
+          "description": "Rules to validate this grounding"
+        },
+        "examples": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Concrete examples of this grounding in practice"
+        }
+      }
+    },
+    "ConceptMapping": {
+      "type": "object",
+      "required": ["source_concept", "target_concept", "mapping_type"],
+      "properties": {
+        "source_concept": {
+          "type": "string",
+          "description": "Concept in this canon"
+        },
+        "target_concept": {
+          "type": "string",
+          "description": "Concept in target canon (qualified name: canon.concept)"
+        },
+        "mapping_type": {
+          "type": "string",
+          "enum": ["reference", "alignment", "constraint", "equivalence"],
+          "description": "Nature of the mapping"
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": ["one-to-one", "one-to-many", "many-to-one", "many-to-many"],
+          "description": "Relationship cardinality"
+        },
+        "reference_field": {
+          "type": "string",
+          "description": "Field name in source concept that holds the reference"
+        },
+        "validation_level": {
+          "type": "string",
+          "enum": ["required", "optional", "recommended"],
+          "description": "Whether this mapping must be present"
+        },
+        "semantic_similarity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Semantic similarity score (for alignment mappings)"
+        }
+      }
+    },
+    "Concept": {
+      "type": "object",
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Unique identifier within this canon"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["entity", "value_object", "aggregate", "service", "event", "specification", "factory", "repository", "process", "component", "abstract"],
+          "description": "Concept classification"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of this concept"
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Property"
+          },
+          "description": "Attributes of this concept"
+        },
+        "relationships": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Relationship"
+          },
+          "description": "Relationships to other concepts"
+        },
+        "invariants": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Constraints that must always hold"
+        },
+        "lifecycle": {
+          "type": "object",
+          "properties": {
+            "creation": {"type": "string"},
+            "modification": {"type": "string"},
+            "deletion": {"type": "string"}
+          },
+          "description": "Lifecycle rules for this concept"
+        },
+        "external_references": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "References to concepts in other canons (canon.concept)"
+          },
+          "description": "Cross-canon dependencies"
+        }
+      }
+    },
+    "Property": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$"
+        },
+        "type": {
+          "type": "string",
+          "description": "Data type or concept reference"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        },
+        "default": {
+          "description": "Default value if not specified"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Validation constraints (e.g., 'length > 0', 'matches [A-Z]+)"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "Relationship": {
+      "type": "object",
+      "required": ["name", "target", "cardinality"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Relationship name (e.g., 'contains', 'references', 'produces')"
+        },
+        "target": {
+          "type": "string",
+          "description": "Target concept (may be external canon.concept)"
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": ["one", "many", "zero-or-one", "zero-or-many"]
+        },
+        "navigable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Can traverse from source to target"
+        },
+        "inverse": {
+          "type": "string",
+          "description": "Inverse relationship name if bidirectional"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Constraints on this relationship"
+        }
+      }
+    },
+    "Pattern": {
+      "type": "object",
+      "required": ["id", "name", "problem", "solution"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^pattern_[a-z_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["architectural", "design", "implementation", "organizational"],
+          "description": "Pattern category"
+        },
+        "problem": {
+          "type": "string",
+          "description": "What problem this pattern solves"
+        },
+        "solution": {
+          "type": "string",
+          "description": "How the pattern solves the problem"
+        },
+        "structure": {
+          "type": "object",
+          "properties": {
+            "participants": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["role", "concept"],
+                "properties": {
+                  "role": {"type": "string"},
+                  "concept": {"type": "string"},
+                  "responsibilities": {"type": "array", "items": {"type": "string"}}
+                }
+              }
+            },
+            "collaborations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["from", "to", "interaction"],
+                "properties": {
+                  "from": {"type": "string"},
+                  "to": {"type": "string"},
+                  "interaction": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "consequences": {
+          "type": "object",
+          "properties": {
+            "benefits": {"type": "array", "items": {"type": "string"}},
+            "liabilities": {"type": "array", "items": {"type": "string"}},
+            "tradeoffs": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "applicability": {
+          "type": "string",
+          "description": "When to apply this pattern"
+        },
+        "examples": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "related_patterns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["pattern", "relationship"],
+            "properties": {
+              "pattern": {"type": "string"},
+              "relationship": {
+                "type": "string",
+                "enum": ["extends", "specializes", "alternative_to", "combined_with", "prerequisite_for"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "Constraint": {
+      "type": "object",
+      "required": ["id", "type", "expression"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^constraint_[a-z_]+$"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["invariant", "precondition", "postcondition", "global", "cross_domain"],
+          "description": "Constraint classification"
+        },
+        "scope": {
+          "type": "string",
+          "description": "What this constraint applies to (concept, pattern, domain)"
+        },
+        "expression": {
+          "type": "string",
+          "description": "Formal or natural language constraint expression"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["error", "warning", "info"],
+          "default": "error",
+          "description": "Violation severity level"
+        },
+        "validation_function": {
+          "type": "string",
+          "description": "Name of validation function (if implemented)"
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this constraint exists"
+        },
+        "examples": {
+          "type": "object",
+          "properties": {
+            "valid": {"type": "array", "items": {"type": "string"}},
+            "invalid": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "ValidationRule": {
+      "type": "object",
+      "required": ["rule_id", "description", "validator"],
+      "properties": {
+        "rule_id": {
+          "type": "string",
+          "pattern": "^rule_[a-z0-9_]+$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "validator": {
+          "type": "string",
+          "description": "Validation function name or expression"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["error", "warning", "info"],
+          "default": "error"
+        },
+        "error_message": {
+          "type": "string",
+          "description": "Message to display on validation failure"
+        }
+      }
+    },
+    "EvolutionEntry": {
+      "type": "object",
+      "required": ["version", "date", "changes"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "description"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["added", "modified", "deprecated", "removed", "breaking"]
+              },
+              "description": {"type": "string"},
+              "migration_notes": {"type": "string"},
+              "backward_compatible": {"type": "boolean", "default": true}
+            }
+          }
+        },
+        "migration_script": {
+          "type": "string",
+          "description": "Script or procedure to migrate from previous version"
+        }
+      }
+    },
+    "Metadata": {
+      "type": "object",
+      "properties": {
+        "author": {"type": "string"},
+        "contributors": {"type": "array", "items": {"type": "string"}},
+        "created": {"type": "string", "format": "date"},
+        "modified": {"type": "string", "format": "date"},
+        "license": {"type": "string"},
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {"type": "string"},
+              "author": {"type": "string"},
+              "year": {"type": "integer"},
+              "url": {"type": "string", "format": "uri"}
+            }
+          }
+        },
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "status": {
+          "type": "string",
+          "enum": ["draft", "review", "approved", "deprecated"]
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "schema_version": "1.0.0",
+      "canon": {
+        "id": "canon_example",
+        "name": "Example Domain",
+        "domain": "Example",
+        "layer": "foundation",
+        "version": "1.0.0",
+        "description": "Example canon demonstrating schema structure",
+        "maturity": "stable",
+        "closure_percentage": 100
+      },
+      "grounds_in": [],
+      "concepts": [
+        {
+          "id": "example_entity",
+          "name": "ExampleEntity",
+          "type": "entity",
+          "description": "An example entity",
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "constraints": ["matches ^[a-z0-9_]+$"]
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "required": true,
+              "constraints": ["length > 0", "length < 256"]
+            }
+          ],
+          "relationships": [],
+          "invariants": ["name must be unique within scope"],
+          "external_references": []
+        }
+      ],
+      "patterns": [
+        {
+          "id": "pattern_example",
+          "name": "Example Pattern",
+          "category": "design",
+          "problem": "Need to solve X",
+          "solution": "Apply pattern Y",
+          "applicability": "When condition Z holds"
+        }
+      ],
+      "constraints": [
+        {
+          "id": "constraint_example",
+          "type": "invariant",
+          "scope": "example_entity",
+          "expression": "name must be unique",
+          "severity": "error",
+          "rationale": "Prevent duplicate entities"
+        }
+      ],
+      "metadata": {
+        "author": "Example Author",
+        "created": "2025-01-01",
+        "license": "MIT",
+        "status": "approved"
+      }
+    }
+  ],
+  "additionalProperties": false
+}
