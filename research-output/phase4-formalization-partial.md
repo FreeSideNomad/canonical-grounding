@@ -3,7 +3,7 @@
 ## 31. Formal Meta-Model for Canonical Grounding
 
 **Core Entities:**
-- Canon (Κ)
+- Canonical Model (M)
 - Domain
 - Concept
 - Pattern
@@ -13,7 +13,7 @@
 
 **Formal Definitions:**
 
-**Canon (Κ):**
+**Canonical Model (M):**
 A formally specified, internally consistent domain model with:
 - id, name, version (semantic versioning)
 - domain_layer: foundation | derived | meta
@@ -21,11 +21,11 @@ A formally specified, internally consistent domain model with:
 - patterns: Reusable structural templates
 - constraints: Invariants and validation rules
 - ubiquitous_language: Canonical vocabulary
-- grounds_in: Dependencies on other canons
+- grounds_in: Dependencies on other canonical models
 - evolution_history: Version changes
 
 **GroundingLink (γ):**
-Directed dependency between canons with:
+Directed dependency between canonical models with:
 - source_canon, target_canon
 - grounding_type: structural | semantic | procedural | epistemic
 - relationships: concept mappings with cardinality
@@ -35,9 +35,9 @@ Directed dependency between canons with:
 
 **Formal Properties:**
 
-**P1: Canon Closure**
+**P1: Canonical Model Closure**
 ```
-∀κ ∈ Canons:
+∀κ ∈ Canonical Models:
   ∀c ∈ κ.concepts:
     (c.references ⊆ κ.concepts) ∨
     (∃γ ∈ κ.grounds_in: c.references ⊆ γ.target_canon.concepts)
@@ -52,11 +52,11 @@ No circular grounding dependencies.
 
 **P3: Constraint Consistency**
 ```
-∀κ ∈ Canons:
+∀κ ∈ Canonical Models:
   ∀c₁, c₂ ∈ κ.constraints:
     satisfiable(c₁ ∧ c₂)
 ```
-Constraints within canon don't contradict.
+Constraints within canonical model don't contradict.
 
 **P4: Evolution Compatibility**
 ```
@@ -69,7 +69,7 @@ Backward-compatible changes don't break existing instances.
 
 ## 32. YAML/JSON Schema Syntax
 
-Meta-schema defines formal syntax for declaring canons. Key properties:
+Meta-schema defines formal syntax for declaring canonical models. Key properties:
 
 **1. Human-Readable:** Syntax resembles natural language and familiar notations
 **2. Machine-Parseable:** Formal grammar enables tooling
@@ -80,7 +80,7 @@ Meta-schema defines formal syntax for declaring canons. Key properties:
 - DDD schema conforms to meta-schema: ✅
 - UX schema conforms with grounding declared: ✅
 
-Meta-schema provides standard format for all domain canons, validation against common structure, explicit grounding relationships, evolution tracking, and cross-canon consistency checks.
+Meta-schema provides standard format for all domain canonical models, validation against common structure, explicit grounding relationships, evolution tracking, and cross-canonical model consistency checks.
 
 ## 33. Encoding Dependency Rules
 
@@ -129,13 +129,13 @@ Meta-schema provides standard format for all domain canons, validation against c
 Canonical grounding forms directed acyclic graph (DAG):
 
 **Nodes:**
-- Canon Nodes: Domain canons (DDD, Data-Eng, UX, QE, Agile)
-- Concept Nodes: Individual concepts within canons
+- Canonical Model Nodes: Domain canonical models (DDD, Data-Eng, UX, QE, Agile)
+- Concept Nodes: Individual concepts within canonical models
 - Pattern Nodes: Reusable templates
 
 **Edges:**
-- Grounding edges (γ): Canon dependencies
-- Contains edges: Canon → Concept
+- Grounding edges (γ): Canonical Model dependencies
+- Contains edges: Canonical Model → Concept
 - References edges: Concept → Concept
 - Implements edges: Concept → Pattern
 
@@ -149,12 +149,12 @@ Level 2 (Meta):       [Agile]
 ```
 
 **2. Strong Connectivity Within, Weak Between:**
-Within canon: dense connections
-Between canons: sparse, explicit connections
+Within canonical model: dense connections
+Between canonical models: sparse, explicit connections
 
 **3. Semantic Distance:**
 d(c₁, c₂) = shortest path between concepts
-- Same canon, direct: d = 1
+- Same canonical model, direct: d = 1
 - One grounding hop: d = 2
 - Multiple hops: d = 3+
 
@@ -189,9 +189,9 @@ DDD neighborhood fully connected (clustering = 1.0) suggests DDD is hub of tight
 **BNF Grammar (Simplified):**
 
 ```bnf
-<canonical_system> ::= <canon>+
+<canonical_system> ::= <canonical model>+
 
-<canon> ::= "canon" <canon_id> "{"
+<canonical model> ::= "canonical model" <canon_id> "{"
               "domain:" <domain_spec>
               "layer:" <layer>
               "concepts:" <concept_list>
@@ -212,7 +212,7 @@ DDD neighborhood fully connected (clustering = 1.0) suggests DDD is hub of tight
 **Parser Properties:**
 1. Context-Free: Enables LL(k) or LR parsing
 2. Unambiguous: Unique parse tree for each expression
-3. Composable: Can parse individual canons or complete systems
+3. Composable: Can parse individual canonical models or complete systems
 4. Extensible: New types can be added without breaking parsers
 
 **Semantic Validation (Post-Parse):**
@@ -234,7 +234,7 @@ YAML/JSON Disadvantages: Verbose, generic errors, no domain constructs
 
 ## 36. Validate Canonical Closure
 
-**Definition:** Canon achieves closure if all internal references resolve within canon or explicitly ground in external canons.
+**Definition:** Canonical Model achieves closure if all internal references resolve within canonical model or explicitly ground in external canonical models.
 
 **Formal Closure Property:**
 ```
@@ -247,12 +247,12 @@ Closure(κ) ⟺
 
 **Validation Against Existing Schemas:**
 
-**DDD Canon:**
+**DDD Canonical Model:**
 - Internal concepts: 9 core concepts
 - Grounding: [] (foundation)
 - All references internal: ✅ CLOSED
 
-**UX Canon:**
+**UX Canonical Model:**
 - Internal concepts: 4 core concepts
 - Grounding: [canon_ddd, canon_data_eng]
 - All references resolve: ✅ CLOSED
@@ -285,7 +285,7 @@ Target: >95% for production
 ```
 
 **Research Implications:**
-Closure validation indicates completeness, coherence, and dependency clarity. Non-closed canons reveal missing grounding declarations, implicit assumptions, or incomplete domain analysis.
+Closure validation indicates completeness, coherence, and dependency clarity. Non-closed canonical models reveal missing grounding declarations, implicit assumptions, or incomplete domain analysis.
 
 ## 37. Prove Compositional Properties
 
@@ -294,7 +294,7 @@ Closure validation indicates completeness, coherence, and dependency clarity. No
 **Theorem:** If κ_A grounds in κ_B, and κ_B grounds in κ_C, then κ_A's constraints are consistent with κ_C's constraints.
 
 ```
-∀κ_A, κ_B, κ_C ∈ Canons:
+∀κ_A, κ_B, κ_C ∈ Canonical Models:
   (γ(κ_A → κ_B) ∧ γ(κ_B → κ_C)) ⟹
   consistent(κ_A.constraints ∪ κ_B.constraints ∪ κ_C.constraints)
 ```
@@ -310,7 +310,7 @@ Closure validation indicates completeness, coherence, and dependency clarity. No
 
 **Property 2: Substitutability**
 
-**Theorem:** If two canons provide equivalent grounding, they can be substituted without semantic change.
+**Theorem:** If two canonical models provide equivalent grounding, they can be substituted without semantic change.
 
 ```
 ∀κ_A, κ_B1, κ_B2:
@@ -319,18 +319,18 @@ Closure validation indicates completeness, coherence, and dependency clarity. No
   semantically_equivalent(κ_A[κ_B1], κ_A[κ_B2])
 ```
 
-**Implication:** Substitutability enables canonical evolution - can upgrade foundation canons without breaking derived canons.
+**Implication:** Substitutability enables canonical evolution - can upgrade foundation canonical models without breaking derived canonical models.
 
 **Property 3: Composition Associativity**
 
-**Theorem:** Order of composition doesn't matter for independent canons.
+**Theorem:** Order of composition doesn't matter for independent canonical models.
 
 ```
 ground_in([κ_B, κ_C]) = ground_in([κ_C, κ_B])
 when κ_B and κ_C are independent
 ```
 
-If canons have overlapping concepts, order may matter (resolution rules needed).
+If canonical models have overlapping concepts, order may matter (resolution rules needed).
 
 **Property 4: Monotonicity**
 
@@ -344,7 +344,7 @@ constraints(κ_A with grounds_in κ_B) ⊇ constraints(κ_A)
 
 **Property 5: Modular Reasoning**
 
-**Theorem:** Can reason about canon in isolation, then compose.
+**Theorem:** Can reason about canonical model in isolation, then compose.
 
 ```
 valid(κ_A) ∧ valid(κ_B) ∧ compatible(γ(κ_A → κ_B))
