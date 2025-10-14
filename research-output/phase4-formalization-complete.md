@@ -8,7 +8,7 @@
 
 ArchiMate 3.1 has three layers matching canonical grounding structure:
 
-**Business Layer → Foundation Canons (DDD, Agile)**
+**Business Layer → Foundation Canonical Models (DDD, Agile)**
 ```
 ArchiMate Business Layer          Canonical Grounding
 ─────────────────────────────    ──────────────────────
@@ -20,7 +20,7 @@ Business Event                 →  DDD: Domain Event
 Value                          →  Agile: Business Value, Epic Outcome
 ```
 
-**Application Layer → Derived Canons (UX, QE)**
+**Application Layer → Derived Canonical Models (UX, QE)**
 ```
 ArchiMate Application Layer       Canonical Grounding
 ─────────────────────────────    ──────────────────────
@@ -51,16 +51,16 @@ Access (read/write)            →  References (UX accesses DDD concepts)
 Influence                      →  Semantic grounding
 Flow                           →  Procedural grounding
 Association                    →  Structural grounding
-Specialization                 →  Canon versioning/evolution
-Composition                    →  Canon contains concepts
+Specialization                 →  Canonical Model versioning/evolution
+Composition                    →  Canonical Model contains concepts
 Aggregation                    →  Pattern aggregates concepts
 ```
 
 **UML Metamodel Mapping:**
 
-**Package → Canon**
+**Package → Canonical Model**
 ```
-<<canon>> DDD
+<<canonical model>> DDD
   <<concept>> Aggregate
   <<concept>> Entity
   <<pattern>> Repository
@@ -93,7 +93,7 @@ context Aggregate
 
 Create UML profile for Canonical Grounding:
 ```
-<<stereotype>> Canon extends Package
+<<stereotype>> Canonical Model extends Package
   attributes:
     layer: {foundation, derived, meta}
     version: String
@@ -126,16 +126,16 @@ Canonical grounding can export to:
 
 **Objective:** Define how LLM uses canonical schemas to constrain generation.
 
-**Canon-Guided Generation Protocol:**
+**Canonical Model-Guided Generation Protocol:**
 
 **Phase 1: Schema Loading**
 ```
-INPUT: Task description + relevant canons
+INPUT: Task description + relevant canonical models
 OUTPUT: Active schema context
 
 STEPS:
-1. Identify required canons from task
-2. Load canon schemas with dependencies (follow grounding transitively)
+1. Identify required canonical models from task
+2. Load canonical model schemas with dependencies (follow grounding transitively)
 3. Construct active schema context (merge vocabularies, patterns, constraints)
 4. Validate schema consistency (no cycles, references resolve, no contradictions)
 ```
@@ -162,7 +162,7 @@ GENERATION STRATEGY:
 3. Grounding-Aware Cross-Reference
    - Check grounding link exists
    - Verify target concept available
-   - Use qualified reference (canon.concept_id)
+   - Use qualified reference (canonical model.concept_id)
    - Validate cardinality constraints
 
 4. Constraint Satisfaction
@@ -199,19 +199,19 @@ TRACEABILITY PROTOCOL:
 
 **Rule 1: Concept Introduction**
 ```
-To introduce concept C from canon Κ:
-  IF C ∈ Κ.concepts
+To introduce concept C from canonical model M:
+  IF C ∈ M.concepts
   THEN generate(C) respecting C.properties and C.relationships
-  ELSE error("Concept not in canon")
+  ELSE error("Concept not in canonical model")
 ```
 
 **Rule 2: Grounding Reference**
 ```
-To reference concept C_ext from external canon Κ_ext:
+To reference concept C_ext from external canonical model Κ_ext:
   IF ∃γ ∈ current_canon.grounds_in: γ.target = Κ_ext
   AND C_ext ∈ Κ_ext.concepts
   THEN generate_reference(Κ_ext.C_ext)
-  ELSE error("No grounding to external canon")
+  ELSE error("No grounding to external canonical model")
 ```
 
 **Rule 3: Constraint Propagation**
@@ -237,7 +237,7 @@ To use pattern P:
 - **Termination:** Always terminates (finite search, max iterations)
 - **Traceability:** Every decision has justification
 
-## 40. Canon → Prompt → Artifact Procedure
+## 40. Canonical Model → Prompt → Artifact Procedure
 
 **Complete Procedure Documentation:**
 
@@ -252,23 +252,23 @@ PROCEDURE:
     - Identify artifact type
     - Determine scope
 
-1.2 Identify required canons
+1.2 Identify required canonical models
     RULES:
     - "design aggregate" → canon_ddd
     - "design workflow" → canon_ux + canon_ddd
     - "design pipeline" → canon_data_eng + canon_ddd
-    - "complete feature" → all canons
+    - "complete feature" → all canonical models
 
 1.3 Determine constraints from task
 ```
 
 **STEP 2: Schema Preparation**
 ```
-INPUT: Required canons list
+INPUT: Required canonical models list
 OUTPUT: Prepared schema context
 
 PROCEDURE:
-2.1 Load primary canons
+2.1 Load primary canonical models
 2.2 Resolve grounding dependencies
 2.3 Extract relevant schema elements
 2.4 Build unified vocabulary

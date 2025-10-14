@@ -13,7 +13,7 @@
 | **Justification** | Faith, tradition | Pragmatic effectiveness, formal reasoning |
 | **Scope** | Universal truths | Domain-specific patterns |
 | **Enforcement** | Social/institutional pressure | Technical validation, tooling |
-| **Pluralism** | One true dogma | Multiple coexisting canons |
+| **Pluralism** | One true dogma | Multiple coexisting canonical models |
 | **Epistemology** | Revealed knowledge | Discovered/constructed knowledge |
 
 **Key Distinction:** Dogma is prescriptive (must believe), canonical grounding is descriptive (models what works) with prescriptive guidance (constrain to effective patterns).
@@ -25,8 +25,8 @@
 | Dimension | Paradigm | Canonical Grounding |
 |-----------|----------|---------------------|
 | **Change Mechanism** | Revolutionary (paradigm shift) | Evolutionary (versioned change) |
-| **Incommensurability** | Paradigms can't coexist | Canons coexist with grounding |
-| **Normal Science** | Puzzle-solving within paradigm | Pattern application within canon |
+| **Incommensurability** | Paradigms can't coexist | Canonical Models coexist with grounding |
+| **Normal Science** | Puzzle-solving within paradigm | Pattern application within canonical model |
 | **Crisis** | Anomalies accumulate | Explicit limitations documented |
 | **Community** | Single community per paradigm | Multiple communities, explicit bridges |
 | **Translation** | Difficult/impossible | Explicit through grounding relationships |
@@ -47,10 +47,10 @@
 |-----------|-------------------|---------------------|
 | **Abstraction** | Code abstractions (libraries, APIs) | Conceptual abstractions (patterns, models) |
 | **Reuse** | Code reuse | Conceptual reuse |
-| **Extension** | Subclassing, plugins | Schema extension, new canons |
+| **Extension** | Subclassing, plugins | Schema extension, new canonical models |
 | **Constraint** | Type system, interfaces | Formal schemas, validation rules |
 | **Evolution** | Versioned releases | Versioned schemas with migration |
-| **Composition** | Library dependencies | Canon grounding relationships |
+| **Composition** | Library dependencies | Canonical Model grounding relationships |
 
 **Similarity:** Both provide reusable structure that constrains and enables.
 
@@ -58,7 +58,7 @@
 
 **Example:**
 - Framework: Spring provides IoC container, transaction management
-- Canonical Grounding: DDD canon provides aggregate pattern, ubiquitous language
+- Canonical Grounding: DDD Canonical Model provides aggregate pattern, ubiquitous language
 
 **Metaphor Fit:** ★★★★★ (Excellent fit - canonical grounding is "conceptual framework")
 
@@ -67,7 +67,7 @@
 | Dimension | Architecture | Canonical Grounding |
 |-----------|-------------|---------------------|
 | **Level** | System structure | Knowledge structure |
-| **Elements** | Components, connectors | Canons, grounding relationships |
+| **Elements** | Components, connectors | Canonical Models, grounding relationships |
 | **Views** | Multiple views (C4, 4+1) | Multiple domains (DDD, UX, Data) |
 | **Concerns** | Quality attributes (performance, security) | Conceptual integrity, consistency |
 | **Documentation** | Architecture diagrams, ADRs | Schemas, grounding maps |
@@ -140,7 +140,7 @@ Testable predictions:
 - P1: Schema-grounded LLMs will outperform ungrounded by 25-50%
 - P2: Violations of closure property correlate with implementation errors
 - P3: Higher semantic distance correlates with reasoning difficulty
-- P4: Canons with >95% closure have fewer downstream issues
+- P4: Canonical Models with >95% closure have fewer downstream issues
 
 **Falsification conditions:**
 - If schema grounding shows no improvement → Theory weakened
@@ -156,7 +156,7 @@ Testable predictions:
 Formal properties proven:
 - Closure: Well-defined, algorithmically checkable
 - Acyclicity: Prevents contradictions from circular grounding
-- Consistency: Constraints within canon don't contradict
+- Consistency: Constraints within canonical model don't contradict
 - Transitivity: Grounding chains maintain consistency
 
 No identified contradictions between formal definitions, philosophical grounding, empirical claims, and practical procedures.
@@ -221,7 +221,7 @@ Demonstrated utility:
 **Assessment: YES ✓**
 
 Formal definitions provided:
-- Canon: Formally defined with properties
+- Canonical Model: Formally defined with properties
 - Grounding: Four types with clear semantics
 - Closure: Formal property with validation algorithm
 - Constraint: Types and severity levels defined
@@ -239,7 +239,7 @@ Formal definitions provided:
 
 **New Research Questions Generated:**
 - How does semantic distance affect LLM reasoning difficulty?
-- What is optimal granularity for canons?
+- What is optimal granularity for canonical models?
 - Can grounding relationships be learned from examples?
 - How does canonical grounding scale to 10+ domains?
 
@@ -247,7 +247,7 @@ Formal definitions provided:
 - Domain-specific LLM fine-tuning
 - Automated consistency validation tools
 - Multi-domain impact analysis
-- Canon evolution diff tools
+- Canonical Model evolution diff tools
 
 **Cross-Disciplinary Bridges:**
 - Philosophy (grounding metaphysics) ↔ AI (LLM reasoning)
@@ -261,7 +261,7 @@ Formal definitions provided:
 **Assessment: MODERATE ✓**
 
 **Simple Core:**
-- Three main concepts: Canon, Grounding, Ontology
+- Three main concepts: Canonical Model, Grounding, Ontology
 - Clear metaphor: "Bounded contexts for knowledge"
 - Understandable by practitioners
 
@@ -301,14 +301,14 @@ All components appear necessary - removing any loses essential function.
 **Description:** Formalizing domain knowledge before it's mature can freeze incomplete understanding.
 
 **Mechanism:**
-Immature domain → Create canon → Users follow canon →
+Immature domain → Create canonical model → Users follow canonical model →
 Domain understanding doesn't deepen → Stuck with early, flawed patterns
 
 **Example:** Early NoSQL movement rejected ACID. If canonized too early (2010), would have missed NewSQL developments and distributed ACID breakthroughs.
 
 **Mitigation:**
 - Maturity threshold: Only canonize domains with >5 years stable practice
-- Provisional status: Mark immature canons as "draft"
+- Provisional status: Mark immature canonical models as "draft"
 - Evolution mechanisms: Encourage rapid versioning
 - Community validation: Require consensus from diverse practitioners
 
@@ -316,13 +316,13 @@ Domain understanding doesn't deepen → Stuck with early, flawed patterns
 
 ### Risk 2: Constraint-Induced Rigidity
 
-**Description:** Schemas enforce constraints that prevent valid innovations outside the canon.
+**Description:** Schemas enforce constraints that prevent valid innovations outside the canonical domain model.
 
 **Mechanism:**
-Canon defines "right way" → Novel approach doesn't fit schema →
+Canonical Model defines "right way" → Novel approach doesn't fit schema →
 Validation fails → Innovation rejected or forced into existing patterns
 
-**Example:** DDD canon emphasizes domain model with entities/VOs. Event Sourcing challenges this (events are primary). If DDD rigidly enforced, might reject valid ES patterns.
+**Example:** DDD Canonical Model emphasizes domain model with entities/VOs. Event Sourcing challenges this (events are primary). If DDD rigidly enforced, might reject valid ES patterns.
 
 **Real Evidence:** Xu et al. (2024) found schema grounding reduced creativity.
 
@@ -337,18 +337,18 @@ Validation fails → Innovation rejected or forced into existing patterns
 
 ### Risk 3: False Consensus
 
-**Description:** Canon appears to represent community consensus but reflects specific groups' biases.
+**Description:** Canonical Model appears to represent community consensus but reflects specific groups' biases.
 
-**Example:** DDD canon reflects Western software practices, object-oriented paradigm, enterprise contexts, English terminology. May not fit functional programming, non-Western contexts, startups, non-English teams.
+**Example:** DDD Canonical Model reflects Western software practices, object-oriented paradigm, enterprise contexts, English terminology. May not fit functional programming, non-Western contexts, startups, non-English teams.
 
 **Mitigation:**
-- Explicit scope: Document whose practices canon represents
-- Multiple canons: Allow competing canons for same domain
+- Explicit scope: Document whose practices canonical model represents
+- Multiple canonical models: Allow competing canonical models for same domain
 - Local adaptation: Support region/context-specific variants
 - Inclusive process: Diverse stakeholders in development
 - Challenge mechanisms: Easy process to propose alternatives
 
-**Severity:** MEDIUM to HIGH - depends on canon development process
+**Severity:** MEDIUM to HIGH - depends on canonical model development process
 
 ### Risk 4: Grounding Lock-In
 
@@ -360,7 +360,7 @@ Validation fails → Innovation rejected or forced into existing patterns
 - Semantic versioning: Clear backward-compatibility guarantees
 - Deprecation periods: Long transition windows
 - Automated migration: Tools to update references in bulk
-- Version negotiation: Support multiple canon versions simultaneously
+- Version negotiation: Support multiple canonical model versions simultaneously
 - Weak grounding: Some relationships can be optional
 
 **Severity:** MEDIUM - manageable with tooling and process
@@ -392,11 +392,11 @@ Validation fails → Innovation rejected or forced into existing patterns
 Canonical grounding could force one definition, losing others' nuance.
 
 **Mitigation:**
-- Qualified names: Always use `canon.term` not just `term`
-- Translation maps: Explicit term mappings between canons
+- Qualified names: Always use `canonical model.term` not just `term`
+- Translation maps: Explicit term mappings between canonical models
 - Semantic distance: Track when "same" term has different meanings
 - Preserve multiple: Allow both `ddd:Event` and `data_eng:Event`
-- Context sensitivity: Understand meaning depends on canon
+- Context sensitivity: Understand meaning depends on canonical model
 
 **Severity:** LOW to MEDIUM - addressed by namespacing
 
@@ -422,9 +422,9 @@ Canonical grounding could force one definition, losing others' nuance.
 
 ### Risk 8: Evolution Coordination Complexity
 
-**Description:** Coordinating schema evolution across multiple grounded canons becomes unwieldy.
+**Description:** Coordinating schema evolution across multiple grounded canonical models becomes unwieldy.
 
-**Example:** 5 canons, each versioning independently → UX v2.0 grounds in DDD v1.5 and Data-Eng v3.0 → DDD releases v2.0 → UX must upgrade → But Data-Eng v3.0 incompatible with DDD v2.0 → Dependency hell
+**Example:** 5 canonical models, each versioning independently → UX v2.0 grounds in DDD v1.5 and Data-Eng v3.0 → DDD releases v2.0 → UX must upgrade → But Data-Eng v3.0 incompatible with DDD v2.0 → Dependency hell
 
 **Mitigation:**
 - Compatibility matrix: Document which versions work together
@@ -433,7 +433,7 @@ Canonical grounding could force one definition, losing others' nuance.
 - Loose coupling: Minimize hard version dependencies
 - Governance: Central coordination for major releases
 
-**Severity:** HIGH at scale (10+ canons), LOW currently (5 canons)
+**Severity:** HIGH at scale (10+ canonical models), LOW currently (5 canonical models)
 
 ### Aggregate Risk Assessment
 
@@ -501,7 +501,7 @@ Concepts:
 
 **Fit Assessment:** ★★★★★ EXCELLENT
 - Well-defined domain vocabulary
-- Clear dependencies on existing canons
+- Clear dependencies on existing canonical models
 - Formal structure (regulations are specifications)
 - Mature practices (20+ years)
 
@@ -687,14 +687,14 @@ Q3: "I understand the difference between structural and semantic grounding"
 - Agree: 30%
 - Neutral: 12%
 
-Q4: "The bounded context metaphor helps me understand canons"
+Q4: "The bounded context metaphor helps me understand canonical models"
 - Strongly Agree: 78%
 - Agree: 18%
 - Disagree: 4%
 
 **Part 2: Learnability (after 2-hour workshop)**
 
-Q5: "I could create a canon schema for a new domain"
+Q5: "I could create a canonical domain model schema for a new domain"
 - Confident: 45%
 - Somewhat Confident: 42%
 - Not Confident: 13%
@@ -750,7 +750,7 @@ Q10: "The formalism adds clarity rather than complexity"
 ### Learning Curve Analysis
 
 **Novice (0-2 hours):**
-- Can understand: Canon, grounding, bounded context metaphor
+- Can understand: Canonical Model, grounding, bounded context metaphor
 - Struggle with: Four grounding types, closure property, evolution
 
 **Intermediate (2-8 hours):**
@@ -763,7 +763,7 @@ Q10: "The formalism adds clarity rather than complexity"
 
 **Expert (20+ hours):**
 - Can understand: Full meta-model, formal properties, extensions
-- Can do: Design new canons, coordinate multi-domain evolution
+- Can do: Design new canonical models, coordinate multi-domain evolution
 
 **Comparison to Similar Frameworks:**
 - DDD Bounded Contexts: Similar learning curve (moderate)
@@ -776,7 +776,7 @@ Q10: "The formalism adds clarity rather than complexity"
 ### Barriers to Adoption
 
 **Identified Barriers:**
-1. **Unfamiliar Terminology:** "Canon", "grounding" not standard (30% of participants)
+1. **Unfamiliar Terminology:** "Canonical Model", "grounding" not standard (30% of participants)
 2. **Schema Syntax:** YAML verbose, JSON intimidating (25%)
 3. **Abstract Concepts:** Epistemic grounding hard to grasp (40%)
 4. **Tooling Gap:** No IDE support yet (60%)
@@ -880,7 +880,7 @@ Q10: "The formalism adds clarity rather than complexity"
 - **Rating:** ★★★☆☆ (Needs visualization tools)
 
 **Premature Commitment (constraints on ordering):**
-- Low: Can develop canons independently
+- Low: Can develop canonical models independently
 - **Rating:** ★★★★★ Excellent
 
 **Hidden Dependencies:**
@@ -930,16 +930,16 @@ Q10: "The formalism adds clarity rather than complexity"
 
 **Training Examples (10,000+ pairs):**
 ```
-Input: "Design aggregate for order management [Canon: DDD]"
+Input: "Design aggregate for order management [Canonical Model: DDD]"
 Output: <schema-conformant aggregate with explicit citations>
 
-Input: "Design data pipeline for orders [Canon: Data-Eng, Grounding: DDD]"
+Input: "Design data pipeline for orders [Canonical Model: Data-Eng, Grounding: DDD]"
 Output: <pipeline with explicit DDD aggregate references>
 ```
 
 **Fine-Tuning Strategy:**
 - Base model: GPT-4, Claude 3.5, Llama 3
-- Dataset: 10K examples covering all 5 canons
+- Dataset: 10K examples covering all 5 canonical models
 - Training: Supervised fine-tuning (SFT)
 - Validation: Schema conformance metrics
 
@@ -973,7 +973,7 @@ Output: <pipeline with explicit DDD aggregate references>
 - Embed validation rules (100+ rules)
 
 **Retrieval Strategy:**
-1. User query → Identify relevant canons
+1. User query → Identify relevant canonical models
 2. Retrieve relevant schema fragments (top 10)
 3. Retrieve related grounding links (transitive closure)
 4. Construct context (2-3K tokens)
@@ -1010,7 +1010,7 @@ Output: <pipeline with explicit DDD aggregate references>
 |--------|----------------|--------|
 | Schema conformance | 92% | 96% (+4%) |
 | Grounding citation | 88% | 94% (+6%) |
-| Adaptation to new canons | Requires retrain | Immediate |
+| Adaptation to new canonical models | Requires retrain | Immediate |
 | Cost | Moderate (one-time) | High (training + runtime) |
 
 **Optimal Approach:** Hybrid for production systems with evolving schemas.
@@ -1059,10 +1059,10 @@ Hallucination = (made_up_concepts + invalid_references) / total_concepts
 
 ### Pilot Test Design
 
-**Test Corpus:** 100 tasks across 5 canons
+**Test Corpus:** 100 tasks across 5 canonical models
 - 40 single-domain (DDD, Data-Eng, UX)
 - 40 cross-domain (DDD+UX, DDD+Data)
-- 20 full-stack (all canons)
+- 20 full-stack (all canonical models)
 
 **Baselines:**
 1. Base model (no grounding)
@@ -1094,8 +1094,8 @@ Hallucination = (made_up_concepts + invalid_references) / total_concepts
 **Requirement:** Research must produce a viable artifact.
 
 **Canonical Grounding Artifacts:**
-1. Meta-model (formal definitions of Canon, Grounding, Ontology)
-2. Schemas (5 domain canons: DDD, Data-Eng, UX, QE, Agile)
+1. Meta-model (formal definitions of Canonical Model, Grounding, Ontology)
+2. Schemas (5 domain canonical models: DDD, Data-Eng, UX, QE, Agile)
 3. Grounding relationships (15+ explicit dependencies)
 4. Validation framework (closure checking, constraint validation)
 5. Reasoning protocol (LLM integration procedure)
@@ -1165,7 +1165,7 @@ Hallucination = (made_up_concepts + invalid_references) / total_concepts
 - Validation procedures
 
 **3. Practical:**
-- 5 implemented domain canons
+- 5 implemented domain canonical models
 - Tooling framework (validation, evolution)
 - Integration patterns (ArchiMate, UML)
 
@@ -1290,13 +1290,13 @@ Hallucination = (made_up_concepts + invalid_references) / total_concepts
 - Minsky (1974): Frames for stereotypical situations
 - KL-ONE (1985): Structured inheritance networks
 - **Connection:** Structured knowledge with inheritance
-- **To Canonical Grounding:** Canons as frames, grounding as inheritance
+- **To Canonical Grounding:** Canonical Models as frames, grounding as inheritance
 
 **1990s: Ontology Engineering**
 - Gruber (1993): "Specification of conceptualization"
 - CYC (Lenat): Large-scale ontology
 - **Connection:** Formal specification of domain concepts
-- **To Canonical Grounding:** Each canon is an ontology, grounding coordinates multiple ontologies
+- **To Canonical Grounding:** Each canonical domain model is an ontology, grounding coordinates multiple ontologies
 
 **2000s: Semantic Web**
 - RDF/OWL (W3C): Web ontology language
@@ -1307,7 +1307,7 @@ Hallucination = (made_up_concepts + invalid_references) / total_concepts
 **2003: Domain-Driven Design**
 - Evans (2003): Bounded contexts, ubiquitous language
 - **Connection:** Domain isolation with integration patterns
-- **To Canonical Grounding:** Each canon IS a bounded context for knowledge
+- **To Canonical Grounding:** Each canonical domain model IS a bounded context for knowledge
 
 **2010s: Schema-Based Generation**
 - Schema-Guided Dialogue (Shah et al., 2018)
@@ -1417,7 +1417,7 @@ Just as DDD provides:
 - Ubiquitous language (clarity)
 
 Canonical Grounding provides:
-- Canons (knowledge contexts)
+- Canonical Models (knowledge contexts)
 - Grounding relationships (knowledge integration)
 - Schema vocabularies (formal language)
 
@@ -1429,11 +1429,11 @@ Canonical Grounding provides:
 
 ### Definition
 
-**Canonical Grounding** is a meta-methodological framework for organizing interdependent domain knowledge into formally specified **canons** connected by explicit **grounding relationships**, enabling consistent multi-paradigm reasoning in complex systems, particularly LLM-assisted software engineering.
+**Canonical Grounding** is a meta-methodological framework for organizing interdependent domain knowledge into formally specified **canonical models** connected by explicit **grounding relationships**, enabling consistent multi-paradigm reasoning in complex systems, particularly LLM-assisted software engineering.
 
 ### Core Components
 
-**1. Canon (Κ)**
+**1. Canonical Model (M)**
 A formally specified, internally consistent domain model consisting of:
 - Concepts: Core domain entities
 - Patterns: Reusable structural templates
@@ -1444,7 +1444,7 @@ A formally specified, internally consistent domain model consisting of:
 **Properties:** Closure, coherence, completeness, composability
 
 **2. Grounding Relationship (γ)**
-Directed, typed dependency between canons enabling:
+Directed, typed dependency between canonical models enabling:
 - Structural: Entity references (UX page → DDD aggregate)
 - Semantic: Concept alignment (Finance account ≈ DDD aggregate)
 - Procedural: Process dependencies (QE test validates DDD invariant)
@@ -1453,8 +1453,8 @@ Directed, typed dependency between canons enabling:
 **Properties:** Acyclicity, transitivity, strength (strong/weak/optional)
 
 **3. Ontology (Ω)**
-Complete directed acyclic graph of canons and groundings:
-- Nodes: Canons, concepts, patterns
+Complete directed acyclic graph of canonical models and groundings:
+- Nodes: Canonical Models, concepts, patterns
 - Edges: Grounding relationships, references
 - Layers: Foundation → Derived → Meta
 
@@ -1462,12 +1462,12 @@ Complete directed acyclic graph of canons and groundings:
 
 ### Formal Model
 
-**Canon:**
+**Canonical Model:**
 ```
-Κ = ⟨ID, Concepts, Patterns, Constraints, Grounds_In, Evolution⟩
+M = ⟨ID, Concepts, Patterns, Constraints, Grounds_In, Evolution⟩
 
-Closure(Κ) ⟺ ∀c ∈ Κ.concepts: ∀r ∈ c.references:
-    (r ∈ Κ.concepts) ∨ (∃γ ∈ Κ.grounds_in: r ∈ γ.target.concepts)
+Closure(M) ⟺ ∀c ∈ M.concepts: ∀r ∈ c.references:
+    (r ∈ M.concepts) ∨ (∃γ ∈ M.grounds_in: r ∈ γ.target.concepts)
 ```
 
 **Grounding:**
@@ -1480,7 +1480,7 @@ Strength ∈ {strong, weak, optional}
 
 **Ontology:**
 ```
-Ω = ⟨Canons, Groundings⟩
+Ω = ⟨Canonical Models, Groundings⟩
 
 Acyclic(Ω) ⟺ ¬∃ path: κ₁ → ... → κₙ → κ₁
 ```
@@ -1513,7 +1513,7 @@ constraints(κ_A with γ) ⊇ constraints(κ_A)
 2. **Structured Pluralism:** Multiple valid paradigms, explicitly coordinated
 3. **Evolutionary Stability:** Versioned schemas, backward compatibility
 4. **Formal Validation:** Automated consistency checking
-5. **Modular Development:** Independent canon development, compositional integration
+5. **Modular Development:** Independent canonical model development, compositional integration
 
 ### Application Domains
 
