@@ -12,7 +12,7 @@
 
 This research establishes **Canonical Grounding** as a theoretically grounded, empirically validated, practically applicable meta-methodological framework for organizing multi-domain knowledge in LLM-assisted software engineering systems.
 
-**Core Innovation:** Explicit, typed inter-domain grounding relationships enabling multi-paradigm reasoning with formal validation.
+**Core Innovation:** Explicit, typed cross-domain model grounding relationships enabling multi-paradigm reasoning with formal validation.
 
 **Key Results:**
 - 25-50% improvement in LLM reasoning accuracy
@@ -37,7 +37,7 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
 - Four grounding types identified (structural, semantic, procedural, epistemic)
 
 **Phase 2: Comparative Theoretical Analysis (Q11-20)** ✓ Complete
-- Positioned relative to DDD bounded contexts (each canon IS a bounded context for knowledge)
+- Positioned relative to DDD bounded contexts (each canonical model IS a bounded context for knowledge)
 - Analyzed as multi-paradigm framework (Kuhn + translation mechanisms)
 - Compared to MDA (horizontal vs. vertical, complementary)
 - Evaluated against Wand & Weber ontological criteria (satisfies completeness, coherence)
@@ -51,7 +51,7 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
 - Reasoning quality: 4x better traceability, 2x deeper reasoning, +89% expert ratings
 
 **Phase 4: Formalization and Modeling (Q31-40)** ✓ Complete
-- Formal meta-model defined (Canon, Grounding, Ontology)
+- Formal meta-model defined (Canonical Model, Grounding, Ontology)
 - YAML/JSON schema syntax specified
 - Dependency rules encoded
 - Graph representation analyzed (DAG, semantic distance, centrality)
@@ -60,13 +60,13 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
 - Compositional properties proven (transitivity, substitutability, monotonicity, modularity)
 - ArchiMate/UML mapping established
 - LLM reasoning protocol formalized
-- Complete Canon→Prompt→Artifact procedure documented
+- Complete Model→Prompt→Artifact procedure documented
 
 **Phase 5: Synthesis and Evaluation (Q41-50)** ✓ Complete
 - Compared to dogma, paradigm, framework, architecture (best fit: "conceptual framework" or "knowledge architecture")
 - Scientific criteria assessment: 4.1/5 stars - valid engineering/scientific framework
 - Epistemic risks identified: 8 risks with severity ratings and mitigations
-- Adaptability evaluated: 5 new domains assessed (Compliance, Legal, Finance, Security, DevOps) - all viable
+- Adaptability evaluated: 5 new knowledge domains assessed (Compliance, Legal, Finance, Security, DevOps) - all viable
 - Practitioner intuitiveness: moderate learning curve, comparable to DDD
 - Cognitive load analysis: reduces load for cross-domain reasoning by externalizing relationships
 - LLM integration strategies: RAG, fine-tuning, hybrid, constrained decoding compared
@@ -79,7 +79,7 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
 **Theoretical Findings:**
 
 1. **Canonical Grounding is "DDD for Knowledge Organization"**
-   - Each canon is a bounded context for knowledge
+   - Each canonical model is a bounded context for knowledge
    - Grounding relationships implement context mapping for knowledge domains
    - Ubiquitous language becomes formal schema vocabulary
 
@@ -91,7 +91,7 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
 
 3. **Strong Compositional Properties:**
    - Transitive consistency: grounding chains maintain consistency
-   - Substitutability: equivalent canons are interchangeable
+   - Substitutability: equivalent canonical models are interchangeable
    - Monotonicity: grounding adds constraints, never removes
    - Modular reasoning: develop independently, compose later
 
@@ -154,7 +154,7 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
     - Layered DAG: Foundation → Derived → Meta
     - DDD highest centrality (hub)
     - Semantic distance predicts reasoning difficulty
-    - Sparse between canons, dense within
+    - Sparse between canonical models, dense within
 
 ---
 
@@ -257,7 +257,7 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
 - Implement basic validation
 
 **Deliverables:**
-- 2-3 canon schemas (YAML/JSON)
+- 2-3 canonical domain model schemas (YAML/JSON)
 - Grounding map documenting dependencies
 - Validation scripts (closure, acyclicity, consistency)
 
@@ -286,13 +286,13 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
 - Training materials
 
 **Phase 4: Extension (Months 12-24)**
-- Add 3-5 more domains
+- Add 3-5 more knowledge domains
 - Refine grounding relationships
 - Evolution coordination governance
 - Practitioner studies
 
 **Deliverables:**
-- Extended domain catalog (8-10 canons)
+- Extended domain catalog (8-10 canonical models)
 - Evolution governance process
 - Empirical study results
 - Community feedback integration
@@ -406,7 +406,7 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
 13. **New Software Domains:** How do Compliance, Security, DevOps fit?
     - Current: Conceptual analysis (all rated "excellent" or "good" fit)
     - Goal: Full schema implementation and validation
-    - Deliverable: 3-5 new domain canons
+    - Deliverable: 3-5 new canonical domain models
 
 14. **Non-Software Domains:** Can we canonize healthcare, legal, finance workflows?
     - Current: Hypothetical fit assessment
@@ -415,7 +415,7 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
 
 15. **AI/ML Domains:** How to canonize ML pipelines, AI ethics, model governance?
     - Current: Not addressed
-    - Goal: ML-specific canons and groundings
+    - Goal: ML-specific canonical models and groundings
     - Impact: Better AI/ML system design
 
 ### 11. Recommended Next Steps
@@ -525,7 +525,7 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
    - Validation algorithm for closure, acyclicity, consistency
    - Enables automated consistency checking
 
-2. **Canon-Guided Generation Protocol**
+2. **Model-Guided Generation Protocol**
    - Four-phase protocol: load, generate, validate, explain
    - Beam search with schema validation
    - Hierarchical justification for traceability
@@ -544,7 +544,7 @@ This research establishes **Canonical Grounding** as a theoretically grounded, e
 
 ### 14. Practical Contributions
 
-1. **Five Implemented Domain Canons**
+1. **Five Implemented Canonical Domain Models**
    - DDD: 100% closure (foundation)
    - Data Engineering: 100% closure (foundation)
    - UX: 96% closure (derived)

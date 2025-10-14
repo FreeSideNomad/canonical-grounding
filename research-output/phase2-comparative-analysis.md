@@ -33,7 +33,7 @@ Data Engineering provides three grounding mechanisms:
 
 **Limitation:** Data Engineering alone is insufficient - provides what exists but not how it should be structured (DDD) or why users need it (UX).
 
-## 13. UX as Derived Canon
+## 13. UX as Derived Canonical Model
 
 UX sits at intersection of domain logic (DDD) and data availability (Data-Eng):
 
@@ -57,7 +57,7 @@ UX retains autonomy in pure presentation concerns (color, typography, animation)
 
 **Critical Analysis:** UX grounding is partial and layered - must ground domain structure and data, should ground terminology, can diverge on visual design.
 
-## 14. Quality Engineering Canon
+## 14. Quality Engineering Canonical Model
 
 **QE as Validator of Domain Assumptions:**
 
@@ -78,9 +78,9 @@ QE validates grounding relationships themselves - checks that UX references vali
 
 **Critical Observation:** QE is meta-epistemic - validates not just facts but that validation mechanisms work.
 
-**Limitation:** Current QE canon is least formalized - schema needs expansion.
+**Limitation:** Current QE canonical model is least formalized - schema needs expansion.
 
-## 15. Agile as Meta-Canon
+## 15. Agile as Meta-Canonical Model
 
 Agile manages evolution of other domains through time, providing temporal orchestration:
 
@@ -206,8 +206,8 @@ Canonical grounding embodies pragmatic realism:
 - **Pluralist modeling**: Multiple valid ways to organize these facts
 - **Pragmatic choice**: Select model based on context, team, technology
 
-**Implication for Multiple Canons:**
-Having five domain canons is epistemic pluralism - each domain has valid perspective, no single canon covers everything. This is perspectival realism - reality exists but requires multiple perspectives to understand fully.
+**Implication for Multiple Canonical Models:**
+Having five canonical domain models is epistemic pluralism - each domain has valid perspective, no single model covers everything. This is perspectival realism - reality exists but requires multiple perspectives to understand fully.
 
 **Critical Tension:**
 When domains conflict (e.g., DDD requires consistency, Data-Eng allows eventual consistency), canonical grounding needs meta-rules for conflict resolution.

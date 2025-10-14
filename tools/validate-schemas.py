@@ -99,19 +99,34 @@ class SchemaValidator:
         def extract_from_dict(obj, path=""):
             if isinstance(obj, dict):
                 for key, value in obj.items():
-                    # Look for reference patterns
+                    # Look for schema-level reference sections (e.g., ddd_references, ux_references)
+                    # These indicate structural dependencies even if optional
+                    if key in ['ddd_references', 'ux_references', 'qe_references', 'data_eng_references', 'agile_references']:
+                        target_canon = key.replace('_references', '').replace('_', '-')
+                        if target_canon != canon:
+                            # Add a generic reference for this canon dependency
+                            references.add(f"{target_canon}:schema-dependency")
+
+                    # Look for reference patterns in values
                     if isinstance(value, str):
-                        # Pattern: canon:Type:id
-                        matches = re.findall(r'(ddd|ux|qe|data-eng|agile):([A-Za-z]+):\[?([a-z0-9_-]+)\]?', value)
+                        # Pattern: canon:Type:id or canon:Type:[id]
+                        matches = re.findall(r'(ddd|ux|qe|data-eng|agile):([A-Za-z]+)', value)
                         for match in matches:
-                            target_canon, concept, _ = match
+                            target_canon, concept = match
                             if target_canon != canon:
                                 references.add(f"{target_canon}:{concept}")
 
-                    # Look for *_ref, *_refs fields
-                    if '_ref' in key.lower() or 'references' in key.lower():
+                    # Look for *_ref, *_refs fields with canon prefixes
+                    if '_ref' in key.lower():
+                        # Check if key starts with canon name
+                        for possible_canon in ['ddd', 'ux', 'qe', 'data_eng', 'agile']:
+                            if key.lower().startswith(possible_canon):
+                                target_canon = possible_canon.replace('_', '-')
+                                if target_canon != canon:
+                                    references.add(f"{target_canon}:reference")
+
                         if isinstance(value, str):
-                            # Extract canon from pattern
+                            # Extract canon from pattern in value
                             match = re.match(r'(ddd|ux|qe|data-eng|agile):([A-Za-z]+)', value)
                             if match:
                                 target_canon, concept = match.groups()
@@ -121,8 +136,10 @@ class SchemaValidator:
                             extract_from_dict(value, f"{path}.{key}")
                         elif isinstance(value, list):
                             extract_from_list(value, f"{path}.{key}")
-                    else:
+                    elif isinstance(value, dict):
                         extract_from_dict(value, f"{path}.{key}")
+                    elif isinstance(value, list):
+                        extract_from_list(value, f"{path}.{key}")
 
         def extract_from_list(obj, path=""):
             if isinstance(obj, list):
@@ -148,40 +165,65 @@ class SchemaValidator:
         for canon, schema_data in self.canon_schemas.items():
             content = schema_data['content']
 
-            # Count total concepts (rough estimate based on top-level keys)
+            # Count total concepts in schema (now all use $defs)
+            total_concepts = 0
+
             if schema_data['format'] == 'yaml':
-                # Handle multi-doc YAML
+                # Handle multi-doc YAML (like DDD)
                 if schema_data.get('multi_doc'):
                     # Count concepts across all documents
-                    total_concepts = 0
                     for doc in content.get('documents', []):
                         if doc:
-                            total_concepts += sum(1 for k in doc.keys() if k not in ['schema_version', 'schema_date', 'schema_purpose', 'validation_rules', 'extension_points', 'usage_guidelines', 'examples'])
+                            # Count in $defs section if present
+                            if '$defs' in doc:
+                                defs = doc['$defs']
+                                if isinstance(defs, dict):
+                                    total_concepts += len([k for k in defs.keys() if not k.startswith('_')])
+                            else:
+                                # Count top-level keys (excluding metadata)
+                                total_concepts += sum(1 for k in doc.keys() if k not in ['schema_version', 'schema_date', 'schema_purpose', 'schema_name', 'description', 'metadata', 'naming_conventions', 'validation_rules', 'extension_points', 'usage_guidelines', 'examples', 'type', 'oneOf'])
                 else:
-                    # YAML format: count top-level definition keys
-                    total_concepts = sum(1 for k in content.keys() if k not in ['schema_version', 'schema_date', 'schema_purpose', 'validation_rules', 'extension_points', 'usage_guidelines', 'examples'])
+                    # Single-doc YAML format: check for $defs section
+                    if '$defs' in content:
+                        defs = content['$defs']
+                        if isinstance(defs, dict):
+                            total_concepts = len([k for k in defs.keys() if not k.startswith('_')])
+                    else:
+                        # Count top-level definition keys (like QE - no $defs)
+                        total_concepts = sum(1 for k in content.keys() if k not in ['schema_version', 'schema_date', 'schema_purpose', 'schema_name', 'description', 'metadata', 'naming_conventions', 'validation_rules', 'extension_points', 'usage_guidelines', 'examples', 'type', 'oneOf'])
             else:
-                # JSON Schema format: count definitions
-                definitions = content.get('definitions', {})
-                total_concepts = len(definitions)
+                # JSON Schema format: check $defs
+                defs = content.get('$defs', {})
+                total_concepts = len(defs)
 
             # Extract cross-canon references
             references = self.extract_references(content, canon)
 
-            # Count grounded references (those explicitly documented in grounding map)
-            grounded_refs = 0
-            if self.grounding_map:
+            # Count grounded references (external refs that have explicit groundings in grounding map)
+            grounded_external_refs = 0
+            if self.grounding_map and len(references) > 0:
                 canon_key = f"canon_{canon.replace('-', '_')}"
-                for grounding in self.grounding_map.get('groundings', []):
-                    if grounding.get('source') == canon_key:
-                        grounded_refs += len(grounding.get('relationships', []))
+                # For each external reference, check if there's a grounding for it
+                for ref in references:
+                    # Check if any grounding from this canon covers this reference
+                    for grounding in self.grounding_map.get('groundings', []):
+                        if grounding.get('source') == canon_key:
+                            # Check if grounding target matches the reference's canon
+                            target = grounding.get('target')
+                            ref_canon = ref.split(':')[0] if ':' in ref else None
+                            target_canon_key = f"canon_{ref_canon.replace('-', '_')}" if ref_canon else None
+
+                            if target == target_canon_key or (isinstance(target, list) and target_canon_key in target):
+                                grounded_external_refs += 1
+                                break  # This reference is grounded, move to next
 
             # Calculate closure
-            # Closure = (internal concepts + explicitly grounded refs) / (total concepts + external refs)
+            # Closure = (internal + grounded_external) / (internal + total_external) * 100
+            # All internal concepts are "resolved" by definition
             internal = total_concepts
             external = len(references)
             total = internal + external
-            resolved = internal + grounded_refs
+            resolved = internal + grounded_external_refs
 
             if total > 0:
                 closure_pct = (resolved / total) * 100
@@ -192,7 +234,7 @@ class SchemaValidator:
                 'closure_pct': closure_pct,
                 'internal_concepts': internal,
                 'external_references': external,
-                'grounded_references': grounded_refs,
+                'grounded_references': grounded_external_refs,
                 'total': total,
                 'resolved': resolved
             }
@@ -200,7 +242,7 @@ class SchemaValidator:
             print(f"\n{canon.upper()}:")
             print(f"  Internal concepts: {internal}")
             print(f"  External references: {external}")
-            print(f"  Grounded references: {grounded_refs}")
+            print(f"  Grounded external refs: {grounded_external_refs}")
             print(f"  Closure: {closure_pct:.1f}%")
 
         return closures

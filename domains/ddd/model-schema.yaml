@@ -2,7 +2,7 @@
 # Version 1.0.0
 # Purpose: Formal YAML schema for modeling software systems using Domain-Driven Design patterns
 
-schema_version: "1.0.0"
+# schema_version: "1.0.0"
 schema_name: "DDD System Architecture Schema"
 description: "YAML schema for describing system architecture using Domain-Driven Design strategic and tactical patterns"
 
@@ -35,7 +35,7 @@ naming_conventions:
 # ============================================================================
 # TYPE DEFINITIONS
 # ============================================================================
-definitions:
+$defs:
 
   # --------------------------------------------------------------------------
   # STRATEGIC PATTERNS

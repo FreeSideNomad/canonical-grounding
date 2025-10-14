@@ -2,12 +2,12 @@
 # Version: 1.0.0
 # Description: Formal schema for modeling Agile and SAFe projects
 
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: "https://json-schema.org/draft/2020-12/schema"
 $id: "https://github.com/agile-schema/model/v1/schema"
 title: "Agile Project Schema"
 description: "Schema for modeling agile projects including Product, Vision, Epics, Features, Stories, Sprints, PIs, Teams, and ARTs"
 
-definitions:
+$defs:
 
   # ==============================================================================
   # PRODUCT & VISION
@@ -37,37 +37,37 @@ definitions:
         description: "Brief product description"
 
       vision:
-        $ref: "#/definitions/Vision"
+        $ref: "#/$defs/Vision"
 
       roadmap:
-        $ref: "#/definitions/Roadmap"
+        $ref: "#/$defs/Roadmap"
 
       releases:
         type: array
         description: "Planned and past releases for this product"
         items:
-          $ref: "#/definitions/Release"
+          $ref: "#/$defs/Release"
 
       valueStreams:
         type: array
         description: "Value streams this product belongs to"
         items:
-          $ref: "#/definitions/ValueStream"
+          $ref: "#/$defs/ValueStream"
 
       portfolio:
-        $ref: "#/definitions/Portfolio"
+        $ref: "#/$defs/Portfolio"
 
       programs:
         type: array
         description: "Programs or ARTs delivering this product"
         items:
-          $ref: "#/definitions/Program"
+          $ref: "#/$defs/Program"
 
       stakeholders:
         type: array
         description: "Product stakeholders"
         items:
-          $ref: "#/definitions/Stakeholder"
+          $ref: "#/$defs/Stakeholder"
 
       metrics:
         type: object
@@ -79,10 +79,10 @@ definitions:
           kpis:
             type: array
             items:
-              $ref: "#/definitions/Metric"
+              $ref: "#/$defs/Metric"
 
       metadata:
-        $ref: "#/definitions/Metadata"
+        $ref: "#/$defs/Metadata"
 
   Vision:
     type: object
@@ -199,7 +199,7 @@ definitions:
             type: array
             description: "How success will be measured"
             items:
-              $ref: "#/definitions/Metric"
+              $ref: "#/$defs/Metric"
 
           outcomes:
             type: array
@@ -310,14 +310,14 @@ definitions:
         type: array
         description: "How we'll know this release is successful"
         items:
-          $ref: "#/definitions/Metric"
+          $ref: "#/$defs/Metric"
         minItems: 1
 
       risks:
         type: array
         description: "Key risks for this release"
         items:
-          $ref: "#/definitions/Risk"
+          $ref: "#/$defs/Risk"
 
       alignmentToProductVision:
         type: string
@@ -374,7 +374,7 @@ definitions:
         type: array
         description: "Metrics indicating progress toward outcome"
         items:
-          $ref: "#/definitions/Metric"
+          $ref: "#/$defs/Metric"
 
       leanBusinessCase:
         type: object
@@ -418,7 +418,7 @@ definitions:
         description: "Epic Owner"
 
       metadata:
-        $ref: "#/definitions/Metadata"
+        $ref: "#/$defs/Metadata"
 
   Feature:
     type: object
@@ -524,7 +524,7 @@ definitions:
         description: "Responsible team"
 
       metadata:
-        $ref: "#/definitions/Metadata"
+        $ref: "#/$defs/Metadata"
 
   UserStory:
     type: object
@@ -656,10 +656,10 @@ definitions:
         type: array
         description: "Technical tasks for this story"
         items:
-          $ref: "#/definitions/Task"
+          $ref: "#/$defs/Task"
 
       metadata:
-        $ref: "#/definitions/Metadata"
+        $ref: "#/$defs/Metadata"
 
   Task:
     type: object
@@ -829,7 +829,7 @@ definitions:
         enum: ["planned", "active", "completed"]
 
       metadata:
-        $ref: "#/definitions/Metadata"
+        $ref: "#/$defs/Metadata"
 
   Iteration:
     type: object
@@ -884,7 +884,7 @@ definitions:
         enum: ["planned", "active", "completed"]
 
       metadata:
-        $ref: "#/definitions/Metadata"
+        $ref: "#/$defs/Metadata"
 
   ProgramIncrement:
     type: object
@@ -990,7 +990,7 @@ definitions:
         type: array
         description: "Program risks identified"
         items:
-          $ref: "#/definitions/Risk"
+          $ref: "#/$defs/Risk"
 
       predictability:
         type: number
@@ -1003,7 +1003,7 @@ definitions:
         enum: ["planning", "executing", "completed"]
 
       metadata:
-        $ref: "#/definitions/Metadata"
+        $ref: "#/$defs/Metadata"
 
   Release:
     type: object
@@ -1029,7 +1029,7 @@ definitions:
         description: "Semantic version number"
 
       vision:
-        $ref: "#/definitions/ReleaseVision"
+        $ref: "#/$defs/ReleaseVision"
 
       startDate:
         type: string
@@ -1060,7 +1060,7 @@ definitions:
           description: "Feature IDs"
 
       roadmap:
-        $ref: "#/definitions/Roadmap"
+        $ref: "#/$defs/Roadmap"
         description: "Release-level roadmap showing PI-by-PI plan"
 
       releaseObjectives:
@@ -1107,13 +1107,13 @@ definitions:
         type: array
         description: "Release stakeholders"
         items:
-          $ref: "#/definitions/Stakeholder"
+          $ref: "#/$defs/Stakeholder"
 
       metrics:
         type: array
         description: "Release success metrics"
         items:
-          $ref: "#/definitions/Metric"
+          $ref: "#/$defs/Metric"
 
       status:
         type: string
@@ -1130,7 +1130,7 @@ definitions:
         description: "How this release will be deployed"
 
       metadata:
-        $ref: "#/definitions/Metadata"
+        $ref: "#/$defs/Metadata"
 
   # ==============================================================================
   # ORGANIZATIONAL STRUCTURES
@@ -1160,7 +1160,7 @@ definitions:
         type: array
         description: "Team members"
         items:
-          $ref: "#/definitions/TeamMember"
+          $ref: "#/$defs/TeamMember"
         minItems: 3
         maxItems: 11
 
@@ -1217,7 +1217,7 @@ definitions:
           type: string
 
       metadata:
-        $ref: "#/definitions/Metadata"
+        $ref: "#/$defs/Metadata"
 
   TeamMember:
     type: object
@@ -1331,7 +1331,7 @@ definitions:
         description: "Current Program Increment ID"
 
       metadata:
-        $ref: "#/definitions/Metadata"
+        $ref: "#/$defs/Metadata"
 
   # ==============================================================================
   # SUPPORTING DEFINITIONS
@@ -1581,13 +1581,13 @@ definitions:
 
 type: object
 oneOf:
-  - $ref: "#/definitions/Product"
-  - $ref: "#/definitions/Epic"
-  - $ref: "#/definitions/Feature"
-  - $ref: "#/definitions/UserStory"
-  - $ref: "#/definitions/Sprint"
-  - $ref: "#/definitions/Iteration"
-  - $ref: "#/definitions/ProgramIncrement"
-  - $ref: "#/definitions/Release"
-  - $ref: "#/definitions/Team"
-  - $ref: "#/definitions/AgileReleaseTrain"
+  - $ref: "#/$defs/Product"
+  - $ref: "#/$defs/Epic"
+  - $ref: "#/$defs/Feature"
+  - $ref: "#/$defs/UserStory"
+  - $ref: "#/$defs/Sprint"
+  - $ref: "#/$defs/Iteration"
+  - $ref: "#/$defs/ProgramIncrement"
+  - $ref: "#/$defs/Release"
+  - $ref: "#/$defs/Team"
+  - $ref: "#/$defs/AgileReleaseTrain"

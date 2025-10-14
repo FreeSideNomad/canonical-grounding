@@ -11,7 +11,7 @@
 
 This directory contains the complete research output from a comprehensive investigation of Canonical Grounding as a meta-methodological framework for organizing multi-domain knowledge in LLM-assisted software engineering systems.
 
-**Key Finding:** Canonical Grounding improves LLM reasoning accuracy by 25-50%, reduces integration effort by 80%, and achieves 4-5x faster solution synthesis through explicit inter-domain grounding relationships.
+**Key Finding:** Canonical Grounding improves LLM reasoning accuracy by 25-50%, reduces integration effort by 80%, and achieves 4-5x faster solution synthesis through explicit cross-domain model grounding relationships.
 
 ---
 
@@ -19,7 +19,7 @@ This directory contains the complete research output from a comprehensive invest
 
 ### 1. **canonical-grounding-theory.md** (23 pages)
 Complete theoretical framework including:
-- Formal definitions (Canon, Grounding, Ontology)
+- Formal definitions (Canonical Domain Model, Grounding, Ontology)
 - Philosophical foundations (Aristotle → Kant → Quine → Fine/Schaffer)
 - Comparative analysis (vs. DDD, MDA, Kuhn, Wand & Weber)
 - Empirical evidence (20+ papers synthesized)
@@ -30,7 +30,7 @@ Complete theoretical framework including:
 
 ### 2. **interdomain-map.yaml** (Structured Data)
 Formal dependency graph with:
-- 5 domain canons (DDD, Data-Eng, UX, QE, Agile)
+- 5 canonical domain models (DDD, Data-Eng, UX, QE, Agile)
 - 15 grounding relationships (typed, with strength)
 - Graph analysis (centrality, semantic distance, closure)
 - Validation results (89% average closure, target >95%)
@@ -39,7 +39,7 @@ Formal dependency graph with:
 
 ### 3. **grounding-schema.json** (JSON Schema)
 Meta-schema specification defining:
-- Canon structure (concepts, patterns, constraints)
+- Canonical model structure (concepts, patterns, constraints)
 - Grounding relationship types (structural, semantic, procedural, epistemic)
 - Validation rules and constraints
 - Evolution tracking
@@ -88,11 +88,11 @@ Research synthesis including:
 **File:** `phase2-comparative-analysis.md`
 
 **Contents:**
-- Canonical grounding vs. DDD bounded contexts (each canon IS a bounded context)
+- Canonical grounding vs. DDD bounded contexts (each canonical model IS a bounded context)
 - Data Engineering as grounding layer
-- UX as derived canon (grounded in DDD + Data-Eng)
-- QE as validator canon
-- Agile as meta-canon (coordinates evolution)
+- UX as derived canonical model (grounded in DDD + Data-Eng)
+- QE as validator canonical model
+- Agile as meta-canonical model (coordinates evolution)
 - Comparison to Kuhn's paradigms (adds translation mechanisms)
 - MDA comparison (horizontal vs. vertical)
 - Wand & Weber evaluation (satisfies criteria)
@@ -118,7 +118,7 @@ Research synthesis including:
 **Files:** `phase4-formalization-partial.md` + `phase4-formalization-complete.md`
 
 **Contents:**
-- Formal meta-model (Canon, Grounding, Ontology definitions)
+- Formal meta-model (Canonical Model, Grounding, Ontology definitions)
 - YAML/JSON schema syntax
 - Encoding dependency rules
 - Graph representation (DAG, semantic distance, centrality)
@@ -127,7 +127,7 @@ Research synthesis including:
 - Compositional properties (transitivity, substitutability, monotonicity, modularity)
 - ArchiMate/UML mapping
 - LLM reasoning protocol (4 phases: load, generate, validate, explain)
-- Complete Canon→Prompt→Artifact procedure
+- Complete Model→Prompt→Artifact procedure
 
 **Key Insight:** Strong compositional properties enable modular reasoning
 
@@ -173,7 +173,7 @@ Research synthesis including:
 - **Integration Reduction:** 80%
 
 ### Practical
-- **Canons Implemented:** 5
+- **Canonical Models Implemented:** 5
 - **Grounding Relationships:** 15
 - **Average Closure:** 89%
 - **Target Closure:** >95%
@@ -189,14 +189,14 @@ Research synthesis including:
 
 ### What is Canonical Grounding?
 
-**Definition:** A meta-methodological framework for organizing interdependent domain knowledge into formally specified **canons** connected by explicit **grounding relationships**, enabling consistent multi-paradigm reasoning in complex systems.
+**Definition:** A meta-methodological framework for organizing interdependent domain knowledge into formally specified **canonical domain models** connected by explicit **grounding relationships**, enabling consistent multi-paradigm reasoning in complex systems.
 
 **Best Metaphor:** "Conceptual Framework" or "Knowledge Architecture"
 
 **Core Components:**
-1. **Canon (Κ):** Formally specified, internally consistent domain model
-2. **Grounding Relationship (γ):** Directed, typed dependency between canons
-3. **Ontology (Ω):** Complete DAG of canons and groundings
+1. **Canonical Domain Model (M):** Formally specified, internally consistent domain model
+2. **Grounding Relationship (γ):** Directed, typed dependency between canonical models
+3. **Ontology (Ω):** Complete DAG of canonical models and groundings
 
 ### Why Does It Matter?
 
@@ -207,7 +207,7 @@ Research synthesis including:
 - High integration effort between teams
 
 **Solution Provided:**
-- Explicit inter-domain grounding relationships
+- Explicit cross-domain model grounding relationships
 - Formal validation of multi-domain consistency
 - Evolutionary stability through versioning
 - Multi-paradigm reasoning with correctness guarantees
@@ -261,8 +261,8 @@ Research synthesis including:
    - VSCode plugin
 
 3. **Schema Completion**
-   - QE to >95% closure
-   - Agile to >95% closure
+   - QE canonical model to >95% closure
+   - Agile canonical model to >95% closure
 
 ### Short-Term (3-6 Months)
 
@@ -371,8 +371,8 @@ This research is complete but the work continues. Contributions welcome:
 
 1. **Practitioner Studies:** Help validate with real users
 2. **Tool Development:** Build validators, visualizers, plugins
-3. **Schema Completion:** Improve QE and Agile canons to >95% closure
-4. **Domain Extension:** Add Compliance, Security, DevOps, Legal, Finance
+3. **Schema Completion:** Improve QE and Agile canonical models to >95% closure
+4. **Domain Extension:** Add Compliance, Security, DevOps, Legal, Finance canonical models
 5. **Empirical Validation:** Run experiments with development teams
 
 ---
