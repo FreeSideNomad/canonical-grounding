@@ -1,0 +1,288 @@
+[
+  {
+    "domain": "agile",
+    "status": "NO_TAXONOMY",
+    "message": "No ontological taxonomy file found"
+  },
+  {
+    "domain": "data-eng",
+    "status": "NO_TAXONOMY",
+    "message": "No ontological taxonomy file found"
+  },
+  {
+    "domain": "ddd",
+    "status": "ANALYZED",
+    "taxonomy_file": "ddd-06-ontological-taxonomy.md",
+    "schema_file": "model-schema.yaml",
+    "taxonomy_concepts_count": 53,
+    "schema_concepts_count": 13,
+    "coverage_percent": 24.5,
+    "missing_concepts": [
+      [
+        "Aggregate Root",
+        "aggregate_root"
+      ],
+      [
+        "Aggregates",
+        "aggregates"
+      ],
+      [
+        "Anemic Domain Model",
+        "anemic_domain_model"
+      ],
+      [
+        "Application Layer",
+        "application_layer"
+      ],
+      [
+        "Application Services",
+        "application_services"
+      ],
+      [
+        "Big Ball of Mud",
+        "big_ball_of_mud"
+      ],
+      [
+        "Context Map",
+        "context_map"
+      ],
+      [
+        "Context Mapping Patterns",
+        "context_mapping_patterns"
+      ],
+      [
+        "Continuous Refinement",
+        "continuous_refinement"
+      ],
+      [
+        "Core Domain",
+        "core_domain"
+      ],
+      [
+        "Data Mapper",
+        "data_mapper"
+      ],
+      [
+        "Data Mappers",
+        "data_mappers"
+      ],
+      [
+        "Distillation",
+        "distillation"
+      ],
+      [
+        "Domain Events",
+        "domain_events"
+      ],
+      [
+        "Domain Layer",
+        "domain_layer"
+      ],
+      [
+        "Domain Services",
+        "domain_services"
+      ],
+      [
+        "Entities",
+        "entities"
+      ],
+      [
+        "Event Handler",
+        "event_handler"
+      ],
+      [
+        "External Service Adapters",
+        "external_service_adapters"
+      ],
+      [
+        "Factories",
+        "factories"
+      ]
+    ],
+    "total_missing": 42
+  },
+  {
+    "domain": "qe",
+    "status": "ANALYZED",
+    "taxonomy_file": "qe-03-domain-II-ontologies.md",
+    "schema_file": "model-schema.yaml",
+    "taxonomy_concepts_count": 105,
+    "schema_concepts_count": 12,
+    "coverage_percent": 11.4,
+    "missing_concepts": [
+      [
+        "API Testing",
+        "api_testing"
+      ],
+      [
+        "Accessibility Testing",
+        "accessibility_testing"
+      ],
+      [
+        "Application",
+        "application"
+      ],
+      [
+        "Application to Job Seeker",
+        "application_to_job_seeker"
+      ],
+      [
+        "Architecture",
+        "architecture"
+      ],
+      [
+        "Authors",
+        "authors"
+      ],
+      [
+        "Browser Compatibility",
+        "browser_compatibility"
+      ],
+      [
+        "Chaos Engineering",
+        "chaos_engineering"
+      ],
+      [
+        "Continuous Testing",
+        "continuous_testing"
+      ],
+      [
+        "Core Activities",
+        "core_activities"
+      ],
+      [
+        "Core Artifacts",
+        "core_artifacts"
+      ],
+      [
+        "Core Concepts",
+        "core_concepts"
+      ],
+      [
+        "Core Ontology Extension",
+        "core_ontology_extension"
+      ],
+      [
+        "Core Roles",
+        "core_roles"
+      ],
+      [
+        "Core Techniques",
+        "core_techniques"
+      ],
+      [
+        "Covered Ontologies",
+        "covered_ontologies"
+      ],
+      [
+        "DDD Integration",
+        "ddd_integration"
+      ],
+      [
+        "Defect Management",
+        "defect_management"
+      ],
+      [
+        "DevOps Testing Culture",
+        "devops_testing_culture"
+      ],
+      [
+        "Document Status",
+        "document_status"
+      ]
+    ],
+    "total_missing": 102
+  },
+  {
+    "domain": "ux",
+    "status": "ANALYZED",
+    "taxonomy_file": "ux-08-ux-ontological-taxonomy.md",
+    "schema_file": "model-schema.yaml",
+    "taxonomy_concepts_count": 162,
+    "schema_concepts_count": 11,
+    "coverage_percent": 6.8,
+    "missing_concepts": [
+      [
+        "Adaptive Form",
+        "adaptive_form"
+      ],
+      [
+        "Adaptive Layouts",
+        "adaptive_layouts"
+      ],
+      [
+        "Advanced Job Search",
+        "advanced_job_search"
+      ],
+      [
+        "Advanced Search",
+        "advanced_search"
+      ],
+      [
+        "Aggregate State Change Visualization",
+        "aggregate_state_change_visualization"
+      ],
+      [
+        "Aggregate State Machine Visualization",
+        "aggregate_state_machine_visualization"
+      ],
+      [
+        "All UX Research Documents",
+        "all_ux_research_documents"
+      ],
+      [
+        "Animations",
+        "animations"
+      ],
+      [
+        "Application Card",
+        "application_card"
+      ],
+      [
+        "Application Detail",
+        "application_detail"
+      ],
+      [
+        "Application Timeline",
+        "application_timeline"
+      ],
+      [
+        "Applications List",
+        "applications_list"
+      ],
+      [
+        "Atoms",
+        "atoms"
+      ],
+      [
+        "Background Job with Progress Tracking",
+        "background_job_with_progress_tracking"
+      ],
+      [
+        "Badge",
+        "badge"
+      ],
+      [
+        "Baseline Functionality",
+        "baseline_functionality"
+      ],
+      [
+        "Batch Workflows",
+        "batch_workflows"
+      ],
+      [
+        "Behavioral Specifications",
+        "behavioral_specifications"
+      ],
+      [
+        "Bottom Tab Bar",
+        "bottom_tab_bar"
+      ],
+      [
+        "Branching Wizard",
+        "branching_wizard"
+      ]
+    ],
+    "total_missing": 160
+  }
+]
