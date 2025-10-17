@@ -4,16 +4,18 @@
 # Purpose: Complete graph of canonical domain model dependencies and grounding relationships
 
 metadata:
-  version: "2.0.0"
+  version: "2.2.0"
   terminology_version: "2.0"
   terminology_change_date: "2025-10-14"
   terminology_change: "Canon → Canonical Domain Model"
   backward_compat: "Old field names preserved in comments for reference"
   schema_version: "1.0.0"  # Schema structure unchanged
   created: "2025-10-13"
+  last_updated: "2025-10-17"
+  change_note: "Agile and UX schemas partitioned; grounding references updated to specific partitions"
   description: "Formal specification of grounding relationships between canonical domain models"
   total_canonical_models: 5  # formerly: total_canons
-  total_groundings: 28  # Updated: 19 original + 9 new strong groundings (Enhancement Phase 4)
+  total_groundings: 32  # Unchanged - no new groundings, only partition updates
   graph_properties:
     acyclic: true
     layered: true
@@ -21,6 +23,30 @@ metadata:
     derived_models: 2  # formerly: derived_canons
     meta_models: 1  # formerly: meta_canons
 
+# ============================================================================
+# PARTITION REFERENCE FORMAT
+# ============================================================================
+#
+# For partitioned domains, grounding references use the format:
+#   model_<domain>_<partition>
+#
+# Example: Agile domain is partitioned into 5 schemas:
+#   - model_agile_portfolio (strategic portfolio planning)
+#   - model_agile_program (program/ART coordination)
+#   - model_agile_team (team execution patterns)
+#   - model_agile_delivery (product/feature delivery)
+#   - model_agile_safe (SAFe framework extensions)
+#
+# Groundings reference the specific partition where the concept resides:
+#   - agile:epic → model_agile_portfolio
+#   - agile:program_increment → model_agile_program
+#   - agile:sprint → model_agile_team
+#   - agile:user_story → model_agile_delivery
+#   - agile:agile_release_train → model_agile_safe
+#
+# This enables fine-grained grounding specificity while maintaining clear
+# separation of concerns across scale levels.
+#
 # ============================================================================
 # CANONICAL DOMAIN MODELS
 # ============================================================================
@@ -83,20 +109,44 @@ canonical_models:  # formerly: canons
 
   - id: "model_ux"
     name: "User Experience"
-    version: "1.0.0"
+    version: "2.0.0"
     layer: "derived"
-    closure_percentage: 96
-    description: "User interface and interaction patterns"
+    closure_percentage: 100
+    description: "User interface and interaction patterns (partitioned by architectural layer)"
+    partition_note: "Schema partitioned into 3 schemas: structure, navigation, interaction"
+    partitions:
+      - id: "model_ux_structure"
+        name: "UX Structure"
+        schema_file: "schemas/structure-ux.schema.yaml"
+        concepts: ["information_architecture", "hierarchy_node", "facet", "facet_value", "search_system"]
+        layer: "foundation"
+      - id: "model_ux_navigation"
+        name: "UX Navigation"
+        schema_file: "schemas/navigation-ux.schema.yaml"
+        concepts: ["navigation", "page", "page_section", "breadcrumb", "responsive_config"]
+        layer: "wayfinding"
+      - id: "model_ux_interaction"
+        name: "UX Interaction"
+        schema_file: "schemas/interaction-ux.schema.yaml"
+        concepts: ["workflow", "component", "behavior", "animation", "validation_config", "design_tokens", "accessibility_spec"]
+        layer: "interaction"
     core_concepts:
       - InformationArchitecture
       - Navigation
       - Workflow
       - Page
       - Component
+      - HierarchyNode
+      - Facet
+      - Behavior
+      - DesignTokens
+      - Accessibility
     key_patterns:
       - NavigationPattern
       - WorkflowPattern
       - PagePattern
+      - FacetedClassification
+      - AtomicDesign
     grounds_in:
       - model_ddd
       - model_data_eng
@@ -131,10 +181,37 @@ canonical_models:  # formerly: canons
 
   - id: "model_agile"
     name: "Agile/SAFe"
-    version: "1.0.0"
+    version: "2.0.0"
     layer: "meta"
-    closure_percentage: 72
-    description: "Work organization and coordination patterns"
+    closure_percentage: 100
+    description: "Work organization and coordination patterns (partitioned by scale)"
+    partition_note: "Schema partitioned into 5 schemas: portfolio, program, team, delivery, safe"
+    partitions:
+      - id: "model_agile_portfolio"
+        name: "Agile Portfolio"
+        schema_file: "schemas/portfolio-agile.schema.yaml"
+        concepts: ["portfolio", "value_stream", "epic", "roadmap", "stakeholder", "metric", "non_functional_requirement", "risk"]
+        layer: "strategic"
+      - id: "model_agile_program"
+        name: "Agile Program"
+        schema_file: "schemas/program-agile.schema.yaml"
+        concepts: ["Program", "program_increment", "architectural_runway", "enabler", "release", "release_vision", "technical_debt"]
+        layer: "program"
+      - id: "model_agile_team"
+        name: "Agile Team"
+        schema_file: "schemas/team-agile.schema.yaml"
+        concepts: ["team", "team_member", "team_topology", "role", "sprint", "iteration", "ceremony", "working_agreement", "impediment", "feedback_loop"]
+        layer: "execution"
+      - id: "model_agile_delivery"
+        name: "Agile Delivery"
+        schema_file: "schemas/delivery-agile.schema.yaml"
+        concepts: ["product", "vision", "feature", "user_story", "task", "increment", "definition_of_ready", "estimation_technique"]
+        layer: "delivery"
+      - id: "model_agile_safe"
+        name: "SAFe Extensions"
+        schema_file: "schemas/safe-agile.schema.yaml"
+        concepts: ["agile_release_train", "cadence"]
+        layer: "framework_extension"
     core_concepts:
       - Vision
       - Epic
@@ -145,17 +222,19 @@ canonical_models:  # formerly: canons
       - PI
       - Team
       - ART
+      - Portfolio
+      - Program
     key_patterns:
       - ScrumPattern
       - SAFePattern
       - StoryMapping
+      - PortfolioKanban
     grounds_in:
       - model_ddd
       - model_ux
       - model_qe
       - model_data_eng
     grounded_by: []
-    notes: "Incomplete - grounding relationships need to be made explicit"
 
 # ============================================================================
 # GROUNDING RELATIONSHIPS
@@ -164,7 +243,7 @@ canonical_models:  # formerly: canons
 groundings:
   # UX → DDD Groundings
   - id: "grounding_ux_ddd_001"
-    source: "model_ux"
+    source: "model_ux_navigation"
     target: "model_ddd"
     type: "structural"
     strength: "strong"
@@ -176,12 +255,13 @@ groundings:
         reference_field: "bounded_context_ref"
         validation: "required"
     rationale: "Pages exist within domain contexts"
+    note: "Updated to reference navigation partition (2025-10-17)"
     examples:
       - "OrderDetailsPage → OrderManagement BoundedContext"
       - "CustomerProfilePage → CustomerRelations BoundedContext"
 
   - id: "grounding_ux_ddd_002"
-    source: "model_ux"
+    source: "model_ux_interaction"
     target: "model_ddd"
     type: "structural"
     strength: "strong"
@@ -193,12 +273,13 @@ groundings:
         reference_field: "aggregate_refs"
         validation: "required"
     rationale: "Workflows manipulate domain aggregates"
+    note: "Updated to reference interaction partition (2025-10-17)"
     examples:
       - "CheckoutWorkflow → [Order, Payment, Shipment]"
       - "RegistrationWorkflow → [User, Account]"
 
   - id: "grounding_ux_ddd_003"
-    source: "model_ux"
+    source: "model_ux_navigation"
     target: "model_ddd"
     type: "semantic"
     strength: "strong"
@@ -209,9 +290,10 @@ groundings:
         cardinality: "alignment"
     rationale: "Navigation structure follows domain decomposition"
     constraint: "Primary navigation sections should correspond to major domain boundaries"
+    note: "Updated to reference navigation partition (2025-10-17)"
 
   - id: "grounding_ux_ddd_004"
-    source: "model_ux"
+    source: "model_ux_interaction"
     target: "model_ddd"
     type: "semantic"
     strength: "strong"
@@ -223,9 +305,10 @@ groundings:
         note: "Component labels should align with domain terminology"
     rationale: "UI terminology matches domain terminology"
     constraint: "User-facing labels should use terms from DDD glossary >80% match"
+    note: "Updated to reference interaction partition (2025-10-17)"
 
   - id: "grounding_ux_ddd_005"
-    source: "model_ux"
+    source: "model_ux_interaction"
     target: "model_ddd"
     type: "procedural"
     strength: "strong"
@@ -235,11 +318,12 @@ groundings:
         target_concept: "ddd:Aggregate.invariants"
         cardinality: "constraint"
     rationale: "Workflows must maintain aggregate consistency"
+    note: "Updated to reference interaction partition (2025-10-17)"
     constraint: "Multi-step workflows crossing aggregates require saga or process manager pattern"
 
   # UX → Data-Eng Groundings
   - id: "grounding_ux_data_001"
-    source: "model_ux"
+    source: "model_ux_interaction"
     target: "model_data_eng"
     type: "structural"
     strength: "strong"
@@ -250,16 +334,18 @@ groundings:
         cardinality: "many-to-many"
         reference_field: "data_sources"
     rationale: "UI components display data from datasets"
+    note: "Updated to reference interaction partition (2025-10-17)"
     examples:
       - "OrderListTable → orders_dataset"
       - "CustomerChart → customer_metrics_dataset"
 
   - id: "grounding_ux_data_002"
-    source: "model_ux"
+    source: "model_ux_navigation"
     target: "model_data_eng"
     type: "semantic"
     strength: "strong"
     description: "UX pagination depends on dataset partitioning"
+    note: "Updated to reference navigation partition (2025-10-17)"
     relationships:
       - source_concept: "ux:Page.pagination"
         target_concept: "data-eng:Dataset.partitioning"
@@ -433,7 +519,7 @@ groundings:
 
   # Agile → DDD Grounding
   - id: "grounding_agile_ddd_001"
-    source: "model_agile"
+    source: "model_agile_delivery"
     target: "model_ddd"
     type: "epistemic"
     strength: "strong"
@@ -445,12 +531,12 @@ groundings:
         reference_field: "bounded_context_ref"
         validation: "required"
     rationale: "Features must be scoped to a bounded context to ensure domain alignment"
-    note: "ENHANCED: Now required field with pattern validation (ddd:BoundedContext:[id])"
+    note: "ENHANCED: Now required field with pattern validation (ddd:BoundedContext:[id]); Updated to reference delivery partition (2025-10-17)"
     schema_enforcement: "Pattern: ^ddd:BoundedContext:[a-z0-9_-]+$"
 
   # Agile → UX Grounding
   - id: "grounding_agile_ux_001"
-    source: "model_agile"
+    source: "model_agile_delivery"
     target: "model_ux"
     type: "procedural"
     strength: "strong"
@@ -472,12 +558,12 @@ groundings:
         reference_field: "ux_artifact_refs.workflow_refs"
         validation: "optional"
     rationale: "Stories are implemented through UX artifacts (pages, components, workflows)"
-    note: "ENHANCED: Explicit structured references with pattern validation"
+    note: "ENHANCED: Explicit structured references with pattern validation; Updated to reference delivery partition (2025-10-17)"
     schema_enforcement: "Patterns: ux:Page:[id], ux:Component:[id], ux:Workflow:[id]"
 
   # Agile → QE Grounding
   - id: "grounding_agile_qe_001"
-    source: "model_agile"
+    source: "model_agile_team"
     target: "model_qe"
     type: "epistemic"
     strength: "strong"
@@ -505,12 +591,12 @@ groundings:
         validation: "optional"
     rationale: "DoD criteria must be validated through QE test strategies"
     constraint: "Story cannot be marked complete without meeting QE validation criteria"
-    note: "ENHANCED: Explicit structured references to QE artifacts that validate DoD items"
+    note: "ENHANCED: Explicit structured references to QE artifacts that validate DoD items; Updated to reference team partition (2025-10-17)"
     schema_enforcement: "Pattern: ^qe:(TestCase|TestSuite|TestStrategy|TestCriteria):[a-z0-9_-]+$"
 
   # Agile → Data-Eng Grounding
   - id: "grounding_agile_data_001"
-    source: "model_agile"
+    source: "model_agile_delivery"
     target: "model_data_eng"
     type: "epistemic"
     strength: "weak"
@@ -522,7 +608,61 @@ groundings:
         reference_field: "includes_pipelines"
         validation: "optional"
     rationale: "Features may require new data pipelines or modifications"
-    note: "Currently implicit - should be made explicit"
+    note: "Currently implicit - should be made explicit; Updated to reference delivery partition (2025-10-17)"
+
+  - id: "grounding_agile_data_002"
+    source: "model_agile_delivery"
+    target: "model_data_eng"
+    type: "procedural"
+    strength: "weak"
+    description: "User stories track transform implementations"
+    relationships:
+      - source_concept: "agile:user_story"
+        target_concept: "data-eng:Transform"
+        cardinality: "one-to-many"
+        reference_field: "transform_refs"
+        validation: "optional"
+    rationale: "Data transformation logic changes are tracked as user stories"
+    note: "ADDED: Partition Phase (2025-10-17) - Story-to-transform tracking"
+    examples:
+      - "User story: Add customer segmentation transform"
+      - "User story: Update product ranking algorithm"
+
+  - id: "grounding_agile_data_003"
+    source: "model_agile_portfolio"
+    target: "model_data_eng"
+    type: "structural"
+    strength: "weak"
+    description: "Portfolio epics include data governance initiatives"
+    relationships:
+      - source_concept: "agile:epic"
+        target_concept: "data-eng:Governance"
+        cardinality: "one-to-many"
+        reference_field: "governance_initiatives"
+        validation: "optional"
+    rationale: "Large-scale data governance initiatives are tracked as portfolio epics"
+    note: "ADDED: Partition Phase (2025-10-17) - Epic-to-governance tracking"
+    examples:
+      - "Epic: Implement GDPR compliance across all datasets"
+      - "Epic: Establish data quality framework"
+
+  - id: "grounding_agile_data_004"
+    source: "model_agile_program"
+    target: "model_data_eng"
+    type: "structural"
+    strength: "weak"
+    description: "Program increments include data migration work"
+    relationships:
+      - source_concept: "agile:program_increment"
+        target_concept: "data-eng:Pipeline"
+        cardinality: "one-to-many"
+        reference_field: "pipeline_deliveries"
+        validation: "optional"
+    rationale: "Data pipeline deployments aligned with PI cadence"
+    note: "ADDED: Partition Phase (2025-10-17) - PI-to-pipeline delivery tracking"
+    examples:
+      - "PI 2025-Q1: Deploy customer data pipeline v2"
+      - "PI 2025-Q2: Migrate legacy ETL to Spark"
 
   # NEW STRONG GROUNDINGS - Enhancement Phase 4 (2025-10-14)
 
@@ -665,7 +805,7 @@ groundings:
 
   # Agile → QE Strong Groundings (1 new)
   - id: "grounding_agile_qe_002"
-    source: "model_agile"
+    source: "model_agile_portfolio"
     target: "model_qe"
     type: "semantic"
     strength: "strong"
@@ -678,14 +818,14 @@ groundings:
         validation: "optional"
     rationale: "Non-functional requirements define quality metrics that must be validated through testing"
     constraint: "Each NFR should have corresponding quality metrics with measurable targets"
-    note: "ADDED: Enhancement Phase 4 - NFR-to-quality-metric semantic grounding"
+    note: "ADDED: Enhancement Phase 4 - NFR-to-quality-metric semantic grounding; Updated to reference portfolio partition (2025-10-17)"
     examples:
       - "Performance NFR (response time <200ms) → Response Time quality metric"
       - "Scalability NFR (1000 concurrent users) → Throughput quality metric"
 
   # Agile → DDD Strong Groundings (1 new)
   - id: "grounding_agile_ddd_002"
-    source: "model_agile"
+    source: "model_agile_program"
     target: "model_ddd"
     type: "structural"
     strength: "strong"
@@ -698,7 +838,7 @@ groundings:
         validation: "optional"
     rationale: "Technical debt is tracked at bounded context level to manage architectural runway"
     constraint: "Technical debt items should be scoped to specific bounded contexts"
-    note: "ADDED: Enhancement Phase 4 - Technical-debt-to-bounded-context structural grounding"
+    note: "ADDED: Enhancement Phase 4 - Technical-debt-to-bounded-context structural grounding; Updated to reference program partition (2025-10-17)"
     examples:
       - "Legacy payment integration debt → Payment bounded context"
       - "Monolithic database refactoring → Multiple bounded contexts"

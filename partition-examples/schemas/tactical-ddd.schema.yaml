@@ -1,0 +1,338 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://canonical-grounding.org/schemas/ddd/tactical/v1
+title: DDD Tactical Patterns Schema
+description: Tactical patterns for Domain-Driven Design - aggregates, entities, value objects, services
+
+metadata:
+  author: "Marina Music"
+  created: "2025-10-04"
+  updated: "2025-10-17"
+  license: "MIT"
+  version: "1.0.0"
+  partition: "tactical"
+  references:
+    - "Eric Evans - Domain-Driven Design (2003)"
+    - "Vaughn Vernon - Implementing Domain-Driven Design (2013)"
+
+naming_conventions:
+  aggregate_id: "agg_<name>"
+  entity_id: "ent_<name>"
+  value_object_id: "vo_<name>"
+  repository_id: "repo_<name>"
+  domain_service_id: "svc_dom_<name>"
+  application_service_id: "svc_app_<name>"
+  domain_event_id: "evt_<name>"
+
+$defs:
+  aggregate:
+    type: object
+    description: Cluster of entities and value objects with defined consistency boundary
+    required: [id, name, bounded_context_ref, root_ref]
+    properties:
+      id:
+        type: string
+        pattern: "^agg_[a-z0-9_]+$"
+        description: Unique aggregate identifier
+      name:
+        type: string
+        description: Aggregate name from ubiquitous language
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Reference to BoundedContext from strategic schema (ID reference)
+      root_ref:
+        type: string
+        pattern: "^ent_[a-z0-9_]+$"
+        description: The aggregate root entity (ID reference)
+      entities:
+        type: array
+        description: Entities within this aggregate (including root)
+        items:
+          type: string
+          pattern: "^ent_[a-z0-9_]+$"
+      value_objects:
+        type: array
+        description: Value objects within this aggregate
+        items:
+          type: string
+          pattern: "^vo_[a-z0-9_]+$"
+      consistency_rules:
+        type: array
+        description: Business rules that must be consistent
+        items:
+          type: string
+      invariants:
+        type: array
+        description: Conditions that must always be true
+        items:
+          type: string
+      size_estimate:
+        type: string
+        enum: [small, medium, large]
+        description: Aggregate size (prefer small)
+
+  entity:
+    type: object
+    description: Object with unique identity and lifecycle
+    required: [id, name, bounded_context_ref, identity_field]
+    properties:
+      id:
+        type: string
+        pattern: "^ent_[a-z0-9_]+$"
+        description: Unique entity definition identifier
+      name:
+        type: string
+        description: Entity name from ubiquitous language
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Context this entity belongs to (ID reference to strategic schema)
+      aggregate_ref:
+        type: string
+        pattern: "^agg_[a-z0-9_]+$"
+        description: Aggregate this entity belongs to (ID reference)
+      is_aggregate_root:
+        type: boolean
+        description: True if this entity is an aggregate root
+      identity_field:
+        type: string
+        description: Field name that serves as identity
+      identity_generation:
+        type: string
+        enum: [user_provided, auto_generated, derived, external]
+        description: How identity is generated
+      attributes:
+        type: array
+        description: Entity attributes
+        items:
+          type: object
+          required: [name, type]
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+            value_object_ref:
+              type: string
+              pattern: "^vo_[a-z0-9_]+$"
+            required:
+              type: boolean
+            description:
+              type: string
+      business_methods:
+        type: array
+        description: Key business operations
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            parameters:
+              type: array
+            returns:
+              type: string
+      invariants:
+        type: array
+        description: Rules that must always hold
+        items:
+          type: string
+
+  value_object:
+    type: object
+    description: Immutable object defined by its attributes
+    required: [id, name, bounded_context_ref]
+    properties:
+      id:
+        type: string
+        pattern: "^vo_[a-z0-9_]+$"
+        description: Unique value object definition identifier
+      name:
+        type: string
+        description: Value object name from ubiquitous language
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Context this value object belongs to (ID reference)
+      description:
+        type: string
+        description: What this value object represents
+      attributes:
+        type: array
+        description: Value object attributes
+        items:
+          type: object
+          required: [name, type]
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+            required:
+              type: boolean
+            validation:
+              type: string
+      validation_rules:
+        type: array
+        description: Rules enforced in constructor
+        items:
+          type: string
+      equality_criteria:
+        type: array
+        description: Which attributes determine equality
+        items:
+          type: string
+      immutability:
+        type: boolean
+        default: true
+        description: Value objects must be immutable
+
+  repository:
+    type: object
+    description: Persistence abstraction for aggregates
+    required: [id, name, aggregate_ref]
+    properties:
+      id:
+        type: string
+        pattern: "^repo_[a-z0-9_]+$"
+        description: Unique repository identifier
+      name:
+        type: string
+        description: Repository name (e.g., CustomerRepository)
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Context this repository belongs to (ID reference)
+      aggregate_ref:
+        type: string
+        pattern: "^agg_[a-z0-9_]+$"
+        description: Aggregate this repository manages (ID reference)
+      interface_methods:
+        type: array
+        description: Repository interface methods
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            parameters:
+              type: array
+            returns:
+              type: string
+            query_type:
+              type: string
+              enum: [by_id, by_criteria, all, custom]
+      persistence_strategy:
+        type: string
+        description: How persistence is implemented (JPA, MongoDB, etc.)
+
+  domain_service:
+    type: object
+    description: Stateless operation that doesn't belong to an entity
+    required: [id, name, bounded_context_ref]
+    properties:
+      id:
+        type: string
+        pattern: "^svc_dom_[a-z0-9_]+$"
+        description: Unique domain service identifier
+      name:
+        type: string
+        description: Service name from ubiquitous language
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Context this service belongs to (ID reference)
+      description:
+        type: string
+        description: What this service does and why it exists
+      operations:
+        type: array
+        description: Service operations
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            parameters:
+              type: array
+            returns:
+              type: string
+      stateless:
+        type: boolean
+        default: true
+        description: Domain services must be stateless
+
+  domain_event:
+    type: object
+    description: Something that happened in the domain
+    required: [id, name, aggregate_ref]
+    properties:
+      id:
+        type: string
+        pattern: "^evt_[a-z0-9_]+$"
+        description: Unique event identifier
+      name:
+        type: string
+        description: Event name in past tense (e.g., OrderPlaced)
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Context this event belongs to (ID reference)
+      aggregate_ref:
+        type: string
+        pattern: "^agg_[a-z0-9_]+$"
+        description: Aggregate that publishes this event (ID reference)
+      description:
+        type: string
+        description: What happened and why it matters
+      data_carried:
+        type: array
+        description: Data included in the event
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+            description:
+              type: string
+      immutable:
+        type: boolean
+        default: true
+        description: Events are immutable facts
+
+validation_rules:
+  - rule: "aggregate_root_is_entity"
+    description: "Every aggregate must have exactly one root, which must be an entity"
+    validation: "aggregate.root_ref must reference an entity with is_aggregate_root=true"
+
+  - rule: "repository_per_aggregate_root"
+    description: "Repository must reference an aggregate, not individual entities"
+    validation: "repository.aggregate_ref must be set"
+
+  - rule: "value_objects_immutable"
+    description: "Value objects must be immutable"
+    validation: "value_object.immutability must be true"
+
+  - rule: "domain_service_stateless"
+    description: "Domain services must be stateless"
+    validation: "domain_service.stateless must be true"
+
+  - rule: "events_immutable"
+    description: "Domain events must be immutable"
+    validation: "domain_event.immutable must be true"
+
+best_practices:
+  tactical:
+    - "Design small aggregates (Vaughn Vernon's rule)"
+    - "Protect true invariants in consistency boundaries"
+    - "Reference other aggregates by identity only"
+    - "Use eventual consistency outside aggregate boundaries"
+    - "Make value objects for domain concepts, not primitives"
+    - "Publish domain events for cross-aggregate communication"
