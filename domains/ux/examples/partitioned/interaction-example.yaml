@@ -41,6 +41,50 @@ workflows:
       publishes_event: "evt_cart_updated"
       feedback: toast
 
+  - id: wf_user_activation
+    name: "User Account Activation"
+    type: flexible
+    bounded_contexts:
+      - bc_user_management
+    application_service: svc_app_user_management
+    aggregate_refs:
+      - agg_user
+    steps:
+      - step_number: 1
+        label: "View Pending User"
+        page_ref: page_user_management
+        collects:
+          - vo_user_id
+        validates:
+          timing: on_blur
+          rules:
+            - "User must exist"
+            - "User must be in PENDING status"
+        can_skip: false
+        next_enabled_when: "user_exists_and_pending"
+      - step_number: 2
+        label: "Confirm Activation"
+        page_ref: page_user_management
+        collects: []
+        validates:
+          timing: on_submit
+          rules:
+            - "User not locked"
+        can_skip: false
+        next_enabled_when: "validation_passed"
+        on_complete:
+          update_aggregate: "agg_user"
+          publish_event: "evt_user_activated"
+          navigate_to: "page_user_management"
+    completion:
+      aggregate_transition: "PENDING → ACTIVE"
+      publishes_event: "evt_user_activated"
+      navigate_to: page_user_management
+      feedback: toast
+    progress_indicator:
+      type: steps
+      position: top
+
   - id: wf_checkout
     name: "Checkout Process"
     type: linear
@@ -224,6 +268,66 @@ components:
       aria_label: "Product rating"
       screen_reader_text: "Rated {rating} out of 5 stars"
 
+  - id: cmp_user_profile_card
+    name: "User Profile Card"
+    type: card
+    page_refs:
+      - page_user_dashboard
+    api_endpoints:
+      - bff_if_user_web
+      - bff_if_dashboard_web
+    behaviors:
+      - beh_load_user_data
+      - beh_display_user_status
+    design_token_refs:
+      - dt_spacing_card
+      - dt_color_card_bg
+      - dt_border_radius
+    accessibility:
+      aria_label: "User profile information"
+      keyboard_navigable: true
+      screen_reader_text: "User profile with status and account details"
+
+  - id: cmp_user_activation_button
+    name: "User Activation Button"
+    type: button
+    page_refs:
+      - page_user_management
+    api_endpoints:
+      - bff_if_user_web
+    behaviors:
+      - beh_activate_user
+      - beh_loading_state
+      - beh_success_feedback
+    design_token_refs:
+      - dt_color_primary
+      - dt_color_primary_hover
+      - dt_spacing_button
+    accessibility:
+      aria_label: "Activate user account"
+      keyboard_accessible: true
+      focus_visible: true
+
+  - id: cmp_order_list
+    name: "Order List"
+    type: list
+    page_refs:
+      - page_user_dashboard
+      - page_order_history
+    api_endpoints:
+      - bff_if_order_web
+      - bff_if_dashboard_web
+    behaviors:
+      - beh_load_orders
+      - beh_filter_orders
+      - beh_paginate_orders
+    design_token_refs:
+      - dt_spacing_card
+      - dt_font_body
+    accessibility:
+      aria_label: "User order history"
+      keyboard_navigable: true
+
 behaviors:
   - id: beh_hover_effect
     name: "Hover Effect"
@@ -330,6 +434,86 @@ behaviors:
     actions:
       - type: open_modal
         content: full_size_image
+
+  - id: beh_load_user_data
+    name: "Load User Data"
+    trigger: component_mount
+    actions:
+      - type: api_call
+        endpoint: "/api/web/users/summary/{userId}"
+        method: GET
+        bff_interface_ref: bff_if_user_web
+      - type: update_component_state
+        target: user_profile_card
+
+  - id: beh_display_user_status
+    name: "Display User Status"
+    trigger: data_loaded
+    actions:
+      - type: render
+        template: user_status_badge
+      - type: conditional_style
+        condition: status_active
+        style: success_theme
+
+  - id: beh_activate_user
+    name: "Activate User"
+    trigger: click
+    actions:
+      - type: api_call
+        endpoint: "/api/web/users/activate"
+        method: POST
+        bff_interface_ref: bff_if_user_web
+      - type: show_feedback
+        feedback_type: toast
+        message: "User account activated successfully"
+      - type: update_component_state
+        target: user_profile_card
+      - type: publish_domain_event
+        event: evt_user_activated
+
+  - id: beh_success_feedback
+    name: "Success Feedback"
+    trigger: api_success
+    actions:
+      - type: animate
+        animation_ref: anim_success_checkmark
+      - type: show_toast
+        message: "Operation completed successfully"
+        duration: 3000
+
+  - id: beh_load_orders
+    name: "Load Orders"
+    trigger: component_mount
+    actions:
+      - type: api_call
+        endpoint: "/api/web/orders/user/{userId}"
+        method: GET
+        bff_interface_ref: bff_if_order_web
+      - type: update_component_state
+        target: order_list
+
+  - id: beh_filter_orders
+    name: "Filter Orders"
+    trigger: change
+    actions:
+      - type: update_url_params
+        params: ["status", "dateRange"]
+      - type: api_call
+        endpoint: "/api/web/orders/user/{userId}"
+        method: GET
+        bff_interface_ref: bff_if_order_web
+
+  - id: beh_paginate_orders
+    name: "Paginate Orders"
+    trigger: click
+    actions:
+      - type: update_url_params
+        params: ["page"]
+      - type: api_call
+        endpoint: "/api/web/orders/user/{userId}?page={page}"
+        method: GET
+        bff_interface_ref: bff_if_order_web
 
 animations:
   - id: anim_hover_lift

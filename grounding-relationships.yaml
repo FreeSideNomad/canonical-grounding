@@ -1,0 +1,715 @@
+# Canonical Grounding: New Grounding Relationships for Phase 9
+# Version: 2.3.0 (Proposed)
+# Date: 2025-10-18
+# Purpose: Enhancement Phase - UX → BFF → Application Service → Aggregate chain
+# Based on: ddd-concept-definitions.yaml + interdomain-map.yaml v2.2.0
+
+metadata:
+  version: "2.3.0"
+  phase: "Enhancement Phase 9"
+  created: "2025-10-18"
+  author: "Canonical Grounding Framework"
+  description: "New grounding relationships establishing UX → BFF → ApplicationService → Aggregate chain"
+  total_new_groundings: 10
+  enhancement_note: "Adds BFF, Application Service, Command, Query, and Repository groundings to DDD model"
+  prerequisite_schemas:
+    - "strategic-ddd.schema.yaml (BFF additions)"
+    - "tactical-ddd.schema.yaml (ApplicationService, Command, Query additions)"
+
+# ============================================================================
+# NEW GROUNDING RELATIONSHIPS
+# ============================================================================
+
+new_groundings:
+  # -------------------------------------------------------------------------
+  # 1. UX → BFF Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_ux_bff_001"
+    source: "model_ux_interaction"
+    target: "model_ddd"  # BFF is in strategic partition of DDD
+    type: "structural"
+    strength: "strong"
+    description: "UX Component references BFF Interface for API endpoints"
+    relationships:
+      - source_concept: "ux:Component"
+        target_concept: "ddd:bff_interface"
+        target_partition: "strategic"
+        cardinality: "many-to-one"
+        reference_field: "api_endpoints"
+        validation: "optional"
+        note: "Components call BFF interfaces to fetch/mutate data"
+    rationale: "UI components are coupled to BFF interfaces which provide client-specific API aggregation"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - UX-to-BFF structural grounding"
+    examples:
+      - "OrderListComponent.api_endpoints → bff_if_order_web (WebBFF interface for orders)"
+      - "UserProfileComponent.api_endpoints → bff_if_user_mobile (MobileBFF interface for users)"
+      - "DashboardComponent.api_endpoints → [bff_if_orders_web, bff_if_analytics_web]"
+    constraint: "Components should call BFF interfaces, not application services directly (separation of concerns)"
+
+  # -------------------------------------------------------------------------
+  # 2. BFF Interface → Application Service Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_bff_app_svc_001"
+    source: "model_ddd"  # BFF in strategic partition
+    target: "model_ddd"  # ApplicationService in tactical partition
+    type: "structural"
+    strength: "strong"
+    description: "BFF Interface delegates to Application Service for orchestration"
+    relationships:
+      - source_concept: "ddd:bff_interface"
+        source_partition: "strategic"
+        target_concept: "ddd:application_service"
+        target_partition: "tactical"
+        cardinality: "many-to-many"
+        reference_field: "delegates_to_services"
+        validation: "required"
+        note: "BFF endpoints delegate to application services for domain operations"
+    rationale: "BFF interfaces provide client-specific orchestration, but delegate actual domain logic to application services"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - BFF-to-ApplicationService delegation"
+    examples:
+      - "bff_if_order_web.endpoints['/create-order'] → svc_app_order_processing"
+      - "bff_if_user_mobile.endpoints['/register'] → svc_app_user_management"
+      - "bff_if_dashboard_web.endpoints['/summary'] → [svc_app_order_processing, svc_app_analytics]"
+    constraint: "BFF must NOT contain business logic - only presentation/aggregation logic. All domain operations delegated to application services."
+
+  # -------------------------------------------------------------------------
+  # 3. BFF Interface → Command Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_bff_cmd_001"
+    source: "model_ddd"  # BFF in strategic partition
+    target: "model_ddd"  # Command in tactical partition
+    type: "procedural"
+    strength: "strong"
+    description: "BFF Interface endpoints reference Command definitions for state-changing operations"
+    relationships:
+      - source_concept: "ddd:bff_interface.endpoints"
+        source_partition: "strategic"
+        target_concept: "ddd:command_interface"
+        target_partition: "tactical"
+        cardinality: "many-to-many"
+        reference_field: "delegates_to_commands"
+        validation: "optional"
+        note: "BFF endpoints that perform state changes delegate to command interfaces"
+    rationale: "BFF endpoints map to domain commands which encapsulate user intent"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - BFF-to-Command procedural grounding"
+    examples:
+      - "POST /api/web/orders/create → cmd_order_commands (PlaceOrderCmd)"
+      - "POST /api/mobile/users/activate → cmd_user_commands (ActivateUserCmd)"
+      - "POST /api/web/profile/enroll-service → cmd_servicing_profile_commands (EnrollServiceCmd)"
+    constraint: "State-changing BFF endpoints should use POST method and delegate to commands (task-based interface)"
+
+  # -------------------------------------------------------------------------
+  # 4. BFF Interface → Query Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_bff_qry_001"
+    source: "model_ddd"  # BFF in strategic partition
+    target: "model_ddd"  # Query in tactical partition
+    type: "procedural"
+    strength: "strong"
+    description: "BFF Interface endpoints reference Query definitions for data retrieval operations"
+    relationships:
+      - source_concept: "ddd:bff_interface.endpoints"
+        source_partition: "strategic"
+        target_concept: "ddd:query_interface"
+        target_partition: "tactical"
+        cardinality: "many-to-many"
+        reference_field: "delegates_to_queries"
+        validation: "optional"
+        note: "BFF endpoints that retrieve data delegate to query interfaces"
+    rationale: "BFF endpoints use domain queries to retrieve data without side effects"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - BFF-to-Query procedural grounding"
+    examples:
+      - "GET /api/web/orders/{id} → qry_order_queries (getOrderDetails)"
+      - "GET /api/mobile/users/{id}/summary → qry_user_queries (getUserSummary)"
+      - "GET /api/web/profile/{id} → qry_servicing_profile_queries (getServicingProfileSummary)"
+    constraint: "Read-only BFF endpoints should use GET method and delegate to queries (CQRS pattern)"
+
+  # -------------------------------------------------------------------------
+  # 5. Application Service → Command Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_app_svc_cmd_001"
+    source: "model_ddd"  # ApplicationService in tactical partition
+    target: "model_ddd"  # Command in tactical partition
+    type: "structural"
+    strength: "strong"
+    description: "Application Service implements Command interface operations"
+    relationships:
+      - source_concept: "ddd:application_service"
+        target_concept: "ddd:command_interface"
+        cardinality: "one-to-many"
+        reference_field: "implements_commands"
+        validation: "required"
+        note: "Application services implement one or more command interfaces (Knight pattern)"
+    rationale: "Application services are the implementation of command interfaces, orchestrating domain operations"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - ApplicationService-to-Command implementation"
+    examples:
+      - "svc_app_order_processing.implements_commands → [cmd_order_commands]"
+      - "svc_app_user_management.implements_commands → [cmd_user_commands]"
+      - "svc_app_servicing_profile.implements_commands → [cmd_servicing_profile_commands]"
+    constraint: "Application service must implement ALL operations defined in referenced command interfaces"
+
+  # -------------------------------------------------------------------------
+  # 6. Application Service → Query Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_app_svc_qry_001"
+    source: "model_ddd"  # ApplicationService in tactical partition
+    target: "model_ddd"  # Query in tactical partition
+    type: "structural"
+    strength: "strong"
+    description: "Application Service implements Query interface operations"
+    relationships:
+      - source_concept: "ddd:application_service"
+        target_concept: "ddd:query_interface"
+        cardinality: "one-to-many"
+        reference_field: "implements_queries"
+        validation: "required"
+        note: "Application services implement one or more query interfaces (Knight pattern)"
+    rationale: "Application services are the implementation of query interfaces, coordinating data retrieval"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - ApplicationService-to-Query implementation"
+    examples:
+      - "svc_app_order_processing.implements_queries → [qry_order_queries]"
+      - "svc_app_user_management.implements_queries → [qry_user_queries]"
+      - "svc_app_servicing_profile.implements_queries → [qry_servicing_profile_queries]"
+    constraint: "Application service must implement ALL operations defined in referenced query interfaces"
+
+  # -------------------------------------------------------------------------
+  # 7. Command → Aggregate Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_cmd_agg_001"
+    source: "model_ddd"  # Command in tactical partition
+    target: "model_ddd"  # Aggregate in tactical partition
+    type: "structural"
+    strength: "strong"
+    description: "Command references target Aggregate for state modification"
+    relationships:
+      - source_concept: "ddd:command_interface.command_records"
+        target_concept: "ddd:aggregate"
+        cardinality: "many-to-one"
+        reference_field: "modifies_aggregate"
+        validation: "required"
+        note: "Each command record modifies exactly one aggregate (Vaughn Vernon rule)"
+    rationale: "Commands encapsulate intent to modify a specific aggregate, maintaining transactional consistency"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - Command-to-Aggregate structural grounding"
+    examples:
+      - "PlaceOrderCmd.modifies_aggregate → agg_order"
+      - "ActivateUserCmd.modifies_aggregate → agg_user"
+      - "EnrollServiceCmd.modifies_aggregate → agg_servicing_profile"
+    constraint: "Each command must modify at most ONE aggregate per transaction (strong consistency boundary)"
+
+  # -------------------------------------------------------------------------
+  # 8. Query → Aggregate Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_qry_agg_001"
+    source: "model_ddd"  # Query in tactical partition
+    target: "model_ddd"  # Aggregate in tactical partition
+    type: "structural"
+    strength: "strong"
+    description: "Query references target Aggregate for data retrieval"
+    relationships:
+      - source_concept: "ddd:query_interface"
+        target_concept: "ddd:aggregate"
+        cardinality: "many-to-one"
+        reference_field: "aggregate_ref"
+        validation: "required"
+        note: "Query interface reads from primary aggregate (may join with others)"
+    rationale: "Queries retrieve data from aggregates without modifying state"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - Query-to-Aggregate structural grounding"
+    examples:
+      - "qry_order_queries.aggregate_ref → agg_order"
+      - "qry_user_queries.aggregate_ref → agg_user"
+      - "qry_servicing_profile_queries.aggregate_ref → agg_servicing_profile"
+    constraint: "Queries must have no side effects - read-only operations"
+
+  # -------------------------------------------------------------------------
+  # 9. Application Service → Repository Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_app_svc_repo_001"
+    source: "model_ddd"  # ApplicationService in tactical partition
+    target: "model_ddd"  # Repository in tactical partition
+    type: "structural"
+    strength: "strong"
+    description: "Application Service depends on Repository for aggregate persistence"
+    relationships:
+      - source_concept: "ddd:application_service.dependencies"
+        target_concept: "ddd:repository"
+        cardinality: "one-to-many"
+        reference_field: "repositories"
+        validation: "required"
+        note: "Application services use repositories to load/save aggregates"
+    rationale: "Application services orchestrate domain operations by loading aggregates from repositories, invoking domain logic, and persisting changes"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - ApplicationService-to-Repository dependency"
+    examples:
+      - "svc_app_order_processing.dependencies.repositories → [repo_order]"
+      - "svc_app_user_management.dependencies.repositories → [repo_user]"
+      - "svc_app_servicing_profile.dependencies.repositories → [repo_servicing_profile, repo_client]"
+    constraint: "Repositories are the only mechanism for aggregate persistence (no direct database access)"
+
+  # -------------------------------------------------------------------------
+  # 10. Application Service → Domain Event Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_app_svc_evt_001"
+    source: "model_ddd"  # ApplicationService in tactical partition
+    target: "model_ddd"  # DomainEvent in tactical partition
+    type: "procedural"
+    strength: "strong"
+    description: "Application Service publishes Domain Events after successful operations"
+    relationships:
+      - source_concept: "ddd:application_service.operations.workflow"
+        target_concept: "ddd:domain_event"
+        cardinality: "one-to-many"
+        reference_field: "publishes_events"
+        validation: "optional"
+        note: "Application service operations publish events after successful transaction commit"
+    rationale: "Domain events enable eventual consistency across aggregates and bounded contexts"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - ApplicationService-to-DomainEvent procedural grounding"
+    examples:
+      - "svc_app_order_processing.createOrder.publishes_events → [evt_order_placed]"
+      - "svc_app_user_management.createUser.publishes_events → [evt_user_created]"
+      - "svc_app_servicing_profile.enrollService.publishes_events → [evt_service_enrolled]"
+    constraint: "Events must be published AFTER successful transaction commit (outbox pattern recommended)"
+
+  # -------------------------------------------------------------------------
+  # OPTIONAL: QE → Application Service Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_qe_app_svc_001"
+    source: "model_qe"
+    target: "model_ddd"  # ApplicationService in tactical partition
+    type: "procedural"
+    strength: "strong"
+    description: "QE test cases validate Application Service command/query operations"
+    relationships:
+      - source_concept: "qe:test_case"
+        target_concept: "ddd:application_service.operations"
+        target_partition: "tactical"
+        cardinality: "many-to-many"
+        reference_field: "validates_operations"
+        validation: "optional"
+        note: "Integration tests validate application service orchestration logic"
+    rationale: "Application service operations represent use cases that must be tested end-to-end"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - QE-to-ApplicationService procedural grounding"
+    examples:
+      - "OrderProcessingIntegrationTest → svc_app_order_processing.createOrder"
+      - "UserManagementIntegrationTest → svc_app_user_management.[createUser, activateUser]"
+      - "ServicingProfileIntegrationTest → svc_app_servicing_profile.enrollService"
+    constraint: "Critical application service operations should have integration test coverage"
+
+  # -------------------------------------------------------------------------
+  # OPTIONAL: BFF Scope → Bounded Context Grounding
+  # -------------------------------------------------------------------------
+  - id: "grounding_bff_bc_001"
+    source: "model_ddd"  # BFF in strategic partition
+    target: "model_ddd"  # BoundedContext in strategic partition
+    type: "structural"
+    strength: "strong"
+    description: "BFF Scope aggregates data from multiple Bounded Contexts"
+    relationships:
+      - source_concept: "ddd:bff_scope"
+        source_partition: "strategic"
+        target_concept: "ddd:bounded_context"
+        target_partition: "strategic"
+        cardinality: "one-to-many"
+        reference_field: "aggregates_from_contexts"
+        validation: "required"
+        note: "BFF aggregates data from multiple bounded contexts for client-specific views"
+    rationale: "BFFs provide client-specific aggregation across bounded context boundaries (integration layer pattern)"
+    note: "ADDED: Enhancement Phase 9 (2025-10-18) - BFF-to-BoundedContext structural grounding"
+    examples:
+      - "bff_web.aggregates_from_contexts → [bc_user_management, bc_order_management, bc_notification]"
+      - "bff_ios.aggregates_from_contexts → [bc_user_management, bc_order_management]"
+      - "bff_partner_api.aggregates_from_contexts → [bc_order_management, bc_fulfillment]"
+    constraint: "BFF should aggregate from multiple contexts (otherwise not needed - use direct API)"
+
+# ============================================================================
+# REVISIONS TO EXISTING GROUNDINGS
+# ============================================================================
+
+revised_groundings:
+  - id: "grounding_ux_ddd_001"
+    original_description: "UX pages reference DDD bounded contexts"
+    revision_note: "Add note about BFF intermediary layer"
+    additional_note: |
+      NOTE: In practice, UX pages typically call BFF interfaces which then delegate to
+      application services within bounded contexts. See grounding_ux_bff_001 and
+      grounding_bff_app_svc_001 for the complete call chain:
+      UX:Page → UX:Component → BFF:Interface → ApplicationService → Aggregate
+
+  - id: "grounding_ux_ddd_002"
+    original_description: "UX workflows reference DDD aggregates"
+    revision_note: "Add note about application service orchestration"
+    additional_note: |
+      NOTE: Workflows do not directly manipulate aggregates. The complete chain is:
+      UX:Workflow → BFF:Interface → ApplicationService → Command/Query → Aggregate
+      Application services orchestrate aggregate interactions while maintaining transactional boundaries.
+
+# ============================================================================
+# UPDATED STATISTICS
+# ============================================================================
+
+updated_statistics:
+  total_groundings: 42  # Was 32, now +10 new groundings
+  grounding_type_distribution:
+    structural: 16  # +7 (was 9)
+    semantic: 9     # unchanged
+    procedural: 13  # +6 (was 6: +1 from Phase 4, +6 from Phase 9)
+    epistemic: 5    # unchanged
+    note: "Some groundings have multiple types; totals may exceed 42"
+
+  grounding_strength_distribution:
+    strong: 37      # +10 (was 27)
+    weak: 5         # unchanged
+    optional: 0     # unchanged
+
+  grounding_by_source:
+    model_ddd: 6    # Internal DDD groundings (BFF→AppSvc, AppSvc→Cmd/Qry, Cmd/Qry→Agg, AppSvc→Repo/Evt)
+    model_ux: 1     # UX→BFF
+    model_qe: 1     # QE→ApplicationService
+    model_agile: 0  # No new agile groundings in this phase
+    model_data_eng: 0  # No new data-eng groundings in this phase
+
+  grounding_by_target:
+    model_ddd: 10   # All new groundings target DDD model (various partitions)
+    model_ux: 0
+    model_qe: 0
+    model_agile: 0
+    model_data_eng: 0
+
+# ============================================================================
+# GROUNDING CHAIN ANALYSIS
+# ============================================================================
+
+grounding_chains:
+  ux_to_aggregate_complete_chain:
+    description: "Complete grounding chain from UX to DDD Aggregate"
+    chain:
+      - step: 1
+        grounding: "grounding_ux_bff_001"
+        from: "ux:Component"
+        to: "ddd:bff_interface"
+        relationship: "Component.api_endpoints → bff_interface"
+
+      - step: 2
+        grounding: "grounding_bff_cmd_001 OR grounding_bff_qry_001"
+        from: "ddd:bff_interface"
+        to: "ddd:command_interface OR ddd:query_interface"
+        relationship: "bff_interface.endpoints → command_interface OR query_interface"
+
+      - step: 3
+        grounding: "grounding_bff_app_svc_001"
+        from: "ddd:bff_interface"
+        to: "ddd:application_service"
+        relationship: "bff_interface delegates_to_services → application_service"
+
+      - step: 4
+        grounding: "grounding_app_svc_cmd_001 OR grounding_app_svc_qry_001"
+        from: "ddd:application_service"
+        to: "ddd:command_interface OR ddd:query_interface"
+        relationship: "application_service implements commands/queries"
+
+      - step: 5
+        grounding: "grounding_cmd_agg_001 OR grounding_qry_agg_001"
+        from: "ddd:command_interface OR ddd:query_interface"
+        to: "ddd:aggregate"
+        relationship: "command.modifies_aggregate → aggregate OR query.aggregate_ref → aggregate"
+
+      - step: 6
+        grounding: "grounding_app_svc_repo_001"
+        from: "ddd:application_service"
+        to: "ddd:repository"
+        relationship: "application_service.dependencies.repositories → repository"
+
+      - step: 7
+        grounding: "grounding_app_svc_evt_001"
+        from: "ddd:application_service"
+        to: "ddd:domain_event"
+        relationship: "application_service.operations.publishes_events → domain_event"
+
+    rationale: "This chain establishes complete traceability from UI interactions through BFF orchestration, application service coordination, command/query processing, aggregate manipulation, persistence, and event publication"
+
+  qe_to_aggregate_validation_chain:
+    description: "QE validation chain for domain logic"
+    chain:
+      - step: 1
+        grounding: "grounding_qe_app_svc_001"
+        from: "qe:test_case"
+        to: "ddd:application_service.operations"
+        relationship: "test_case validates_operations → application_service operation"
+
+      - step: 2
+        grounding: "grounding_qe_ddd_003"
+        from: "qe:test_case"
+        to: "ddd:aggregate"
+        relationship: "test_case validates aggregate invariants"
+
+      - step: 3
+        grounding: "grounding_qe_ddd_001"
+        from: "qe:test_case"
+        to: "ddd:Aggregate.invariants"
+        relationship: "test validates domain rules"
+
+    rationale: "QE tests validate application service orchestration AND underlying aggregate invariants"
+
+# ============================================================================
+# VALIDATION RULES FOR NEW GROUNDINGS
+# ============================================================================
+
+validation_rules:
+  - rule_id: "rule_bff_no_business_logic"
+    applies_to: "grounding_bff_app_svc_001"
+    description: "BFF must NOT contain business logic - only orchestration/aggregation"
+    validation: "BFF interface should only contain DTO mapping, endpoint routing, and error handling"
+    severity: "error"
+
+  - rule_id: "rule_one_aggregate_per_command"
+    applies_to: "grounding_cmd_agg_001"
+    description: "Command must modify at most one aggregate (Vaughn Vernon rule)"
+    validation: "command_record.modifies_aggregate must reference exactly 0 or 1 aggregate"
+    severity: "error"
+
+  - rule_id: "rule_query_no_side_effects"
+    applies_to: "grounding_qry_agg_001"
+    description: "Queries must have no side effects"
+    validation: "query_interface.no_side_effects must be true"
+    severity: "error"
+
+  - rule_id: "rule_app_svc_implements_both"
+    applies_to: ["grounding_app_svc_cmd_001", "grounding_app_svc_qry_001"]
+    description: "Application service should implement both commands and queries (Knight pattern)"
+    validation: "application_service.implements_commands OR application_service.implements_queries must have at least 1 element"
+    severity: "warning"
+
+  - rule_id: "rule_events_after_commit"
+    applies_to: "grounding_app_svc_evt_001"
+    description: "Domain events must be published AFTER successful transaction commit"
+    validation: "Outbox pattern or similar mechanism should be used to ensure event publication after commit"
+    severity: "warning"
+
+  - rule_id: "rule_bff_aggregates_multiple_contexts"
+    applies_to: "grounding_bff_bc_001"
+    description: "BFF should aggregate from multiple bounded contexts (otherwise not needed)"
+    validation: "bff_scope.aggregates_from_contexts.length >= 1"
+    severity: "warning"
+
+# ============================================================================
+# IMPLEMENTATION NOTES
+# ============================================================================
+
+implementation_notes:
+  integration_order:
+    - "1. Add BFF definitions to strategic-ddd.schema.yaml (bff_scope, bff_interface)"
+    - "2. Add ApplicationService, Command, Query definitions to tactical-ddd.schema.yaml"
+    - "3. Update UX schema to include api_endpoints field in Component definition"
+    - "4. Update interdomain-map.yaml with new groundings (append to groundings section)"
+    - "5. Update statistics in interdomain-map.yaml metadata section"
+    - "6. Run validation to ensure all references resolve (closure check)"
+
+  backward_compatibility:
+    note: "All new groundings are additive - no breaking changes to existing schemas"
+    impact: "Existing schemas remain valid; new fields are optional unless explicitly marked required"
+
+  knight_pattern_alignment:
+    - "✓ Commands as nested records in interface (grounding_app_svc_cmd_001)"
+    - "✓ Queries as interface methods with result records (grounding_app_svc_qry_001)"
+    - "✓ Application service implements both Commands and Queries interfaces (grounding_app_svc_cmd_001 + grounding_app_svc_qry_001)"
+    - "✓ BFF controllers delegate to application services (grounding_bff_app_svc_001)"
+    - "✓ One aggregate per transaction (grounding_cmd_agg_001)"
+
+  cross_partition_references:
+    note: "Several groundings cross schema partitions within DDD model"
+    examples:
+      - "BFF (strategic partition) → ApplicationService (tactical partition)"
+      - "BFF (strategic partition) → Command/Query (tactical partition)"
+      - "ApplicationService (tactical partition) → BoundedContext (strategic partition)"
+    validation: "Ensure partition references are correctly specified in grounding metadata"
+
+# ============================================================================
+# EXAMPLES: COMPLETE GROUNDING CHAIN
+# ============================================================================
+
+example_complete_chain:
+  user_registration_workflow:
+    description: "Complete grounding chain for user registration from UX to persistence"
+
+    ux_layer:
+      component: "RegistrationFormComponent"
+      workflow: "RegistrationWorkflow"
+      page: "RegistrationPage"
+      bounded_context_ref: "bc_user_management"
+
+    bff_layer:
+      bff_scope: "bff_web"
+      bff_interface: "bff_if_user_web"
+      endpoint: "POST /api/web/users/register"
+      delegates_to_commands: ["cmd_user_commands"]
+      delegates_to_services: ["svc_app_user_management"]
+
+    application_layer:
+      application_service: "svc_app_user_management"
+      implements_commands: ["cmd_user_commands"]
+      implements_queries: ["qry_user_queries"]
+      operation: "createUser"
+      command_record: "CreateUserCmd"
+      parameters:
+        - "email: String"
+        - "userType: String"
+        - "clientId: ClientId"
+      returns: "UserId"
+
+    domain_layer:
+      aggregate: "agg_user"
+      repository: "repo_user"
+      domain_event: "evt_user_created"
+      invariants:
+        - "Email must be unique"
+        - "UserType must be valid enum"
+
+    grounding_chain:
+      - "RegistrationFormComponent.api_endpoints → bff_if_user_web (grounding_ux_bff_001)"
+      - "bff_if_user_web.endpoints['/register'].delegates_to_commands → cmd_user_commands (grounding_bff_cmd_001)"
+      - "bff_if_user_web.endpoints['/register'].delegates_to_services → svc_app_user_management (grounding_bff_app_svc_001)"
+      - "svc_app_user_management.implements_commands → cmd_user_commands (grounding_app_svc_cmd_001)"
+      - "cmd_user_commands.CreateUserCmd.modifies_aggregate → agg_user (grounding_cmd_agg_001)"
+      - "svc_app_user_management.dependencies.repositories → repo_user (grounding_app_svc_repo_001)"
+      - "svc_app_user_management.createUser.publishes_events → evt_user_created (grounding_app_svc_evt_001)"
+
+    qe_validation:
+      test_suite: "UserManagementIntegrationTests"
+      test_case: "test_user_registration_success"
+      validates_operations: "svc_app_user_management.createUser"
+      validates_invariants: "agg_user.invariants[email_unique]"
+      grounding: "grounding_qe_app_svc_001 + grounding_qe_ddd_003"
+
+  order_placement_workflow:
+    description: "Complete grounding chain for order placement"
+
+    ux_layer:
+      component: "CheckoutComponent"
+      workflow: "CheckoutWorkflow"
+      page: "CheckoutPage"
+      bounded_context_ref: "bc_order_management"
+
+    bff_layer:
+      bff_scope: "bff_web"
+      bff_interface: "bff_if_order_web"
+      endpoint: "POST /api/web/orders/place"
+      delegates_to_commands: ["cmd_order_commands"]
+      delegates_to_services: ["svc_app_order_processing"]
+
+    application_layer:
+      application_service: "svc_app_order_processing"
+      implements_commands: ["cmd_order_commands"]
+      implements_queries: ["qry_order_queries"]
+      operation: "placeOrder"
+      command_record: "PlaceOrderCmd"
+      parameters:
+        - "customerId: CustomerId"
+        - "items: List<OrderItem>"
+        - "shippingAddress: Address"
+      returns: "OrderId"
+
+    domain_layer:
+      aggregate: "agg_order"
+      repository: "repo_order"
+      domain_event: "evt_order_placed"
+      invariants:
+        - "Order must have at least one item"
+        - "Total amount must be positive"
+        - "Shipping address must be valid"
+
+    grounding_chain:
+      - "CheckoutComponent.api_endpoints → bff_if_order_web (grounding_ux_bff_001)"
+      - "bff_if_order_web.endpoints['/place'].delegates_to_commands → cmd_order_commands (grounding_bff_cmd_001)"
+      - "bff_if_order_web.endpoints['/place'].delegates_to_services → svc_app_order_processing (grounding_bff_app_svc_001)"
+      - "svc_app_order_processing.implements_commands → cmd_order_commands (grounding_app_svc_cmd_001)"
+      - "cmd_order_commands.PlaceOrderCmd.modifies_aggregate → agg_order (grounding_cmd_agg_001)"
+      - "svc_app_order_processing.dependencies.repositories → repo_order (grounding_app_svc_repo_001)"
+      - "svc_app_order_processing.placeOrder.publishes_events → evt_order_placed (grounding_app_svc_evt_001)"
+
+    qe_validation:
+      test_suite: "OrderProcessingIntegrationTests"
+      test_case: "test_order_placement_success"
+      validates_operations: "svc_app_order_processing.placeOrder"
+      validates_invariants: "agg_order.invariants[positive_total, valid_address]"
+      grounding: "grounding_qe_app_svc_001 + grounding_qe_ddd_003"
+
+# ============================================================================
+# MIGRATION FROM v2.2.0 TO v2.3.0
+# ============================================================================
+
+migration:
+  version_change: "2.2.0 → 2.3.0"
+  breaking_changes: false
+  description: "Additive changes only - adds new groundings for BFF and Application Service patterns"
+
+  steps:
+    - step: 1
+      action: "Review ddd-concept-definitions.yaml to understand new concepts"
+      file: "/Users/igor/code/canonical-grounding/ddd-concept-definitions.yaml"
+
+    - step: 2
+      action: "Add new grounding definitions to interdomain-map.yaml"
+      location: "Append to groundings section (after grounding_agile_ddd_002)"
+      count: "10 new groundings"
+
+    - step: 3
+      action: "Update metadata.total_groundings from 32 to 42"
+      location: "interdomain-map.yaml line 18"
+
+    - step: 4
+      action: "Update grounding_type_distribution statistics"
+      location: "interdomain-map.yaml graph_analysis section"
+
+    - step: 5
+      action: "Update grounding_strength_distribution statistics"
+      location: "interdomain-map.yaml graph_analysis section"
+
+    - step: 6
+      action: "Add revision notes to grounding_ux_ddd_001 and grounding_ux_ddd_002"
+      location: "Add 'additional_note' field to existing groundings"
+
+    - step: 7
+      action: "Run validation to ensure closure percentage remains >95%"
+      command: "Validate all grounding references resolve to existing concepts"
+
+  validation_checklist:
+    - "✓ All new grounding IDs are unique"
+    - "✓ All source/target references use correct partition notation"
+    - "✓ All cardinality values are valid enum values"
+    - "✓ All validation levels are valid enum values"
+    - "✓ Examples are concrete and illustrative"
+    - "✓ Statistics are updated correctly"
+    - "✓ No cycles introduced in grounding graph"
+
+# ============================================================================
+# APPENDIX: GROUNDING TYPE DEFINITIONS
+# ============================================================================
+
+appendix_grounding_types:
+  structural:
+    definition: "Source concept references or contains target concept via explicit field"
+    examples:
+      - "Component.api_endpoints → bff_interface"
+      - "bff_interface.delegates_to_services → application_service"
+      - "command.modifies_aggregate → aggregate"
+
+  semantic:
+    definition: "Source concept aligns with or derives meaning from target concept"
+    examples:
+      - "UX labels use DDD ubiquitous language"
+      - "Navigation hierarchy mirrors domain structure"
+
+  procedural:
+    definition: "Source concept invokes or orchestrates target concept operations"
+    examples:
+      - "BFF endpoint delegates to command/query"
+      - "Application service publishes domain event"
+      - "Test case validates application service operation"
+
+  epistemic:
+    definition: "Source concept tracks or describes target concept metadata"
+    examples:
+      - "Feature maps to bounded context"
+      - "DoD references test criteria"
+
+# ============================================================================
+# END OF GROUNDING RELATIONSHIPS
+# ============================================================================

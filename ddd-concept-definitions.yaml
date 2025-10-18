@@ -1,0 +1,1418 @@
+# DDD Concept Definitions: Application Services, Commands, Queries, BFF
+# Created: 2025-10-18
+# Purpose: Complete JSON Schema 2020-12 definitions for Phase 6 schema implementation
+# Based on: BFF_ApplicationService_CQRS_Research.md + knight-analysis.md
+
+# =============================================================================
+# NAMING CONVENTIONS ADDITIONS
+# =============================================================================
+
+naming_conventions_additions:
+  application_service_id: "svc_app_<name>"
+  command_id: "cmd_<name>"
+  query_id: "qry_<name>"
+  bff_scope_id: "bff_<client_type>"
+  bff_interface_id: "bff_if_<context>_<client_type>"
+
+# =============================================================================
+# 1. APPLICATION SERVICE (for tactical-ddd.schema.yaml)
+# =============================================================================
+
+application_service:
+  $defs:
+    application_service:
+      type: object
+      description: |
+        A stateless service that orchestrates use case execution by coordinating domain objects,
+        managing transactions, and controlling application workflow. Application Services sit in
+        the Application Layer, above the Domain Layer, and implement both command and query
+        operations. They contain NO business logic - only coordination logic.
+      required:
+        - id
+        - name
+        - bounded_context_ref
+        - implements_commands
+        - implements_queries
+      properties:
+        id:
+          type: string
+          pattern: "^svc_app_[a-z0-9_]+$"
+          description: Unique application service identifier (e.g., svc_app_user_management)
+          examples:
+            - "svc_app_user_management"
+            - "svc_app_order_processing"
+            - "svc_app_servicing_profile"
+
+        name:
+          type: string
+          pattern: "^[A-Z][a-zA-Z]+ApplicationService$"
+          description: Application service name following naming convention (e.g., UserApplicationService)
+          examples:
+            - "UserApplicationService"
+            - "OrderApplicationService"
+            - "ServicingProfileApplicationService"
+
+        bounded_context_ref:
+          type: string
+          pattern: "^bc_[a-z0-9_]+$"
+          description: Reference to BoundedContext this service belongs to (ID reference to strategic schema)
+
+        description:
+          type: string
+          description: What use cases this application service orchestrates
+
+        implements_commands:
+          type: array
+          description: Command interface(s) this service implements (ID references)
+          items:
+            type: string
+            pattern: "^cmd_[a-z0-9_]+$"
+          minItems: 0
+
+        implements_queries:
+          type: array
+          description: Query interface(s) this service implements (ID references)
+          items:
+            type: string
+            pattern: "^qry_[a-z0-9_]+$"
+          minItems: 0
+
+        operations:
+          type: array
+          description: Use case operations provided by this service
+          items:
+            type: object
+            required:
+              - name
+              - type
+            properties:
+              name:
+                type: string
+                pattern: "^[a-z][a-zA-Z]+$"
+                description: Operation method name (e.g., createUser, placeOrder)
+
+              type:
+                type: string
+                enum:
+                  - command
+                  - query
+                description: Whether this operation modifies state (command) or retrieves data (query)
+
+              description:
+                type: string
+                description: What this operation does
+
+              parameters:
+                type: array
+                description: Command or query parameters
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    type:
+                      type: string
+                    required:
+                      type: boolean
+
+              returns:
+                type: string
+                description: Return type (domain ID for creates, void for state changes, DTO for queries)
+
+              transaction_boundary:
+                type: object
+                description: Transaction scope for this operation
+                properties:
+                  is_transactional:
+                    type: boolean
+                    description: True for commands, false for queries
+                    default: true
+
+                  modifies_aggregates:
+                    type: array
+                    description: Aggregates modified by this operation (should be 0-1 for commands)
+                    items:
+                      type: string
+                      pattern: "^agg_[a-z0-9_]+$"
+                    maxItems: 1
+
+                  consistency_type:
+                    type: string
+                    enum:
+                      - transactional
+                      - eventual
+                    description: Immediate (transactional) or deferred (eventual) consistency
+
+              workflow:
+                type: object
+                description: Orchestration workflow steps
+                properties:
+                  validates_input:
+                    type: boolean
+                    description: Performs input/format validation
+                    default: true
+
+                  loads_aggregates:
+                    type: array
+                    description: Aggregates loaded from repositories
+                    items:
+                      type: string
+                      pattern: "^agg_[a-z0-9_]+$"
+
+                  invokes_domain_operations:
+                    type: array
+                    description: Domain operations invoked on aggregates
+                    items:
+                      type: string
+
+                  invokes_domain_services:
+                    type: array
+                    description: Domain services invoked
+                    items:
+                      type: string
+                      pattern: "^svc_dom_[a-z0-9_]+$"
+
+                  persists_aggregates:
+                    type: boolean
+                    description: Saves aggregates back to repository
+                    default: true
+
+                  publishes_events:
+                    type: array
+                    description: Domain events published after successful execution
+                    items:
+                      type: string
+                      pattern: "^evt_[a-z0-9_]+$"
+
+                  returns_dto:
+                    type: string
+                    description: DTO returned for queries
+
+        dependencies:
+          type: object
+          description: Infrastructure and domain dependencies
+          properties:
+            repositories:
+              type: array
+              description: Repositories used by this service (ID references)
+              items:
+                type: string
+                pattern: "^repo_[a-z0-9_]+$"
+
+            domain_services:
+              type: array
+              description: Domain services used (ID references)
+              items:
+                type: string
+                pattern: "^svc_dom_[a-z0-9_]+$"
+
+            event_publishers:
+              type: array
+              description: Event publishing mechanisms
+              items:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum:
+                      - in_memory_bus
+                      - outbox_pattern
+                      - message_queue
+                  description:
+                    type: string
+
+        characteristics:
+          type: object
+          description: Defining characteristics of application services
+          properties:
+            stateless:
+              type: boolean
+              description: Application services must be stateless
+              const: true
+
+            contains_business_logic:
+              type: boolean
+              description: Application services must NOT contain business logic
+              const: false
+
+            manages_transactions:
+              type: boolean
+              description: Application services manage transaction boundaries
+              const: true
+
+            coordinates_aggregates:
+              type: boolean
+              description: Application services coordinate aggregate interactions
+              const: true
+
+            publishes_events:
+              type: boolean
+              description: Application services publish domain events
+              default: true
+
+            performs_authorization:
+              type: boolean
+              description: Application services may perform authorization checks
+              default: true
+
+        layer:
+          type: string
+          description: Architectural layer
+          const: "application"
+
+        implementation_notes:
+          type: string
+          description: Implementation details specific to this service
+
+# =============================================================================
+# 2. COMMAND (for tactical-ddd.schema.yaml)
+# =============================================================================
+
+command:
+  $defs:
+    command_interface:
+      type: object
+      description: |
+        Command interface containing command definitions as nested records. Commands represent
+        user intent to perform state-changing operations. Following the Knight pattern, commands
+        are defined as record types nested inside an interface contract in the API layer.
+      required:
+        - id
+        - name
+        - bounded_context_ref
+        - command_records
+      properties:
+        id:
+          type: string
+          pattern: "^cmd_[a-z0-9_]+$"
+          description: Unique command interface identifier (e.g., cmd_user_commands)
+          examples:
+            - "cmd_user_commands"
+            - "cmd_order_commands"
+            - "cmd_servicing_profile_commands"
+
+        name:
+          type: string
+          pattern: "^[A-Z][a-zA-Z]+Commands$"
+          description: Command interface name (e.g., UserCommands, OrderCommands)
+          examples:
+            - "UserCommands"
+            - "OrderCommands"
+            - "ServicingProfileCommands"
+
+        bounded_context_ref:
+          type: string
+          pattern: "^bc_[a-z0-9_]+$"
+          description: Reference to BoundedContext (ID reference)
+
+        aggregate_ref:
+          type: string
+          pattern: "^agg_[a-z0-9_]+$"
+          description: Primary aggregate this command interface operates on
+
+        description:
+          type: string
+          description: What operations this command interface provides
+
+        command_records:
+          type: array
+          description: Nested command record definitions
+          items:
+            type: object
+            required:
+              - record_name
+              - intent
+              - parameters
+            properties:
+              record_name:
+                type: string
+                pattern: "^[A-Z][a-zA-Z]+Cmd$"
+                description: Command record name (e.g., CreateUserCmd, PlaceOrderCmd)
+                examples:
+                  - "CreateUserCmd"
+                  - "ActivateUserCmd"
+                  - "PlaceOrderCmd"
+                  - "EnrollServiceCmd"
+
+              intent:
+                type: string
+                pattern: "^[a-z][a-zA-Z]+$"
+                description: Imperative verb describing intent (create, activate, place, enroll)
+                examples:
+                  - "createUser"
+                  - "activateUser"
+                  - "placeOrder"
+                  - "enrollService"
+
+              description:
+                type: string
+                description: What this command does and why
+
+              parameters:
+                type: array
+                description: Command parameters (all required for command execution)
+                items:
+                  type: object
+                  required:
+                    - name
+                    - type
+                  properties:
+                    name:
+                      type: string
+                      description: Parameter name
+
+                    type:
+                      type: string
+                      description: Parameter type (String, primitive, or value object)
+
+                    value_object_ref:
+                      type: string
+                      pattern: "^vo_[a-z0-9_]+$"
+                      description: Reference to SharedKernel value object if applicable
+
+                    required:
+                      type: boolean
+                      description: Whether parameter is required
+                      default: true
+
+                    description:
+                      type: string
+
+              returns:
+                type: string
+                enum:
+                  - void
+                  - domain_id
+                  - acknowledgment
+                  - result_status
+                description: |
+                  What the command returns:
+                  - void: State transitions (activate, deactivate)
+                  - domain_id: Creation commands (return UserId, OrderId, etc.)
+                  - acknowledgment: Async command accepted
+                  - result_status: Success/failure indicator
+
+              return_type_ref:
+                type: string
+                pattern: "^vo_[a-z0-9_]+$"
+                description: Reference to value object for domain_id returns
+
+              modifies_aggregate:
+                type: string
+                pattern: "^agg_[a-z0-9_]+$"
+                description: Aggregate modified by this command (should be exactly one)
+
+              publishes_events:
+                type: array
+                description: Domain events published after successful execution
+                items:
+                  type: string
+                  pattern: "^evt_[a-z0-9_]+$"
+
+              audit_fields:
+                type: array
+                description: Fields for audit trail (e.g., reason, initiatedBy, approvedBy)
+                items:
+                  type: string
+
+        immutability:
+          type: boolean
+          description: Command records must be immutable
+          const: true
+
+        layer:
+          type: string
+          description: Architectural layer where commands are defined
+          const: "api"
+
+# =============================================================================
+# 3. QUERY (for tactical-ddd.schema.yaml)
+# =============================================================================
+
+query:
+  $defs:
+    query_interface:
+      type: object
+      description: |
+        Query interface containing query definitions and result DTOs as nested records. Queries
+        represent requests to retrieve information without side effects. Following the Knight
+        pattern, queries are defined as interface methods with nested result record types.
+      required:
+        - id
+        - name
+        - bounded_context_ref
+        - query_methods
+      properties:
+        id:
+          type: string
+          pattern: "^qry_[a-z0-9_]+$"
+          description: Unique query interface identifier (e.g., qry_user_queries)
+          examples:
+            - "qry_user_queries"
+            - "qry_order_queries"
+            - "qry_servicing_profile_queries"
+
+        name:
+          type: string
+          pattern: "^[A-Z][a-zA-Z]+Queries$"
+          description: Query interface name (e.g., UserQueries, OrderQueries)
+          examples:
+            - "UserQueries"
+            - "OrderQueries"
+            - "ServicingProfileQueries"
+
+        bounded_context_ref:
+          type: string
+          pattern: "^bc_[a-z0-9_]+$"
+          description: Reference to BoundedContext (ID reference)
+
+        aggregate_ref:
+          type: string
+          pattern: "^agg_[a-z0-9_]+$"
+          description: Primary aggregate this query interface reads from
+
+        description:
+          type: string
+          description: What data this query interface provides access to
+
+        query_methods:
+          type: array
+          description: Query method definitions
+          items:
+            type: object
+            required:
+              - method_name
+              - result_record_name
+            properties:
+              method_name:
+                type: string
+                pattern: "^(get|list|find|search)[A-Z][a-zA-Z]+$"
+                description: Query method name (e.g., getUserSummary, listOrders, findByStatus)
+                examples:
+                  - "getUserSummary"
+                  - "getOrderDetails"
+                  - "listOrders"
+                  - "findProductsByCategory"
+
+              description:
+                type: string
+                description: What data this query retrieves
+
+              parameters:
+                type: array
+                description: Query parameters (typically domain identifiers or filter criteria)
+                items:
+                  type: object
+                  required:
+                    - name
+                    - type
+                  properties:
+                    name:
+                      type: string
+
+                    type:
+                      type: string
+
+                    value_object_ref:
+                      type: string
+                      pattern: "^vo_[a-z0-9_]+$"
+
+                    required:
+                      type: boolean
+                      default: true
+
+                    description:
+                      type: string
+
+              result_record_name:
+                type: string
+                pattern: "^[A-Z][a-zA-Z]+Summary$"
+                description: Name of result DTO record (e.g., UserSummary, OrderSummary)
+                examples:
+                  - "UserSummary"
+                  - "OrderDetailDTO"
+                  - "ServicingProfileSummary"
+
+              result_structure:
+                type: object
+                description: Structure of the result DTO
+                properties:
+                  fields:
+                    type: array
+                    description: Fields in the result DTO
+                    items:
+                      type: object
+                      required:
+                        - name
+                        - type
+                      properties:
+                        name:
+                          type: string
+
+                        type:
+                          type: string
+                          description: Field type (String for IDs/enums, primitives for counts)
+
+                        serialization:
+                          type: string
+                          description: How complex types are serialized
+                          examples:
+                            - "UserId serialized to String"
+                            - "Status enum serialized to String"
+                            - "URN format for compound IDs"
+
+                        description:
+                          type: string
+
+                  aggregate_counts:
+                    type: array
+                    description: Count fields for related entities (not full collections)
+                    items:
+                      type: object
+                      properties:
+                        field_name:
+                          type: string
+                        counted_entity:
+                          type: string
+
+              bypasses_domain_model:
+                type: boolean
+                description: Whether query reads directly from read model (CQRS pattern)
+                default: false
+
+              optimizations:
+                type: object
+                description: Query optimization strategies
+                properties:
+                  denormalized:
+                    type: boolean
+                    description: Uses denormalized read model
+                    default: false
+
+                  cached:
+                    type: boolean
+                    description: Results are cached
+                    default: false
+
+                  indexed:
+                    type: boolean
+                    description: Database uses indexes for this query
+                    default: true
+
+        result_characteristics:
+          type: object
+          description: Characteristics of query results
+          properties:
+            immutable:
+              type: boolean
+              description: Result DTOs are immutable records
+              const: true
+
+            flat_structure:
+              type: boolean
+              description: DTOs use flat structure (no nested objects per Knight pattern)
+              default: true
+
+            string_serialization:
+              type: boolean
+              description: Complex types serialized to strings
+              default: true
+
+        layer:
+          type: string
+          description: Architectural layer where queries are defined
+          const: "api"
+
+        no_side_effects:
+          type: boolean
+          description: Queries must have no side effects
+          const: true
+
+# =============================================================================
+# 4. BFF_SCOPE (for strategic-ddd.schema.yaml)
+# =============================================================================
+
+bff_scope:
+  $defs:
+    bff_scope:
+      type: object
+      description: |
+        Backend-for-Frontend (BFF) scope definition. A BFF serves exactly ONE client type
+        (web, mobile, etc.) and aggregates data from MULTIPLE bounded contexts. The BFF is
+        owned by the frontend team and provides client-specific API aggregation and orchestration.
+        Key principle: "One experience, one BFF" - scope is defined by CLIENT TYPE, not by
+        bounded contexts.
+      required:
+        - id
+        - name
+        - client_type
+        - serves_interface
+        - aggregates_from_contexts
+        - owned_by_team
+      properties:
+        id:
+          type: string
+          pattern: "^bff_[a-z0-9_]+$"
+          description: Unique BFF scope identifier (e.g., bff_web, bff_ios, bff_android)
+          examples:
+            - "bff_web"
+            - "bff_ios"
+            - "bff_android"
+            - "bff_partner_api"
+            - "bff_desktop"
+
+        name:
+          type: string
+          pattern: "^[A-Z][a-zA-Z]+BFF$"
+          description: BFF name (e.g., WebBFF, iOSBFF, AndroidBFF)
+          examples:
+            - "WebBFF"
+            - "iOSBFF"
+            - "AndroidBFF"
+            - "PartnerAPIBFF"
+            - "DesktopBFF"
+
+        client_type:
+          type: string
+          enum:
+            - web
+            - mobile_ios
+            - mobile_android
+            - desktop
+            - partner_api
+            - iot
+            - tablet
+          description: The single client type this BFF serves (exactly one)
+
+        serves_interface:
+          type: string
+          description: Description of the specific user interface this BFF is coupled to
+
+        aggregates_from_contexts:
+          type: array
+          description: Multiple bounded contexts this BFF aggregates data from (ID references)
+          items:
+            type: string
+            pattern: "^bc_[a-z0-9_]+$"
+          minItems: 1
+
+        owned_by_team:
+          type: string
+          description: Frontend team that owns and maintains this BFF (Conway's Law)
+
+        team_type:
+          type: string
+          enum:
+            - frontend
+            - mobile
+            - partner_integration
+          description: Type of team owning this BFF (must be frontend-oriented)
+
+        provides:
+          type: object
+          description: What the BFF provides to its client
+          properties:
+            endpoints:
+              type: array
+              description: API endpoints provided by this BFF
+              items:
+                type: object
+                properties:
+                  path:
+                    type: string
+                    description: Endpoint path
+
+                  method:
+                    type: string
+                    enum:
+                      - GET
+                      - POST
+                      - PUT
+                      - PATCH
+                      - DELETE
+
+                  aggregates_from:
+                    type: array
+                    description: Bounded contexts called to assemble response
+                    items:
+                      type: string
+                      pattern: "^bc_[a-z0-9_]+$"
+
+                  description:
+                    type: string
+
+            data_aggregation:
+              type: object
+              description: How the BFF aggregates data from multiple contexts
+              properties:
+                strategy:
+                  type: string
+                  enum:
+                    - parallel
+                    - sequential
+                    - conditional
+                  description: How downstream calls are orchestrated
+
+                example:
+                  type: string
+                  description: Example aggregation scenario
+
+            transformations:
+              type: array
+              description: Data transformations applied for client
+              items:
+                type: object
+                properties:
+                  from_context:
+                    type: string
+                    pattern: "^bc_[a-z0-9_]+$"
+
+                  transformation_type:
+                    type: string
+                    enum:
+                      - format_conversion
+                      - data_enrichment
+                      - field_mapping
+                      - filtering
+                      - denormalization
+
+                  description:
+                    type: string
+
+            client_optimizations:
+              type: array
+              description: Client-specific optimizations
+              items:
+                type: string
+              examples:
+                - "Bandwidth optimization for mobile"
+                - "Image size reduction for mobile networks"
+                - "Pagination for large datasets"
+                - "Field selection for minimal payloads"
+
+        responsibilities:
+          type: object
+          description: What the BFF is responsible for
+          properties:
+            data_aggregation:
+              type: boolean
+              description: Aggregates data from multiple downstream services
+              const: true
+
+            client_specific_orchestration:
+              type: boolean
+              description: Implements client-specific orchestration logic
+              const: true
+
+            presentation_logic:
+              type: boolean
+              description: Contains presentation logic (not business logic)
+              const: true
+
+            format_translation:
+              type: boolean
+              description: Translates domain models to client-friendly formats
+              const: true
+
+            business_logic:
+              type: boolean
+              description: BFF must NOT contain shared business logic
+              const: false
+
+            transaction_management:
+              type: boolean
+              description: BFF does NOT manage transactions (delegates to services)
+              const: false
+
+            direct_persistence:
+              type: boolean
+              description: BFF does NOT access databases directly
+              const: false
+
+        architecture_layer:
+          type: string
+          description: Architectural layer
+          const: "integration"
+
+        upstream_dependencies:
+          type: array
+          description: What sits upstream of the BFF (optional API Gateway)
+          items:
+            type: string
+            enum:
+              - api_gateway
+              - load_balancer
+              - cdn
+              - none
+
+        calls:
+          type: array
+          description: What the BFF calls downstream
+          items:
+            type: string
+            enum:
+              - application_service
+              - microservice
+              - bounded_context_api
+              - external_service
+
+        pattern_type:
+          type: string
+          description: Pattern classification
+          const: "bff"
+
+        anti_patterns:
+          type: object
+          description: What to avoid in BFF implementation
+          properties:
+            shared_business_logic:
+              type: boolean
+              description: Do NOT duplicate business logic across BFFs
+              const: false
+
+            generic_cross_cutting_concerns:
+              type: boolean
+              description: Do NOT implement auth/logging here (use API Gateway upstream)
+              const: false
+
+            direct_database_access:
+              type: boolean
+              description: Do NOT access databases directly
+              const: false
+
+            serving_multiple_client_types:
+              type: boolean
+              description: Do NOT serve multiple client types from one BFF
+              const: false
+
+# =============================================================================
+# 5. BFF_INTERFACE (for strategic-ddd.schema.yaml)
+# =============================================================================
+
+bff_interface:
+  $defs:
+    bff_interface:
+      type: object
+      description: |
+        Concrete BFF interface implementation for a specific bounded context accessed by a BFF.
+        This represents the actual REST API or integration interface that a BFF exposes to its
+        client, combining data from the referenced bounded context with potential data from other
+        contexts. This is the implementation artifact of a bff_scope.
+      required:
+        - id
+        - name
+        - bff_scope_ref
+        - primary_bounded_context_ref
+        - base_path
+      properties:
+        id:
+          type: string
+          pattern: "^bff_if_[a-z0-9_]+$"
+          description: Unique BFF interface identifier
+          examples:
+            - "bff_if_user_web"
+            - "bff_if_order_ios"
+            - "bff_if_profile_android"
+
+        name:
+          type: string
+          description: Descriptive name for this BFF interface
+          examples:
+            - "User Management Web BFF Interface"
+            - "Order Processing iOS BFF Interface"
+
+        bff_scope_ref:
+          type: string
+          pattern: "^bff_[a-z0-9_]+$"
+          description: Reference to the BFF scope this interface belongs to
+
+        primary_bounded_context_ref:
+          type: string
+          pattern: "^bc_[a-z0-9_]+$"
+          description: Primary bounded context this interface aggregates from
+
+        additional_context_refs:
+          type: array
+          description: Additional bounded contexts called for data aggregation
+          items:
+            type: string
+            pattern: "^bc_[a-z0-9_]+$"
+
+        base_path:
+          type: string
+          pattern: "^/[a-z0-9-/]+$"
+          description: Base URL path for this BFF interface
+          examples:
+            - "/api/web/users"
+            - "/api/mobile/orders"
+            - "/api/partner/profiles"
+
+        endpoints:
+          type: array
+          description: Endpoints provided by this BFF interface
+          items:
+            type: object
+            required:
+              - path
+              - method
+              - operation_type
+            properties:
+              path:
+                type: string
+                description: Endpoint path relative to base_path
+
+              method:
+                type: string
+                enum:
+                  - GET
+                  - POST
+                  - PUT
+                  - PATCH
+                  - DELETE
+
+              operation_type:
+                type: string
+                enum:
+                  - command
+                  - query
+                  - action
+                description: Type of operation (aligns with CQRS)
+
+              description:
+                type: string
+
+              delegates_to_commands:
+                type: array
+                description: Commands this endpoint delegates to (ID references)
+                items:
+                  type: string
+                  pattern: "^cmd_[a-z0-9_]+$"
+
+              delegates_to_queries:
+                type: array
+                description: Queries this endpoint delegates to (ID references)
+                items:
+                  type: string
+                  pattern: "^qry_[a-z0-9_]+$"
+
+              request_dto:
+                type: object
+                description: Request DTO structure (separate from API command records)
+                properties:
+                  name:
+                    type: string
+                  fields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+                        required:
+                          type: boolean
+
+              response_dto:
+                type: object
+                description: Response DTO structure
+                properties:
+                  name:
+                    type: string
+                  fields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+
+              aggregates_data_from:
+                type: array
+                description: Bounded contexts called to assemble this response
+                items:
+                  type: string
+                  pattern: "^bc_[a-z0-9_]+$"
+
+        value_object_conversion:
+          type: object
+          description: How the BFF interface converts between strings and value objects
+          properties:
+            from_string:
+              type: array
+              description: Value objects constructed from string URNs
+              items:
+                type: object
+                properties:
+                  value_object_ref:
+                    type: string
+                    pattern: "^vo_[a-z0-9_]+$"
+                  from_field:
+                    type: string
+                  method:
+                    type: string
+                    examples:
+                      - "UserId.of(string)"
+                      - "ClientId.of(urn)"
+                      - "ServicingProfileId.fromUrn(urn)"
+
+            to_string:
+              type: array
+              description: Value objects serialized to strings
+              items:
+                type: object
+                properties:
+                  value_object_ref:
+                    type: string
+                    pattern: "^vo_[a-z0-9_]+$"
+                  to_field:
+                    type: string
+                  method:
+                    type: string
+                    examples:
+                      - "userId.id()"
+                      - "clientId.urn()"
+                      - "profileId.urn()"
+
+        execution_model:
+          type: string
+          enum:
+            - blocking
+            - async
+            - reactive
+          description: How requests are processed
+          default: "blocking"
+
+        error_handling:
+          type: object
+          description: Error handling strategy
+          properties:
+            strategy:
+              type: string
+              enum:
+                - fail_fast
+                - graceful_degradation
+                - partial_response
+            description:
+              type: string
+
+        technology_stack:
+          type: object
+          description: Implementation technologies
+          properties:
+            framework:
+              type: string
+              examples:
+                - "Micronaut"
+                - "Spring Boot"
+                - "Express.js"
+            controller_annotation:
+              type: string
+              examples:
+                - "@Controller"
+                - "@RestController"
+
+        layer:
+          type: string
+          description: Architectural layer
+          const: "infrastructure"
+
+# =============================================================================
+# VALIDATION RULES ADDITIONS
+# =============================================================================
+
+validation_rules_additions:
+  - rule: "application_service_stateless"
+    description: "Application services must be stateless"
+    validation: "application_service.characteristics.stateless must be true"
+
+  - rule: "application_service_no_business_logic"
+    description: "Application services must NOT contain business logic"
+    validation: "application_service.characteristics.contains_business_logic must be false"
+
+  - rule: "application_service_implements_both_commands_and_queries"
+    description: "Application service should implement both command and query interfaces (CQRS)"
+    validation: "application_service.implements_commands OR application_service.implements_queries must have at least one element"
+
+  - rule: "command_modifies_one_aggregate"
+    description: "Command must modify at most one aggregate per transaction (Vaughn Vernon rule)"
+    validation: "For each command_record where type='command', modifies_aggregate must reference exactly 1 aggregate"
+
+  - rule: "query_has_no_side_effects"
+    description: "Queries must have no side effects"
+    validation: "query_interface.no_side_effects must be true"
+
+  - rule: "bff_serves_one_client_type"
+    description: "BFF must serve exactly one client type"
+    validation: "bff_scope.client_type must be a single enum value, not an array"
+
+  - rule: "bff_aggregates_multiple_contexts"
+    description: "BFF should aggregate from multiple bounded contexts (otherwise not needed)"
+    validation: "bff_scope.aggregates_from_contexts should have minItems: 1"
+
+  - rule: "bff_no_business_logic"
+    description: "BFF must NOT contain business logic"
+    validation: "bff_scope.responsibilities.business_logic must be false"
+
+  - rule: "bff_owned_by_frontend_team"
+    description: "BFF must be owned by frontend team (Conway's Law)"
+    validation: "bff_scope.team_type must be in [frontend, mobile, partner_integration]"
+
+  - rule: "bff_interface_dto_separate_from_api_commands"
+    description: "BFF interface request/response DTOs must be separate from API command records"
+    validation: "bff_interface.endpoints[].request_dto should not reference command_interface.command_records directly"
+
+# =============================================================================
+# BEST PRACTICES ADDITIONS
+# =============================================================================
+
+best_practices_additions:
+  application_services:
+    - "Keep application services thin - no business logic, only coordination"
+    - "One aggregate per transaction - use eventual consistency for cross-aggregate operations"
+    - "Application service method = one use case"
+    - "Validate input format at application layer, business rules at domain layer"
+    - "Publish domain events AFTER successful transaction commit"
+    - "Application service should implement both Commands and Queries interfaces (Knight pattern)"
+    - "Generate domain IDs in application service, not database"
+    - "Repository interfaces defined in application layer, implemented in infrastructure"
+
+  commands:
+    - "Model commands as nested records inside command interfaces (Knight pattern)"
+    - "Command records must be immutable"
+    - "Use imperative verbs for command names (Create, Activate, Place, Enroll)"
+    - "Creation commands return domain IDs, state transition commands return void"
+    - "Include audit fields where appropriate (reason, initiatedBy, approvedBy)"
+    - "Defer validation to application/domain layer - commands are just data"
+
+  queries:
+    - "Model queries as interface methods with nested result records (Knight pattern)"
+    - "Result DTOs must be immutable records"
+    - "Use query verbs for method names (get, list, find, search)"
+    - "Serialize all complex types to strings in DTOs (IDs, enums, URNs)"
+    - "Return aggregate counts, not full collections"
+    - "Queries should be read-only with no side effects"
+    - "Use flat DTO structure (no nested objects per Knight pattern)"
+
+  bff:
+    - "One BFF per client type (web, iOS, Android, partner API)"
+    - "BFF aggregates data from MULTIPLE bounded contexts"
+    - "Owned by frontend team (Conway's Law)"
+    - "BFF contains presentation logic, NOT business logic"
+    - "Use hybrid approach: API Gateway upstream for cross-cutting concerns, BFFs downstream for client-specific orchestration"
+    - "BFF delegates to application services, does not access databases directly"
+    - "Separate request/response DTOs in BFF from API command/query records"
+
+  bff_vs_api_gateway:
+    - "Use API Gateway for: cross-cutting concerns (auth, SSL, rate limiting, logging)"
+    - "Use BFF for: client-specific orchestration, data aggregation, format transformation"
+    - "Use BOTH: API Gateway upstream + multiple BFFs downstream (common pattern)"
+
+  cqrs:
+    - "Separate command handlers from query handlers for independent optimization"
+    - "Commands modify state and return void/id/acknowledgment"
+    - "Queries return data and have no side effects"
+    - "Use CQRS selectively where read/write models differ significantly"
+    - "Not every system needs CQRS - avoid premature complexity"
+
+# =============================================================================
+# INTEGRATION WITH EXISTING SCHEMAS
+# =============================================================================
+
+integration_notes:
+  tactical_schema:
+    - "Add application_service to $defs section"
+    - "Add command_interface to $defs section (replaces standalone command pattern)"
+    - "Add query_interface to $defs section"
+    - "Update bounded_context to include application_services array (already exists at line 154)"
+    - "Update aggregate to include commands_ref and queries_ref arrays"
+    - "Add new naming conventions: svc_app_, cmd_, qry_"
+
+  strategic_schema:
+    - "Add bff_scope to $defs section"
+    - "Add bff_interface to $defs section"
+    - "Update system to include bff_scopes array"
+    - "Add new naming conventions: bff_, bff_if_"
+    - "BFF references bounded contexts via aggregates_from_contexts"
+
+  cross_schema_references:
+    - "application_service references: bounded_context (strategic), aggregates (tactical), repositories (tactical), domain_services (tactical)"
+    - "command_interface references: bounded_context (strategic), aggregate (tactical), value_objects (tactical), domain_events (tactical)"
+    - "query_interface references: bounded_context (strategic), aggregate (tactical), value_objects (tactical)"
+    - "bff_scope references: bounded_contexts (strategic)"
+    - "bff_interface references: bff_scope (strategic), bounded_contexts (strategic), commands (tactical), queries (tactical), value_objects (tactical)"
+
+# =============================================================================
+# OPENAPI MAPPING RECOMMENDATIONS
+# =============================================================================
+
+openapi_mapping:
+  commands_to_rest:
+    - pattern: "POST /resources for creation commands"
+    - pattern: "POST /resources/{id}/action-name for state transition commands (not PUT/PATCH)"
+    - example: "POST /orders → PlaceOrderCommand"
+    - example: "POST /orders/{id}/cancel → CancelOrderCommand"
+    - example: "POST /users/{id}/activate → ActivateUserCommand"
+
+  queries_to_rest:
+    - pattern: "GET /resources/{id} for single resource queries"
+    - pattern: "GET /resources with query params for collection queries"
+    - example: "GET /orders/{id} → GetOrderQuery"
+    - example: "GET /orders?status=pending → ListOrdersQuery"
+
+  bff_url_structure:
+    - pattern: "/api/{client_type}/{context}/{resource}"
+    - example: "/api/web/users → Web BFF for user management"
+    - example: "/api/mobile/orders → Mobile BFF for order processing"
+    - alternative_pattern: "/commands/{context}/{entity}/{action} (Knight pattern)"
+
+  avoid:
+    - "Generic CRUD operations (PATCH /resources/{id} with arbitrary fields)"
+    - "Use task-based operations that capture business intent instead"
+
+# =============================================================================
+# KNIGHT PATTERN ALIGNMENT
+# =============================================================================
+
+knight_pattern_alignment:
+  commands:
+    - "Commands defined as nested record types inside interface (✓ matches)"
+    - "Immutable command records (✓ matches)"
+    - "Parameters use primitives + SharedKernel value objects (✓ matches)"
+    - "Return types: domain IDs for creates, void for transitions (✓ matches)"
+
+  queries:
+    - "Queries defined as interface methods with nested result records (✓ matches)"
+    - "Result DTOs use flat structure (✓ matches)"
+    - "All complex types serialized to strings (✓ matches)"
+    - "Aggregate counts instead of collections (✓ matches)"
+
+  application_services:
+    - "Single class implements both Commands and Queries interfaces (✓ matches)"
+    - "Stateless @Singleton service (✓ matches)"
+    - "@Transactional on all commands (✓ matches)"
+    - "Repository interfaces defined as inner interfaces in app layer (✓ matches)"
+    - "Event publishing after persistence (✓ matches)"
+
+  bff_controllers:
+    - "REST controllers as BFF adapters (✓ matches)"
+    - "All commands via POST (not PUT/PATCH) (✓ matches)"
+    - "URL pattern: /commands/{context}/{entity}/{action} (✓ matches)"
+    - "Separate request/response DTOs from API command records (✓ matches)"
+    - "Value object conversion in controller (✓ matches)"
+
+  value_objects:
+    - "URN serialization (✓ matches)"
+    - "Validation in private constructor (✓ matches)"
+    - "Factory methods: of(), fromUrn() (✓ matches)"
+
+# =============================================================================
+# EXAMPLE USAGE
+# =============================================================================
+
+example_usage:
+  user_management_example:
+    application_service:
+      id: "svc_app_user_management"
+      name: "UserApplicationService"
+      bounded_context_ref: "bc_user_management"
+      implements_commands:
+        - "cmd_user_commands"
+      implements_queries:
+        - "qry_user_queries"
+      operations:
+        - name: "createUser"
+          type: "command"
+          returns: "UserId"
+          transaction_boundary:
+            modifies_aggregates:
+              - "agg_user"
+          publishes_events:
+            - "evt_user_created"
+        - name: "getUserSummary"
+          type: "query"
+          returns: "UserSummary DTO"
+          transaction_boundary:
+            is_transactional: false
+
+    command_interface:
+      id: "cmd_user_commands"
+      name: "UserCommands"
+      bounded_context_ref: "bc_user_management"
+      aggregate_ref: "agg_user"
+      command_records:
+        - record_name: "CreateUserCmd"
+          intent: "createUser"
+          parameters:
+            - name: "email"
+              type: "String"
+              required: true
+            - name: "userType"
+              type: "String"
+              required: true
+            - name: "clientId"
+              type: "ClientId"
+              value_object_ref: "vo_client_id"
+              required: true
+          returns: "domain_id"
+          return_type_ref: "vo_user_id"
+          modifies_aggregate: "agg_user"
+          publishes_events:
+            - "evt_user_created"
+
+    query_interface:
+      id: "qry_user_queries"
+      name: "UserQueries"
+      bounded_context_ref: "bc_user_management"
+      aggregate_ref: "agg_user"
+      query_methods:
+        - method_name: "getUserSummary"
+          parameters:
+            - name: "userId"
+              type: "UserId"
+              value_object_ref: "vo_user_id"
+          result_record_name: "UserSummary"
+          result_structure:
+            fields:
+              - name: "userId"
+                type: "String"
+              - name: "email"
+                type: "String"
+              - name: "status"
+                type: "String"
+                serialization: "Status enum serialized to String"
+
+    bff_scope:
+      id: "bff_web"
+      name: "WebBFF"
+      client_type: "web"
+      serves_interface: "Web application dashboard"
+      aggregates_from_contexts:
+        - "bc_user_management"
+        - "bc_order_management"
+        - "bc_notification"
+      owned_by_team: "Web Frontend Team"
+
+    bff_interface:
+      id: "bff_if_user_web"
+      name: "User Management Web BFF Interface"
+      bff_scope_ref: "bff_web"
+      primary_bounded_context_ref: "bc_user_management"
+      base_path: "/api/web/users"
+      endpoints:
+        - path: "/create"
+          method: "POST"
+          operation_type: "command"
+          delegates_to_commands:
+            - "cmd_user_commands"
+          request_dto:
+            name: "CreateUserRequest"
+            fields:
+              - name: "email"
+                type: "String"
+              - name: "userType"
+                type: "String"
+              - name: "clientUrn"
+                type: "String"

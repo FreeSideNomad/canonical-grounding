@@ -6,9 +6,9 @@ description: Navigation patterns, page structures, and wayfinding systems
 metadata:
   author: "Igor Music"
   created: "2025-10-17"
-  updated: "2025-10-17"
+  updated: "2025-10-18"
   license: "MIT"
-  version: "1.0.0"
+  version: "2.1.0"
   partition: "navigation"
   references:
     - "Steve Krug - Don't Make Me Think (3rd ed, 2014)"
@@ -198,6 +198,11 @@ $defs:
         type: string
         pattern: "^bc_[a-z0-9_]+$"
         description: "Primary bounded context (cross-partition reference to DDD domain)"
+
+      bff_interface_ref:
+        type: string
+        pattern: "^bff_if_[a-z0-9_]+$"
+        description: "Optional BFF interface for this page's data"
 
       information_architecture_ref:
         type: string

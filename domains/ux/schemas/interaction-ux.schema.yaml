@@ -6,9 +6,9 @@ description: User workflows, UI components, behaviors, and interaction patterns
 metadata:
   author: "Igor Music"
   created: "2025-10-17"
-  updated: "2025-10-17"
+  updated: "2025-10-18"
   license: "MIT"
-  version: "1.0.0"
+  version: "2.1.0"
   partition: "interaction"
   references:
     - "Brad Frost - Atomic Design (2016)"
@@ -200,6 +200,13 @@ $defs:
           type: string
           pattern: "^page_[a-z0-9_]+$"
         description: "Pages where this component is used (cross-partition reference to navigation partition)"
+
+      api_endpoints:
+        type: array
+        description: BFF interface endpoints this component invokes
+        items:
+          type: string
+          pattern: "^bff_if_[a-z0-9_]+$"
 
       props:
         type: array
