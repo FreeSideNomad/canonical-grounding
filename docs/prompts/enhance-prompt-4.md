@@ -10,6 +10,257 @@ Research and extend the DDD canonical domain model to include:
 
 This enhancement addresses the architectural gap where UX currently references DDD bounded contexts and aggregates directly, rather than through a well-defined integration boundary.
 
+## Governance and Contribution Standards
+
+This enhancement follows the **Data Engineering Taxonomy Contribution Methodology** (ref: `/Users/igor/code/data-eng-schema/CONTRIBUTING.md`):
+
+### Semantic Versioning (SemVer)
+
+All schema changes MUST follow **Semantic Versioning 2.0.0**:
+
+```
+MAJOR.MINOR.PATCH
+```
+
+- **MAJOR**: Breaking changes (remove concepts, change required fields, modify UID patterns)
+- **MINOR**: Backward-compatible additions (new concepts, optional fields, new groundings)
+- **PATCH**: Bug fixes (typos, clarifications, documentation corrections)
+
+#### Version Impact Analysis for This Enhancement
+
+**Current Versions**:
+- `model_ddd`: v1.0.0 (strategic-ddd.schema.yaml, tactical-ddd.schema.yaml)
+- `model_ux`: v2.0.0 (structure-ux, navigation-ux, interaction-ux schemas)
+- `interdomain-map.yaml`: metadata.version = 2.2.0
+
+**Expected Changes**:
+- **DDD Tactical Schema**: v1.0.0 → **v1.1.0** (MINOR)
+  - Reason: Adding new concepts (application_service, command, query) without breaking existing concepts
+  - Change: Add `$defs.application_service`, `$defs.command`, `$defs.query`
+  - Update: `naming_conventions` (add command_id, query_id patterns)
+  - Impact: Backward compatible - existing models remain valid
+
+- **DDD Strategic Schema** OR **New Integration Schema**: v1.0.0 → **v1.1.0** OR **v0.1.0** (MINOR or NEW)
+  - Reason: Adding BFF concepts (bff_scope, bff_interface)
+  - Options:
+    * Option A: Add to strategic-ddd.schema.yaml (MINOR bump to v1.1.0)
+    * Option B: Create integration-ddd.schema.yaml (NEW schema at v0.1.0)
+  - Impact: Backward compatible if Option A; new schema if Option B
+
+- **UX Interaction Schema**: v2.0.0 → **v2.1.0** (MINOR)
+  - Reason: Add optional `api_endpoints` field to Component concept for BFF grounding
+  - Impact: Backward compatible - field is optional
+
+- **Interdomain Map**: v2.2.0 → **v2.3.0** (MINOR)
+  - Reason: Add 6+ new grounding relationships (non-breaking)
+  - Change: Add UX→BFF, BFF→AppSvc, AppSvc→Aggregate groundings
+  - Impact: Backward compatible - only additions
+
+**Breaking Change Check**: ❌ NO BREAKING CHANGES
+- All existing concepts remain unchanged
+- All new fields are optional
+- All new concepts are additions (not replacements)
+- **Verdict**: All changes are MINOR version bumps
+
+### Grounding Schema Compliance
+
+All groundings MUST validate against `/Users/igor/code/canonical-grounding/research-output/grounding-schema.json`:
+
+**Required Grounding Properties** (from meta-schema):
+```json
+{
+  "target_canon": "canon_[a-z_]+",
+  "grounding_type": ["structural" | "semantic" | "procedural" | "epistemic"],
+  "strength": "strong" | "weak" | "optional",
+  "relationships": [
+    {
+      "source_concept": "string",
+      "target_concept": "string (canon.concept format)",
+      "mapping_type": "reference" | "alignment" | "constraint" | "equivalence",
+      "cardinality": "one-to-one" | "one-to-many" | "many-to-one" | "many-to-many",
+      "reference_field": "string",
+      "validation_level": "required" | "optional" | "recommended"
+    }
+  ]
+}
+```
+
+**New Groundings for This Enhancement** (must conform to schema):
+
+1. `grounding_ux_bff_001`: UX Component → BFF Interface
+2. `grounding_bff_app_svc_001`: BFF Interface → Application Service
+3. `grounding_app_svc_agg_001`: Command → Aggregate
+4. `grounding_app_svc_repo_001`: Application Service → Repository
+5. `grounding_app_svc_evt_001`: Application Service → Domain Event
+6. `grounding_ux_ddd_*_updated`: Revise existing UX→DDD groundings to route through BFF
+
+### Interdomain Map Maintenance
+
+**File**: `/Users/igor/code/canonical-grounding/research-output/interdomain-map.yaml`
+
+**Required Updates**:
+
+1. **Update Metadata**:
+   ```yaml
+   metadata:
+     version: "2.3.0"  # MINOR bump
+     last_updated: "2025-10-18"
+     change_note: "Add Application Services, CQRS, and BFF pattern with 6+ new groundings"
+   ```
+
+2. **Update DDD Model Entry**:
+   ```yaml
+   canonical_models:
+     - id: "model_ddd"
+       version: "1.1.0"  # Tactical v1.1.0, Strategic v1.1.0 or new integration partition
+       core_concepts:
+         - Domain
+         - BoundedContext
+         - Aggregate
+         - Entity
+         - ValueObject
+         - Repository
+         - DomainService
+         - ApplicationService  # NEW
+         - Command            # NEW
+         - Query              # NEW
+         - BFFScope           # NEW (if in strategic schema)
+         - BFFInterface       # NEW (if in strategic schema)
+         - DomainEvent
+         - Factory
+   ```
+
+3. **Add Partition Structure** (if BFF added to strategic or new integration schema):
+   ```yaml
+   - id: "model_ddd"
+     partitions:
+       - id: "model_ddd_strategic"
+         schema_file: "schemas/strategic-ddd.schema.yaml"
+         version: "1.1.0"
+         concepts: [domain, bounded_context, context_mapping, bff_scope, bff_interface]
+       - id: "model_ddd_tactical"
+         schema_file: "schemas/tactical-ddd.schema.yaml"
+         version: "1.1.0"
+         concepts: [aggregate, entity, value_object, repository, domain_service, application_service, command, query, domain_event]
+   ```
+
+4. **Update Grounding Statistics**:
+   ```yaml
+   metadata:
+     total_groundings: 38  # 32 existing + 6 new
+
+   grounding_type_distribution:
+     structural: 12  # +3 new (BFF→AppSvc, AppSvc→Agg, AppSvc→Repo)
+     semantic: 10    # +1 new (UX terminology alignment)
+     procedural: 8   # +2 new (Command orchestration, BFF routing)
+     epistemic: 8    # unchanged
+
+   grounding_strength_distribution:
+     strong: 33      # +6 new (all new groundings are strong)
+     weak: 5         # unchanged
+   ```
+
+5. **Update Closure Percentages**:
+   ```yaml
+   - id: "model_ddd"
+     closure_percentage: 100  # Maintain 100% by grounding all new concepts
+
+   - id: "model_ux"
+     closure_percentage: 100  # Maintain 100% with BFF grounding
+   ```
+
+### UID and Naming Conventions
+
+Follow the **UID Format Rules** from CONTRIBUTING.md:
+
+| Entity Type          | Type Code | Pattern                 | Example                      |
+|----------------------|-----------|-------------------------|------------------------------|
+| Application Service  | `svc_app_`| `^svc_app_[a-z0-9_]+$`  | `svc_app_user_management`    |
+| Command              | `cmd_`    | `^cmd_[a-z0-9_]+$`      | `cmd_create_user`            |
+| Query                | `qry_`    | `^qry_[a-z0-9_]+$`      | `qry_find_user_by_id`        |
+| BFF Scope            | `bff_`    | `^bff_[a-z0-9_]+$`      | `bff_web_app`                |
+| BFF Interface        | `bff_if_` | `^bff_if_[a-z0-9_]+$`   | `bff_if_create_user`         |
+
+**Validation**:
+- All IDs MUST match the regex pattern
+- IDs MUST be globally unique within the schema
+- Use kebab-case (hyphens), NOT snake_case (underscores) or camelCase
+- IDs MUST be descriptive, not abbreviations (avoid `cmd_cu`, use `cmd_create_user`)
+
+### Testing and Validation Requirements
+
+Before submitting changes:
+
+1. **Schema Validation** (JSON Schema 2020-12):
+   ```bash
+   python tools/validate_multifile_schema.py
+   # Expect: ✓ All schemas valid
+   ```
+
+2. **Grounding Validation**:
+   ```bash
+   python tools/validate_groundings.py
+   # Checks:
+   # - All target_canon references exist
+   # - All source_concept and target_concept are defined
+   # - No circular dependencies
+   # - Cardinality constraints are satisfiable
+   ```
+
+3. **Closure Calculation**:
+   ```bash
+   python tools/calculate_closure.py
+   # Target: DDD ≥100%, UX ≥100%, System ≥95%
+   ```
+
+4. **Example Validation**:
+   ```bash
+   python tools/validate_multifile_schema.py --examples
+   # Validate all example YAML files against schemas
+   ```
+
+5. **Cross-Reference Check**:
+   ```bash
+   grep -r "svc_app_" domains/
+   grep -r "cmd_" domains/
+   grep -r "qry_" domains/
+   grep -r "bff_" domains/
+   # Ensure all references resolve
+   ```
+
+### Documentation Standards
+
+**Required Documentation** (following CONTRIBUTING.md):
+
+1. **Pattern YAML Files** (if patterns are formalized):
+   - Create `domains/ddd/patterns/application-service-pattern.yaml`
+   - Create `domains/ddd/patterns/bff-pattern.yaml`
+   - Follow pattern template with: intent, context, problem, solution, structure, consequences
+
+2. **Glossary Updates**:
+   - Add terms to `docs/GLOSSARY.md`: Application Service, Command, Query, BFF, BFF Interface
+   - Format: Definition + Examples + Context + Pattern References + Model Schema
+
+3. **CHANGELOG Entry**:
+   ```markdown
+   ### Added (v1.1.0 - 2025-10-18)
+   - **DDD Tactical Schema**: Application Service concept with Command/Query separation (CQRS)
+   - **DDD Tactical Schema**: Command concept (write operations)
+   - **DDD Tactical Schema**: Query concept (read operations)
+   - **DDD Strategic Schema**: BFF Scope concept (UI-specific aggregation layer)
+   - **DDD Strategic Schema**: BFF Interface concept (REST/HTTP operations)
+   - **Groundings**: 6 new grounding relationships (UX→BFF→AppSvc→Aggregate chain)
+   - **Documentation**: ddd-07-application-layer.md, ddd-08-bff-pattern.md
+   - **Examples**: application-service-example.yaml, bff-example.yaml
+   ```
+
+4. **Migration Guide**:
+   - Create `domains/ddd/MIGRATION-v1.1.md` documenting:
+     * What's new in v1.1.0
+     * How to adopt new concepts
+     * Example migrations (old vs new)
+     * Backward compatibility notes
+
 ## Research Methodology
 
 Follow the canonical grounding research methodology established in previous phases:
@@ -419,6 +670,104 @@ File: `/Users/igor/code/canonical-grounding/research-output/interdomain-map.yaml
 
 Add groundings as defined in Phase 4.1-4.4
 
+**CRITICAL**: Update metadata.version to v2.3.0 and increment total_groundings count
+
+#### 6.4 Cross-Domain Impact Analysis
+
+Analyze impact on ALL applicable domains following grounding relationships in `interdomain-map.yaml`:
+
+**Domains Requiring Updates**:
+
+1. **DDD Domain** (PRIMARY - Direct Changes):
+   - **Tactical Schema**: Add application_service, command, query (v1.0.0 → v1.1.0)
+   - **Strategic Schema**: Add bff_scope, bff_interface OR create integration partition (v1.0.0 → v1.1.0 or v0.1.0)
+   - **Documentation**: Add ddd-07-application-layer.md, ddd-08-bff-pattern.md
+   - **Examples**: Add application-service-example.yaml, bff-example.yaml
+   - **Grounding Impact**: 6+ new outbound groundings (to UX, Agile, QE)
+
+2. **UX Domain** (SECONDARY - Grounding Changes):
+   - **Interaction Schema**: Add optional `api_endpoints` array to Component (v2.0.0 → v2.1.0)
+   - **Navigation Schema**: Add optional `bff_interface_ref` to Page (v2.0.0 → v2.1.0)
+   - **Documentation**: Update ux/README.md to document BFF integration pattern
+   - **Grounding Impact**: Update grounding_ux_ddd_001, grounding_ux_ddd_002 to route through BFF
+   - **Examples**: Update existing UX examples to show BFF references
+
+3. **QE Domain** (TERTIARY - Optional Test Coverage):
+   - **Schema**: Consider adding `application_service_test` or `integration_test` concept (optional)
+   - **Grounding Impact**: Add grounding_qe_ddd_005 (QE tests validate ApplicationService orchestration)
+   - **Documentation**: Update qe/docs to include BFF and ApplicationService testing patterns
+   - **Examples**: Add example showing how to test BFF endpoints and ApplicationService commands
+
+4. **Agile Domain** (TERTIARY - Work Tracking):
+   - **Delivery Schema**: Consider adding `technical_story_type` enum value for BFF/integration work (optional)
+   - **Grounding Impact**: Agile stories may reference BFF interfaces being developed
+   - **Documentation**: Update agile/docs to include BFF development in delivery planning
+   - **Examples**: Add example story that delivers BFF endpoint
+
+5. **Data-Eng Domain** (NO CHANGES - No Direct Grounding):
+   - No schema changes required
+   - Grounding remains indirect: UX → BFF → DDD ← Data-Eng
+   - **Monitor**: If BFF aggregates data from multiple bounded contexts including data products, consider future grounding
+
+**Grounding Dependency Chain** (must be updated in order):
+
+```
+1. DDD (foundation) - Add application_service, command, query, bff_scope, bff_interface
+   ↓
+2. UX (grounds_in: DDD) - Add api_endpoints field, update groundings to reference BFF
+   ↓
+3. QE (grounds_in: DDD, UX) - Add test concepts for ApplicationService/BFF validation
+   ↓
+4. Agile (grounds_in: all) - Reference new concepts in work tracking
+```
+
+**Interdomain Map Updates Required**:
+
+1. Update `canonical_models.model_ddd`:
+   - Bump version to v1.1.0
+   - Add core_concepts: ApplicationService, Command, Query, BFFScope, BFFInterface
+   - Update grounded_by list (unchanged, but validate completeness)
+
+2. Update `canonical_models.model_ux`:
+   - Bump version to v2.1.0
+   - Update grounds_in to include specific DDD partition references
+   - Validate closure_percentage remains 100%
+
+3. Update `canonical_models.model_qe` (if test concepts added):
+   - Bump version to v1.1.0
+   - Add core_concepts: ApplicationServiceTest, BFFTest (if added)
+   - Update closure_percentage (target: 75% → 80%+)
+
+4. Update `canonical_models.model_agile` (if story types extended):
+   - Bump version to v2.1.0 (if schema changes) or keep v2.0.0 (if no schema changes)
+   - Validate closure_percentage remains 100%
+
+5. Update `groundings` section:
+   - Add grounding_ux_bff_001 (UX → BFF)
+   - Add grounding_bff_app_svc_001 (BFF → ApplicationService)
+   - Add grounding_app_svc_agg_001 (Command → Aggregate)
+   - Add grounding_app_svc_repo_001 (ApplicationService → Repository)
+   - Add grounding_app_svc_evt_001 (ApplicationService → DomainEvent)
+   - Revise grounding_ux_ddd_001, grounding_ux_ddd_002 (add BFF intermediary)
+   - Add grounding_qe_ddd_005 (if QE updated)
+
+6. Update `graph_analysis`:
+   - Recalculate centrality scores (DDD may increase due to new concepts)
+   - Update grounding_type_distribution
+   - Update grounding_strength_distribution
+   - Recalculate semantic_distance (unchanged, but validate)
+
+**Validation Checklist** (cross-domain):
+
+- [ ] All new concepts in DDD have corresponding groundings
+- [ ] UX references to DDD route through BFF (no direct Aggregate refs in new models)
+- [ ] QE can test all new DDD concepts (ApplicationService, Command, Query, BFF)
+- [ ] Agile can track work for all new concepts (stories for BFF endpoints, commands)
+- [ ] No circular dependencies introduced
+- [ ] Closure percentages maintained or improved for all domains
+- [ ] All grounding relationships are bidirectionally documented
+- [ ] Partition references in interdomain-map match actual schema files
+
 ### Phase 7: Examples
 
 Create comprehensive examples in `/Users/igor/code/canonical-grounding/domains/ddd/examples/`:
@@ -575,46 +924,273 @@ The research must definitively answer:
 
 ### Phase 11: Deliverables
 
+**CRITICAL**: All deliverables must include proper semantic versioning metadata
+
 1. **Research Documents** (in `domains/ddd/docs/`):
    - `ddd-07-application-layer.md` (6-10 pages)
+     * Include version: 1.0.0, status: final, last_updated: YYYY-MM-DD
    - `ddd-08-bff-pattern.md` (6-10 pages)
-   - Updates to `ddd-03-tactical-patterns.md` and `ddd-02-strategic-patterns.md`
+     * Include version: 1.0.0, status: final, last_updated: YYYY-MM-DD
+   - Updates to `ddd-03-tactical-patterns.md` (bump version to 1.1.0)
+   - Updates to `ddd-02-strategic-patterns.md` (bump version to 1.1.0)
 
 2. **Schema Updates**:
-   - `domains/ddd/schemas/tactical-ddd.schema.yaml` (add application_service, command, query)
-   - Strategic schema or new integration schema (add bff_scope, bff_interface)
+   - `domains/ddd/schemas/tactical-ddd.schema.yaml`
+     * Version: 1.0.0 → 1.1.0 (MINOR bump)
+     * Updated: metadata.updated field to current date
+     * Change: Add application_service, command, query concepts
+   - Strategic schema OR new integration schema
+     * Option A: `strategic-ddd.schema.yaml` v1.0.0 → v1.1.0
+     * Option B: NEW `integration-ddd.schema.yaml` v0.1.0
+     * Change: Add bff_scope, bff_interface concepts
 
-3. **Examples**:
+3. **Cross-Domain Schema Updates**:
+   - `domains/ux/schemas/interaction-ux.schema.yaml`
+     * Version: 2.0.0 → 2.1.0 (MINOR bump)
+     * Change: Add optional `api_endpoints` array to Component
+   - `domains/ux/schemas/navigation-ux.schema.yaml`
+     * Version: 2.0.0 → 2.1.0 (MINOR bump)
+     * Change: Add optional `bff_interface_ref` to Page
+   - `domains/qe/model-schema.yaml` (if updated)
+     * Version: 1.0.0 → 1.1.0 (MINOR bump)
+     * Change: Add application_service_test, bff_test concepts (optional)
+   - `domains/agile/schemas/delivery-agile.schema.yaml` (if updated)
+     * Version: 2.0.0 → 2.1.0 (MINOR bump)
+     * Change: Add technical_story_type enum values (optional)
+
+4. **Examples** (with validation):
    - `domains/ddd/examples/application-service-example.yaml`
-   - `domains/ddd/examples/bff-example.yaml` (or in appropriate location)
-   - Update existing tactical example with commands/queries
+     * Must validate against tactical-ddd.schema.yaml v1.1.0
+   - `domains/ddd/examples/bff-example.yaml`
+     * Must validate against strategic or integration schema v1.1.0
+   - Update `domains/ddd/examples/tactical-ddd-example.yaml` with commands/queries
+   - Update `domains/ux/examples/partitioned/interaction-example.yaml` with BFF refs
+     * Must validate against interaction-ux.schema.yaml v2.1.0
 
-4. **Grounding Updates**:
-   - `research-output/interdomain-map.yaml` (add 6+ new groundings)
-   - Updated grounding visualization (if graph is regenerated)
+5. **Grounding Updates** (CRITICAL - Maintains interdomain-map.yaml integrity):
+   - `research-output/interdomain-map.yaml`
+     * Version: 2.2.0 → 2.3.0 (MINOR bump)
+     * Updated: metadata.last_updated to current date
+     * Change: Add 6+ new grounding relationships
+     * Validation: All grounding IDs must be unique
+     * Validation: All source/target must reference existing canonical_models
+     * Format: Follow grounding-schema.json specification exactly
+   - Updated grounding visualization `grounding-graph.svg` (regenerate if tooling exists)
 
-5. **Validation Report**:
-   - Schema validation: ✓ All schemas valid
-   - Closure analysis: DDD 100%, System >95%
-   - Grounding validation: ✓ All references resolve
-   - Status: PRODUCTION READY ✓
+6. **Validation Report** (validation-report.txt):
+   ```
+   Schema Validation: ✓ All schemas valid (JSON Schema 2020-12)
 
-6. **Knight Codebase Analysis**:
+   Closure Analysis:
+   - DDD: 100% (13 concepts, all grounded)
+   - UX: 100% (17 concepts, all grounded)
+   - QE: 75%+ (target: 80% if updated)
+   - Agile: 100%
+   - Data-Eng: 100%
+   - System Average: 95%+
+
+   Grounding Validation:
+   - ✓ All target_canon references exist
+   - ✓ All source_concept and target_concept defined
+   - ✓ No circular dependencies (DAG maintained)
+   - ✓ All cardinality constraints satisfiable
+   - ✓ Total groundings: 32 → 38 (+6)
+
+   Version Integrity:
+   - ✓ All version bumps follow SemVer 2.0.0
+   - ✓ No breaking changes (all MINOR/PATCH bumps)
+   - ✓ metadata.updated fields current
+   - ✓ interdomain-map.yaml version incremented
+
+   Cross-Domain Validation:
+   - ✓ UX→BFF→DDD grounding chain complete
+   - ✓ All new DDD concepts have groundings
+   - ✓ No orphaned concepts (100% closure maintained)
+
+   Status: PRODUCTION READY ✓
+   ```
+
+7. **Knight Codebase Analysis** (knight-analysis.md):
    - Document of patterns found in `/Users/igor/code/knight/contexts`
-   - Mapping between Knight implementation and schema concepts
-   - Examples extracted from actual code
+   - Mapping table: Knight implementation ↔ Schema concepts
+   - Code examples extracted from actual Java files
+   - Pattern validations (confirm schema matches reality)
+
+8. **CHANGELOG.md** (project root):
+   ```markdown
+   ## [1.1.0] - 2025-10-18
+
+   ### Added - DDD Domain
+   - **Tactical Schema** (v1.1.0): Application Service, Command, Query concepts
+   - **Strategic Schema** (v1.1.0): BFF Scope, BFF Interface concepts
+   - **Documentation**: ddd-07-application-layer.md, ddd-08-bff-pattern.md
+   - **Examples**: application-service-example.yaml, bff-example.yaml
+   - **Patterns**: Application Service pattern, BFF pattern
+
+   ### Added - UX Domain
+   - **Interaction Schema** (v2.1.0): Component.api_endpoints field
+   - **Navigation Schema** (v2.1.0): Page.bff_interface_ref field
+   - **Documentation**: Updated ux/README.md with BFF integration
+
+   ### Added - Groundings
+   - grounding_ux_bff_001: UX Component → BFF Interface
+   - grounding_bff_app_svc_001: BFF Interface → Application Service
+   - grounding_app_svc_agg_001: Command → Aggregate
+   - grounding_app_svc_repo_001: Application Service → Repository
+   - grounding_app_svc_evt_001: Application Service → Domain Event
+   - grounding_qe_ddd_005: QE → Application Service (optional)
+
+   ### Changed
+   - **Interdomain Map** (v2.3.0): Updated grounding statistics (32 → 38)
+   - **grounding_ux_ddd_001**: Revised to route through BFF layer
+   - **grounding_ux_ddd_002**: Revised to route through BFF layer
+
+   ### Migration
+   - See `domains/ddd/MIGRATION-v1.1.md` for adoption guide
+   - All changes backward compatible (MINOR version bumps)
+   ```
+
+9. **Migration Guide** (domains/ddd/MIGRATION-v1.1.md):
+   ```markdown
+   # DDD Schema Migration Guide: v1.0.0 → v1.1.0
+
+   ## Summary
+   Version 1.1.0 adds Application Services, CQRS, and BFF patterns.
+   **Backward Compatible**: Existing v1.0.0 models remain valid.
+
+   ## What's New
+
+   ### Tactical Schema (v1.1.0)
+   - application_service: Orchestrates use cases
+   - command: Write operations (mutate state)
+   - query: Read operations (no side effects)
+
+   ### Strategic Schema (v1.1.0)
+   - bff_scope: Backend for Frontend aggregation layer
+   - bff_interface: REST/HTTP operations
+
+   ## Migration Steps
+
+   ### Step 1: Review New Concepts (Optional)
+   Your existing models continue to work without changes.
+
+   ### Step 2: Adopt Application Services (Recommended)
+   Before (v1.0.0):
+   ```yaml
+   bounded_context:
+     id: bc_user_management
+     aggregates: [agg_user]
+     repositories: [repo_user]
+   ```
+
+   After (v1.1.0):
+   ```yaml
+   bounded_context:
+     id: bc_user_management
+     aggregates: [agg_user]
+     repositories: [repo_user]
+     application_services: [svc_app_user_management]
+
+   application_service:
+     id: svc_app_user_management
+     name: UserApplicationService
+     bounded_context_ref: bc_user_management
+     commands: [cmd_create_user, cmd_activate_user]
+     queries: [qry_find_user_by_id]
+   ```
+
+   ### Step 3: Adopt BFF Pattern (For UX Integration)
+   ... (detailed examples)
+   ```
+
+10. **Glossary Updates** (docs/GLOSSARY.md):
+    - Add entries for: Application Service, Command, Query, BFF, BFF Interface
+    - Format per CONTRIBUTING.md: Definition + Examples + Context + Pattern Refs
+
+11. **Cross-Domain Updates**:
+    - `domains/ux/README.md`: Document BFF integration pattern
+    - `domains/qe/README.md`: Document testing ApplicationService and BFF (if applicable)
+    - `domains/agile/README.md`: Document tracking BFF/integration work (if applicable)
 
 ## Success Criteria
 
+### Research and Analysis
 - [ ] All 10 research questions answered with citations
-- [ ] 4 new DDD concepts defined with complete JSON Schema 2020-12 definitions
+- [ ] Knight codebase analysis complete with mapping table
+- [ ] Literature synthesis from 5 sources (BFF, Fowler, Evans, Vernon, REST/OpenAPI)
+
+### Schema Changes
+- [ ] 5 new DDD concepts defined with complete JSON Schema 2020-12 definitions
+  - [ ] application_service (tactical-ddd.schema.yaml v1.1.0)
+  - [ ] command (tactical-ddd.schema.yaml v1.1.0)
+  - [ ] query (tactical-ddd.schema.yaml v1.1.0)
+  - [ ] bff_scope (strategic-ddd.schema.yaml v1.1.0 OR integration-ddd.schema.yaml v0.1.0)
+  - [ ] bff_interface (strategic-ddd.schema.yaml v1.1.0 OR integration-ddd.schema.yaml v0.1.0)
+- [ ] All schema metadata.version fields updated following SemVer
+- [ ] All schema metadata.updated fields set to current date
+
+### Cross-Domain Updates
+- [ ] UX interaction schema updated (v2.0.0 → v2.1.0)
+- [ ] UX navigation schema updated (v2.0.0 → v2.1.0)
+- [ ] QE schema updated (optional, v1.0.0 → v1.1.0)
+- [ ] Agile schema updated (optional, v2.0.0 → v2.1.0)
+
+### Grounding Relationships
 - [ ] 6+ new grounding relationships documented in interdomain-map.yaml
-- [ ] 2 comprehensive examples based on Knight codebase patterns
-- [ ] Documentation updated (2 new files, 2 updated files)
-- [ ] Schemas validate without errors
-- [ ] Closure percentage: DDD ≥100%, System ≥95%
+  - [ ] grounding_ux_bff_001: UX Component → BFF Interface
+  - [ ] grounding_bff_app_svc_001: BFF Interface → Application Service
+  - [ ] grounding_app_svc_agg_001: Command → Aggregate
+  - [ ] grounding_app_svc_repo_001: Application Service → Repository
+  - [ ] grounding_app_svc_evt_001: Application Service → Domain Event
+  - [ ] grounding_ux_ddd_001_revised: Updated to route through BFF
+  - [ ] grounding_ux_ddd_002_revised: Updated to route through BFF
+  - [ ] grounding_qe_ddd_005 (optional): QE → Application Service
+- [ ] interdomain-map.yaml version updated (v2.2.0 → v2.3.0)
+- [ ] All groundings validate against grounding-schema.json
+- [ ] Grounding statistics updated (total_groundings, distribution)
+
+### Examples and Validation
+- [ ] 2+ comprehensive examples based on Knight codebase patterns
+  - [ ] application-service-example.yaml (validates against tactical v1.1.0)
+  - [ ] bff-example.yaml (validates against strategic v1.1.0 or integration v0.1.0)
+- [ ] Updated existing examples with new concepts
+- [ ] All examples validate without errors
+- [ ] Closure percentage maintained: DDD ≥100%, UX ≥100%, System ≥95%
+- [ ] No circular dependencies (DAG integrity maintained)
+
+### Documentation
+- [ ] 2 new documentation files created
+  - [ ] ddd-07-application-layer.md (6-10 pages, v1.0.0)
+  - [ ] ddd-08-bff-pattern.md (6-10 pages, v1.0.0)
+- [ ] 2 existing documentation files updated
+  - [ ] ddd-03-tactical-patterns.md (v1.0.0 → v1.1.0)
+  - [ ] ddd-02-strategic-patterns.md (v1.0.0 → v1.1.0)
+- [ ] CHANGELOG.md updated with v1.1.0 entry
+- [ ] MIGRATION-v1.1.md created with adoption guide
+- [ ] GLOSSARY.md updated with 5 new terms
+- [ ] Cross-domain README files updated (UX, QE, Agile as applicable)
+
+### Validation and Quality
+- [ ] Schema validation: ✓ All schemas valid (JSON Schema 2020-12)
+- [ ] Grounding validation: ✓ All references resolve
+- [ ] Cross-reference validation: ✓ All IDs unique, all refs exist
+- [ ] Version integrity: ✓ All bumps follow SemVer
+- [ ] Closure validation: ✓ DDD 100%, System 95%+
+- [ ] UID format validation: ✓ All IDs match regex patterns
+- [ ] Validation report generated (validation-report.txt)
+
+### Integration and Grounding Path
 - [ ] Clear UX→BFF→ApplicationService→Aggregate grounding path established
+- [ ] BFF layer correctly positioned between UX and DDD
+- [ ] No direct UX→Aggregate references in new examples
 - [ ] OpenAPI integration strategy documented
+- [ ] Command/Query separation pattern clearly defined
+
+### Deliverables Completeness
+- [ ] 11 deliverable categories complete (Research, Schemas, Cross-Domain, Examples, Groundings, Validation, Analysis, CHANGELOG, Migration, Glossary, Cross-Domain Updates)
+- [ ] All files follow CONTRIBUTING.md standards
+- [ ] All files include proper version metadata
+- [ ] Knight codebase analysis document delivered
 
 ## Timeline Estimate
 
@@ -623,18 +1199,53 @@ The research must definitively answer:
 - Phase 3 (Concept Definition): 2 hours
 - Phase 4 (Grounding Design): 1-2 hours
 - Phase 5 (Documentation): 4-5 hours
-- Phase 6 (Schema Implementation): 2-3 hours
+- Phase 6 (Schema Implementation): 3-4 hours (updated: includes cross-domain)
 - Phase 7 (Examples): 2-3 hours
-- Phase 8-9 (Validation): 1 hour
+- Phase 8-9 (Validation): 1-2 hours (updated: comprehensive validation)
 - Phase 10 (Research Questions): 1-2 hours
-- Phase 11 (Final Deliverables): 1 hour
+- Phase 11 (Final Deliverables): 2-3 hours (updated: CHANGELOG, Migration, Glossary)
 
-**Total**: 19-26 hours of focused research and implementation
+**Total**: 21-31 hours of focused research and implementation (updated from 19-26 to account for governance requirements)
+
+## Summary
+
+This enhancement extends the canonical grounding framework with Application Services (CQRS) and BFF patterns, establishing a complete UX→BFF→ApplicationService→Aggregate integration chain. Following the Data Engineering Taxonomy contribution methodology, all changes adhere to Semantic Versioning 2.0.0 with no breaking changes (MINOR version bumps only).
+
+**Key Governance Requirements**:
+- **SemVer Compliance**: All schemas bump to MINOR versions (v1.0.0 → v1.1.0, v2.0.0 → v2.1.0)
+- **Grounding Schema Compliance**: All 6+ new groundings validate against grounding-schema.json
+- **Interdomain Map Maintenance**: Version bump to v2.3.0 with updated statistics and closure analysis
+- **Cross-Domain Impact**: Ripple updates across DDD, UX, QE (optional), Agile (optional)
+- **UID Format Validation**: All new IDs follow CONTRIBUTING.md regex patterns
+- **Backward Compatibility**: Existing v1.0.0/v2.0.0 models remain valid
+
+**Research Foundation**:
+- **Primary Source**: Sam Newman (BFF pattern) → Fowler (Application Service) → Evans (Application Layer) → Vernon (CQRS) → REST/OpenAPI
+- **Validation**: Knight codebase analysis confirms practical applicability
+
+**Expected Impact**:
+- **DDD Closure**: Maintain 100% (13 concepts, all grounded)
+- **UX Closure**: Maintain 100% (17 concepts, all grounded)
+- **System Closure**: Maintain ≥95% average
+- **Total Groundings**: 32 → 38 (+6)
+- **Grounding Strength**: 27 → 33 strong groundings (+6)
+
+**Critical Success Factors**:
+1. All 5 new concepts have complete schema definitions (application_service, command, query, bff_scope, bff_interface)
+2. All 6+ groundings validate and reference existing canonical models
+3. No circular dependencies (DAG topology maintained)
+4. Version metadata consistently updated across all affected schemas
+5. Comprehensive validation report confirms PRODUCTION READY status
 
 ## Notes
 
 - This enhancement is critical for production readiness as it addresses the integration layer between UX and domain
-- BFF pattern is increasingly standard in microservices architectures
+- BFF pattern is increasingly standard in microservices architectures following Sam Newman's work
 - Command/Query separation improves schema clarity and supports CQRS evolution
-- Research should validate against Knight codebase to ensure practical applicability
-- Consider whether BFF should be DDD partition or separate canonical domain model
+- Research validates against Knight codebase (`/Users/igor/code/knight/contexts`) to ensure practical applicability
+- BFF concepts added to Strategic DDD schema (Option A - v1.1.0) OR new Integration DDD partition (Option B - v0.1.0) based on research findings
+- All changes maintain backward compatibility - existing models continue to validate
+- Interdomain map serves as the single source of truth for all grounding relationships
+- Cross-domain updates follow the dependency chain: DDD → UX → QE → Agile
+- OpenAPI specifications remain external (referenced via `api_specification_ref` field)
+- Timeline: 21-31 hours accounts for comprehensive governance, validation, and documentation requirements
