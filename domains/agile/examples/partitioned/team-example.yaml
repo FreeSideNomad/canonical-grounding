@@ -141,6 +141,7 @@ sprints:
     endDate: "2025-02-02"
     iteration_ref: "it_2025_q1_2"
     goal: "Implement product catalog browsing"
+
     user_story_refs:
       - "us_product_list"
       - "us_product_detail"
