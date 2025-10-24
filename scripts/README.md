@@ -58,25 +58,34 @@ sudo apt-get install libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0
 Options:
   --format html|pdf|both    Output format (default: both)
   --output <dir>            Output directory (default: output/)
-  --style <css>             Custom CSS file
+  --style <name|file>       Stylesheet: "classic", "modern", or custom CSS file (default: classic)
   --toc                     Include table of contents
   --all                     Convert all .md files
   --dir <path>              Directory to scan (with --all)
+
+Built-in Stylesheets:
+  classic - Professional serif style (Georgia font)
+  modern  - Clean sans-serif style (Helvetica font)
 ```
 
 ### Examples
 
-**Single file with TOC:**
+**Single file with TOC (classic style):**
 ```bash
 ./scripts/convert_markdown.sh --toc --format pdf domains/ddd/docs/ddd-guide.md
 ```
 
-**Batch conversion:**
+**Modern style PDF:**
 ```bash
-./scripts/convert_markdown.sh --all --dir domains/ddd/docs/ --output output/docs/
+./scripts/convert_markdown.sh --style modern --format pdf document.md
 ```
 
-**Custom styling:**
+**Batch conversion with modern style:**
+```bash
+./scripts/convert_markdown.sh --all --dir domains/ddd/docs/ --style modern --output output/docs/
+```
+
+**Custom CSS file:**
 ```bash
 ./scripts/convert_markdown.sh --style custom.css --format both README.md
 ```
@@ -106,10 +115,26 @@ Generated files are placed in the `output/` directory by default:
 
 ### Styling
 
-The converter includes professional default styling. To customize:
+The converter includes two professional built-in stylesheets:
+
+#### Classic Style (Default)
+- **Font**: Georgia serif
+- **Look**: Traditional, academic, print-ready
+- **Best for**: Documentation, books, formal reports
+- **File size**: Slightly larger due to serif fonts
+
+#### Modern Style
+- **Font**: Helvetica Neue sans-serif
+- **Look**: Clean, contemporary, web-native
+- **Best for**: Technical docs, presentations, modern guides
+- **File size**: Slightly smaller, faster rendering
+
+#### Custom Styling
+
+To use your own stylesheet:
 
 1. Create a CSS file with your styles
-2. Use `--style` flag to apply it
+2. Use `--style path/to/file.css`
 
 Example custom.css:
 ```css
@@ -127,6 +152,8 @@ code {
     background-color: #f8f8f8;
 }
 ```
+
+Custom stylesheets inherit PDF page settings (@page rules) automatically.
 
 ### Troubleshooting
 

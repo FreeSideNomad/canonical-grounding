@@ -1,0 +1,467 @@
+/* Modern Document Styling - Inspired by Markdown Preview Enhanced
+ * Sans-serif, clean design with responsive layout
+ */
+
+@page {
+    size: A4;
+    margin: 2cm;
+    @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-size: 9pt;
+        color: #666;
+    }
+}
+
+/* Base Typography */
+html body {
+    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2em;
+    box-sizing: border-box;
+    word-wrap: break-word;
+}
+
+html body > :first-child {
+    margin-top: 0;
+}
+
+/* Headings */
+html body h1,
+html body h2,
+html body h3,
+html body h4,
+html body h5,
+html body h6 {
+    line-height: 1.2;
+    margin-top: 1em;
+    margin-bottom: 16px;
+    color: #000;
+    font-weight: 600;
+    page-break-after: avoid;
+}
+
+html body h1 {
+    font-size: 2.25em;
+    font-weight: 300;
+    padding-bottom: 0.3em;
+}
+
+html body h2 {
+    font-size: 1.75em;
+    font-weight: 400;
+    padding-bottom: 0.3em;
+}
+
+html body h3 {
+    font-size: 1.5em;
+    font-weight: 500;
+}
+
+html body h4 {
+    font-size: 1.25em;
+    font-weight: 600;
+}
+
+html body h5 {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+html body h6 {
+    font-size: 1em;
+    font-weight: 600;
+    color: #5c5c5c;
+}
+
+/* Paragraphs and Text */
+html body p {
+    margin-top: 0;
+    margin-bottom: 16px;
+    word-wrap: break-word;
+    orphans: 3;
+    widows: 3;
+}
+
+html body strong {
+    color: #000;
+    font-weight: 700;
+}
+
+html body del {
+    color: #5c5c5c;
+}
+
+/* Links */
+html body a:not([href]) {
+    color: inherit;
+    text-decoration: none;
+}
+
+html body a {
+    color: #08c;
+    text-decoration: none;
+}
+
+html body a:hover {
+    color: #00a3f5;
+    text-decoration: underline;
+}
+
+/* Lists */
+html body > ul,
+html body > ol {
+    margin-bottom: 16px;
+}
+
+html body ul,
+html body ol {
+    padding-left: 2em;
+}
+
+html body ul.no-list,
+html body ol.no-list {
+    padding: 0;
+    list-style-type: none;
+}
+
+html body ul ul,
+html body ul ol,
+html body ol ul,
+html body ol ol {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+html body li {
+    margin-bottom: 6px;
+}
+
+html body li.task-list-item {
+    list-style: none;
+}
+
+html body li > p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+html body .task-list-item-checkbox {
+    margin: 0 0.2em 0.25em -1.8em;
+    vertical-align: middle;
+}
+
+/* Blockquotes */
+html body blockquote {
+    margin: 16px 0;
+    font-size: inherit;
+    padding: 10px 20px;
+    color: #5c5c5c;
+    background-color: #f0f0f0;
+    border-left: 4px solid #d6d6d6;
+}
+
+html body blockquote > :first-child {
+    margin-top: 0;
+}
+
+html body blockquote > :last-child {
+    margin-bottom: 0;
+}
+
+/* Horizontal Rules */
+html body hr {
+    height: 4px;
+    margin: 32px 0;
+    background-color: #d6d6d6;
+    border: 0 none;
+}
+
+/* Code */
+html body code {
+    font-family: 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
+    font-size: 0.85em;
+    color: #000;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+    padding: 0.2em 0;
+}
+
+html body code::before,
+html body code::after {
+    letter-spacing: -0.2em;
+    content: "\00a0";
+}
+
+/* Code Blocks */
+html body pre {
+    background-color: #f5f5f5;
+    border: 1px solid #d6d6d6;
+    border-radius: 3px;
+    padding: 1em;
+    overflow: auto;
+    line-height: 1.45;
+    margin: 15px 0;
+    page-break-inside: avoid;
+}
+
+html body pre > code {
+    display: inline;
+    max-width: initial;
+    padding: 0;
+    margin: 0;
+    overflow: initial;
+    line-height: inherit;
+    word-wrap: normal;
+    background-color: transparent;
+    border: 0;
+    color: #333;
+}
+
+html body pre code::before,
+html body pre code::after {
+    content: normal;
+}
+
+/* Syntax Highlighting */
+code[class*="language-"],
+pre[class*="language-"] {
+    color: #333;
+    background: none;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.4;
+    tab-size: 8;
+    hyphens: none;
+}
+
+pre[class*="language-"] {
+    padding: 0.8em;
+    overflow: auto;
+    border-radius: 3px;
+    background: #f5f5f5;
+}
+
+/* Token colors */
+.token.comment,
+.token.blockquote {
+    color: #969896;
+}
+
+.token.keyword,
+.token.operator,
+.token.rule,
+.token.important,
+.token.builtin {
+    color: #a71d5d;
+}
+
+.token.string,
+.token.url,
+.token.attr-value,
+.token.regex {
+    color: #183691;
+}
+
+.token.number,
+.token.boolean,
+.token.constant,
+.token.property,
+.token.symbol,
+.token.attr-name {
+    color: #0086b3;
+}
+
+.token.tag,
+.token.selector,
+.token.prolog {
+    color: #63a35c;
+}
+
+.token.function,
+.token.class,
+.token.class-name {
+    color: #795da3;
+}
+
+.token.inserted {
+    background-color: #eaffea;
+    color: #55a532;
+}
+
+.token.deleted {
+    background-color: #ffecec;
+    color: #bd2c00;
+}
+
+.token.bold {
+    font-weight: 700;
+}
+
+.token.italic {
+    font-style: italic;
+}
+
+/* Tables */
+html body table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    display: block;
+    width: 100%;
+    overflow: auto;
+    word-break: normal;
+    word-break: keep-all;
+    margin: 20px 0;
+    page-break-inside: avoid;
+}
+
+html body table th {
+    font-weight: 700;
+    color: #000;
+}
+
+html body table th,
+html body table td {
+    border: 1px solid #d6d6d6;
+    padding: 6px 13px;
+}
+
+html body table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Definition Lists */
+html body dl {
+    padding: 0;
+}
+
+html body dl dt {
+    padding: 0;
+    margin-top: 16px;
+    font-size: 1em;
+    font-style: italic;
+    font-weight: 700;
+}
+
+html body dl dd {
+    padding: 0 16px;
+    margin-bottom: 16px;
+}
+
+/* Images */
+html body img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 20px auto;
+    border-radius: 4px;
+}
+
+/* Keyboard */
+html body kbd {
+    color: #000;
+    border: 1px solid #d6d6d6;
+    border-bottom: 2px solid #c7c7c7;
+    padding: 2px 4px;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+    font-family: 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
+    font-size: 0.85em;
+}
+
+/* Table of Contents */
+.toc {
+    background-color: #f9f9f9;
+    border: 1px solid #d6d6d6;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 30px 0;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+}
+
+.toc h2 {
+    margin-top: 0;
+    border-bottom: none;
+}
+
+.toc ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.toc li {
+    margin-bottom: 8px;
+}
+
+.toc a {
+    color: #2c3e50;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 914px) {
+    html body {
+        padding: 2em;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    html body {
+        font-size: 14px;
+        padding: 1em;
+    }
+}
+
+/* Print Styles */
+@media print {
+    html body {
+        background-color: #fff;
+    }
+
+    html body h1,
+    html body h2,
+    html body h3,
+    html body h4,
+    html body h5,
+    html body h6 {
+        color: #000;
+        page-break-after: avoid;
+    }
+
+    html body blockquote {
+        color: #5c5c5c;
+    }
+
+    html body pre {
+        page-break-inside: avoid;
+    }
+
+    html body table {
+        display: table;
+    }
+
+    html body img {
+        display: block;
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    html body code,
+    html body pre {
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+
+    html body a {
+        color: #000;
+        text-decoration: underline;
+    }
+}

@@ -15,10 +15,50 @@ Dependencies:
 import argparse
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 import markdown
 from weasyprint import HTML, CSS
 from weasyprint.text.fonts import FontConfiguration
+
+
+# Built-in stylesheet names
+BUILTIN_STYLES = {
+    'classic': 'Classic serif style (Georgia)',
+    'modern': 'Modern sans-serif style (Helvetica)'
+}
+
+
+def load_stylesheet(style: Union[str, Path]) -> str:
+    """
+    Load stylesheet by name or file path.
+
+    Args:
+        style: Either a built-in style name ('classic', 'modern') or a file path
+
+    Returns:
+        CSS content as string
+    """
+    # Check if it's a built-in style
+    if isinstance(style, str) and style in BUILTIN_STYLES:
+        if style == 'classic':
+            return DEFAULT_CSS  # Will be defined below
+        elif style == 'modern':
+            # Load from styles/modern.css
+            script_dir = Path(__file__).parent
+            modern_css_path = script_dir / 'styles' / 'modern.css'
+            if modern_css_path.exists():
+                return modern_css_path.read_text(encoding='utf-8')
+            else:
+                print(f"Warning: Modern stylesheet not found at {modern_css_path}, using classic", file=sys.stderr)
+                return DEFAULT_CSS
+
+    # Otherwise treat as file path
+    style_path = Path(style) if isinstance(style, str) else style
+    if style_path.exists():
+        return style_path.read_text(encoding='utf-8')
+    else:
+        print(f"Warning: Stylesheet not found at {style_path}, using default", file=sys.stderr)
+        return DEFAULT_CSS
 
 
 DEFAULT_CSS = """
@@ -499,20 +539,24 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Convert single file to both formats
+  # Convert single file to both formats (classic style)
   python convert_markdown.py document.md
 
-  # Convert to PDF only
-  python convert_markdown.py --format pdf document.md
+  # Convert to PDF with modern style
+  python convert_markdown.py --format pdf --style modern document.md
 
-  # Batch convert all files in directory
-  python convert_markdown.py --all --dir docs/
+  # Batch convert all files with modern style
+  python convert_markdown.py --all --dir docs/ --style modern
 
-  # Use custom CSS
+  # Use custom CSS file
   python convert_markdown.py --style custom.css document.md
 
-  # Include table of contents
+  # Include table of contents with classic style
   python convert_markdown.py --toc document.md
+
+Built-in Styles:
+  classic - Professional serif style (Georgia font)
+  modern  - Clean sans-serif style (Helvetica font)
         """
     )
 
@@ -539,8 +583,9 @@ Examples:
 
     parser.add_argument(
         '--style',
-        type=Path,
-        help='Custom CSS file for styling'
+        type=str,
+        default='classic',
+        help='Stylesheet: "classic" (serif), "modern" (sans-serif), or path to custom CSS file (default: classic)'
     )
 
     parser.add_argument(
@@ -570,13 +615,8 @@ Examples:
     if args.all and not args.dir:
         parser.error('--dir required when using --all')
 
-    # Load custom CSS if provided
-    custom_css = None
-    if args.style:
-        if not args.style.exists():
-            print(f"Error: CSS file not found: {args.style}", file=sys.stderr)
-            return 1
-        custom_css = args.style.read_text(encoding='utf-8')
+    # Load stylesheet (built-in or custom)
+    custom_css = load_stylesheet(args.style)
 
     # Create converter
     converter = MarkdownConverter(custom_css)

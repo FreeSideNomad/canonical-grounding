@@ -32,29 +32,44 @@ Or for batch conversion:
 - `--format pdf` - Generate PDF only
 - `--format both` - Generate both (default)
 - `--output <dir>` - Output directory (default: `output/`)
-- `--style <css>` - Custom CSS file for styling
+- `--style <name|file>` - Stylesheet: "classic", "modern", or custom CSS file (default: classic)
 - `--toc` - Include table of contents
 - `--all` - Convert all .md files in directory
 - `--dir <path>` - Directory to scan for .md files
 
+### Built-in Stylesheets
+
+**classic** - Professional serif style (Georgia font)
+- Traditional, academic look
+- Best for documentation, books, formal reports
+
+**modern** - Clean sans-serif style (Helvetica font)
+- Contemporary, web-native design
+- Best for technical docs, presentations, guides
+
 ## Examples
 
-### Single file conversion
+### Single file conversion (classic style)
 ```bash
 python scripts/convert_markdown.py domains/ddd/docs/ddd-guide.md
 ```
 
-### Convert with custom styling
+### Modern style PDF
+```bash
+python scripts/convert_markdown.py --style modern --format pdf document.md
+```
+
+### Batch conversion with modern style
+```bash
+python scripts/convert_markdown.py --all --dir docs/ --style modern --output output/
+```
+
+### Custom CSS file
 ```bash
 python scripts/convert_markdown.py --style custom.css --format both myfile.md
 ```
 
-### Batch conversion
-```bash
-python scripts/convert_markdown.py --all --dir docs/ --output output/
-```
-
-### HTML only with TOC
+### HTML with TOC (classic style)
 ```bash
 python scripts/convert_markdown.py --format html --toc README.md
 ```
