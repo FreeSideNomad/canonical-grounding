@@ -6,9 +6,9 @@ description: Tactical patterns for Domain-Driven Design - aggregates, entities, 
 metadata:
   author: "Marina Music"
   created: "2025-10-04"
-  updated: "2025-10-24"
+  updated: "2025-10-18"
   license: "MIT"
-  version: "2.0.0"
+  version: "1.1.0"
   partition: "tactical"
   references:
     - "Eric Evans - Domain-Driven Design (2003)"
@@ -25,407 +25,39 @@ naming_conventions:
   query_id: "qry_<name>"
   domain_event_id: "evt_<name>"
 
-type: object
-required: [bounded_context]
-additionalProperties: false
-properties:
-  bounded_context:
-    $ref: "#/$defs/BoundedContext"
-
 $defs:
-  # ID Types
-  BcId:
-    type: string
-    pattern: "^bc_[a-z0-9_]+$"
-    description: "Bounded Context identifier"
-
-  AggId:
-    type: string
-    pattern: "^agg_[a-z0-9_]+$"
-    description: "Aggregate identifier"
-
-  EntId:
-    type: string
-    pattern: "^ent_[a-z0-9_]+$"
-    description: "Entity identifier"
-
-  VoId:
-    type: string
-    pattern: "^vo_[a-z0-9_]+$"
-    description: "Value Object identifier"
-
-  RepoId:
-    type: string
-    pattern: "^repo_[a-z0-9_]+$"
-    description: "Repository identifier"
-
-  SvcDomId:
-    type: string
-    pattern: "^svc_dom_[a-z0-9_]+$"
-    description: "Domain Service identifier"
-
-  SvcAppId:
-    type: string
-    pattern: "^svc_app_[a-z0-9_]+$"
-    description: "Application Service identifier"
-
-  CmdId:
-    type: string
-    pattern: "^cmd_[a-z0-9_]+$"
-    description: "Command interface identifier"
-
-  QryId:
-    type: string
-    pattern: "^qry_[a-z0-9_]+$"
-    description: "Query interface identifier"
-
-  EvtId:
-    type: string
-    pattern: "^evt_[a-z0-9_]+$"
-    description: "Domain Event identifier"
-
-  DomId:
-    type: string
-    pattern: "^dom_[a-z0-9_]+$"
-    description: "Domain identifier"
-
-  # Supporting Types
-  Attribute:
-    type: object
-    description: Attribute of an entity or value object
-    required: [name, type]
-    properties:
-      name:
-        type: string
-      type:
-        type: string
-      value_object_ref:
-        $ref: "#/$defs/VoId"
-      required:
-        type: boolean
-      description:
-        type: string
-      validation:
-        type: string
-
-  Parameter:
-    type: object
-    description: Parameter for methods and operations
-    required: [name, type]
-    properties:
-      name:
-        type: string
-      type:
-        type: string
-      value_object_ref:
-        $ref: "#/$defs/VoId"
-      required:
-        type: boolean
-        default: true
-      description:
-        type: string
-
-  Method:
-    type: object
-    description: Business method or operation
-    properties:
-      name:
-        type: string
-      description:
-        type: string
-      parameters:
-        type: array
-        items:
-          $ref: "#/$defs/Parameter"
-      returns:
-        type: string
-
-  TransactionBoundary:
-    type: object
-    description: Transaction scope for an operation
-    properties:
-      is_transactional:
-        type: boolean
-        description: True for commands, false for queries
-        default: true
-      modifies_aggregates:
-        type: array
-        description: Aggregates modified by this operation (should be 0-1 for commands)
-        items:
-          $ref: "#/$defs/AggId"
-        maxItems: 1
-      consistency_type:
-        type: string
-        enum: [transactional, eventual]
-        description: Immediate (transactional) or deferred (eventual) consistency
-
-  Workflow:
-    type: object
-    description: Orchestration workflow steps
-    properties:
-      validates_input:
-        type: boolean
-        description: Performs input/format validation
-        default: true
-      loads_aggregates:
-        type: array
-        description: Aggregates loaded from repositories
-        items:
-          $ref: "#/$defs/AggId"
-      invokes_domain_operations:
-        type: array
-        description: Domain operations invoked on aggregates
-        items:
-          type: string
-      invokes_domain_services:
-        type: array
-        description: Domain services invoked
-        items:
-          $ref: "#/$defs/SvcDomId"
-      persists_aggregates:
-        type: boolean
-        description: Saves aggregates back to repository
-        default: true
-      publishes_events:
-        type: array
-        description: Domain events published after successful execution
-        items:
-          $ref: "#/$defs/EvtId"
-      returns_dto:
-        type: string
-        description: DTO returned for queries
-
-  ApplicationServiceOperation:
-    type: object
-    description: Use case operation provided by an application service
-    required: [name, type]
-    properties:
-      name:
-        type: string
-        pattern: "^[a-z][a-zA-Z]+$"
-        description: Operation method name (e.g., createUser, placeOrder)
-      type:
-        type: string
-        enum: [command, query]
-        description: Whether this operation modifies state (command) or retrieves data (query)
-      description:
-        type: string
-      parameters:
-        type: array
-        items:
-          $ref: "#/$defs/Parameter"
-      returns:
-        type: string
-        description: Return type (domain ID for creates, void for state changes, DTO for queries)
-      transaction_boundary:
-        $ref: "#/$defs/TransactionBoundary"
-      workflow:
-        $ref: "#/$defs/Workflow"
-
-  CommandRecord:
-    type: object
-    description: Nested command record definition
-    required: [record_name, intent, parameters]
-    properties:
-      record_name:
-        type: string
-        pattern: "^[A-Z][a-zA-Z]+Cmd$"
-        description: Command record name (e.g., CreateUserCmd, PlaceOrderCmd)
-      intent:
-        type: string
-        pattern: "^[a-z][a-zA-Z]+$"
-        description: Imperative verb describing intent (create, activate, place, enroll)
-      description:
-        type: string
-      parameters:
-        type: array
-        description: Command parameters (all required for command execution)
-        items:
-          $ref: "#/$defs/Parameter"
-      returns:
-        type: string
-        enum: [void, domain_id, acknowledgment, result_status]
-        description: What the command returns
-      return_type_ref:
-        $ref: "#/$defs/VoId"
-        description: Reference to value object for domain_id returns
-      modifies_aggregate:
-        $ref: "#/$defs/AggId"
-        description: Aggregate modified by this command (should be exactly one)
-      publishes_events:
-        type: array
-        description: Domain events published after successful execution
-        items:
-          $ref: "#/$defs/EvtId"
-      audit_fields:
-        type: array
-        description: Fields for audit trail (e.g., reason, initiatedBy, approvedBy)
-        items:
-          type: string
-
-  DTOField:
-    type: object
-    description: Field in a result DTO
-    required: [name, type]
-    properties:
-      name:
-        type: string
-      type:
-        type: string
-        description: Field type (String for IDs/enums, primitives for counts)
-      serialization:
-        type: string
-        description: How complex types are serialized
-      description:
-        type: string
-
-  ResultStructure:
-    type: object
-    description: Structure of a query result DTO
-    properties:
-      fields:
-        type: array
-        description: Fields in the result DTO
-        items:
-          $ref: "#/$defs/DTOField"
-      aggregate_counts:
-        type: array
-        description: Count fields for related entities (not full collections)
-        items:
-          type: object
-          properties:
-            field_name:
-              type: string
-            counted_entity:
-              type: string
-
-  QueryMethod:
-    type: object
-    description: Query method definition
-    required: [method_name, result_record_name]
-    properties:
-      method_name:
-        type: string
-        pattern: "^(get|list|find|search)[A-Z][a-zA-Z]+$"
-        description: Query method name (e.g., getUserSummary, listOrders, findByStatus)
-      description:
-        type: string
-      parameters:
-        type: array
-        description: Query parameters (typically domain identifiers or filter criteria)
-        items:
-          $ref: "#/$defs/Parameter"
-      result_record_name:
-        type: string
-        pattern: "^[A-Z][a-zA-Z]+Summary$"
-        description: Name of result DTO record (e.g., UserSummary, OrderSummary)
-      result_structure:
-        $ref: "#/$defs/ResultStructure"
-      bypasses_domain_model:
-        type: boolean
-        description: Whether query reads directly from read model (CQRS pattern)
-        default: false
-      optimizations:
-        type: object
-        description: Query optimization strategies
-        properties:
-          denormalized:
-            type: boolean
-            default: false
-          cached:
-            type: boolean
-            default: false
-          indexed:
-            type: boolean
-            default: true
-
-  # Core Types
-  BoundedContext:
-    type: object
-    description: Root object containing all tactical patterns for a single bounded context
-    required: [id, name, domain_ref]
-    properties:
-      id:
-        $ref: "#/$defs/BcId"
-        description: Unique bounded context identifier
-      name:
-        type: string
-        description: Bounded context name
-      domain_ref:
-        $ref: "#/$defs/DomId"
-        description: Reference to parent domain (from strategic schema)
-      description:
-        type: string
-      aggregates:
-        type: array
-        description: Aggregates defined in this context
-        items:
-          $ref: "#/$defs/Aggregate"
-      entities:
-        type: array
-        description: Entities defined in this context
-        items:
-          $ref: "#/$defs/Entity"
-      value_objects:
-        type: array
-        description: Value objects defined in this context
-        items:
-          $ref: "#/$defs/ValueObject"
-      repositories:
-        type: array
-        description: Repositories defined in this context
-        items:
-          $ref: "#/$defs/Repository"
-      domain_services:
-        type: array
-        description: Domain services defined in this context
-        items:
-          $ref: "#/$defs/DomainService"
-      application_services:
-        type: array
-        description: Application services defined in this context
-        items:
-          $ref: "#/$defs/ApplicationService"
-      command_interfaces:
-        type: array
-        description: Command interfaces defined in this context
-        items:
-          $ref: "#/$defs/CommandInterface"
-      query_interfaces:
-        type: array
-        description: Query interfaces defined in this context
-        items:
-          $ref: "#/$defs/QueryInterface"
-      domain_events:
-        type: array
-        description: Domain events defined in this context
-        items:
-          $ref: "#/$defs/DomainEvent"
-
-  Aggregate:
+  aggregate:
     type: object
     description: Cluster of entities and value objects with defined consistency boundary
-    required: [id, name, root_ref]
+    required: [id, name, bounded_context_ref, root_ref]
     properties:
       id:
-        $ref: "#/$defs/AggId"
+        type: string
+        pattern: "^agg_[a-z0-9_]+$"
         description: Unique aggregate identifier
       name:
         type: string
         description: Aggregate name from ubiquitous language
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Reference to BoundedContext from strategic schema (ID reference)
       root_ref:
-        $ref: "#/$defs/EntId"
+        type: string
+        pattern: "^ent_[a-z0-9_]+$"
         description: The aggregate root entity (ID reference)
       entities:
         type: array
-        description: Entities within this aggregate (ID references, including root)
+        description: Entities within this aggregate (including root)
         items:
-          $ref: "#/$defs/EntId"
+          type: string
+          pattern: "^ent_[a-z0-9_]+$"
       value_objects:
         type: array
-        description: Value objects within this aggregate (ID references)
+        description: Value objects within this aggregate
         items:
-          $ref: "#/$defs/VoId"
+          type: string
+          pattern: "^vo_[a-z0-9_]+$"
       consistency_rules:
         type: array
         description: Business rules that must be consistent
@@ -441,19 +73,25 @@ $defs:
         enum: [small, medium, large]
         description: Aggregate size (prefer small)
 
-  Entity:
+  entity:
     type: object
     description: Object with unique identity and lifecycle
-    required: [id, name, identity_field]
+    required: [id, name, bounded_context_ref, identity_field]
     properties:
       id:
-        $ref: "#/$defs/EntId"
+        type: string
+        pattern: "^ent_[a-z0-9_]+$"
         description: Unique entity definition identifier
       name:
         type: string
         description: Entity name from ubiquitous language
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Context this entity belongs to (ID reference to strategic schema)
       aggregate_ref:
-        $ref: "#/$defs/AggId"
+        type: string
+        pattern: "^agg_[a-z0-9_]+$"
         description: Aggregate this entity belongs to (ID reference)
       is_aggregate_root:
         type: boolean
@@ -469,29 +107,56 @@ $defs:
         type: array
         description: Entity attributes
         items:
-          $ref: "#/$defs/Attribute"
+          type: object
+          required: [name, type]
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+            value_object_ref:
+              type: string
+              pattern: "^vo_[a-z0-9_]+$"
+            required:
+              type: boolean
+            description:
+              type: string
       business_methods:
         type: array
         description: Key business operations
         items:
-          $ref: "#/$defs/Method"
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            parameters:
+              type: array
+            returns:
+              type: string
       invariants:
         type: array
         description: Rules that must always hold
         items:
           type: string
 
-  ValueObject:
+  value_object:
     type: object
     description: Immutable object defined by its attributes
-    required: [id, name]
+    required: [id, name, bounded_context_ref]
     properties:
       id:
-        $ref: "#/$defs/VoId"
+        type: string
+        pattern: "^vo_[a-z0-9_]+$"
         description: Unique value object definition identifier
       name:
         type: string
         description: Value object name from ubiquitous language
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Context this value object belongs to (ID reference)
       description:
         type: string
         description: What this value object represents
@@ -499,7 +164,17 @@ $defs:
         type: array
         description: Value object attributes
         items:
-          $ref: "#/$defs/Attribute"
+          type: object
+          required: [name, type]
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+            required:
+              type: boolean
+            validation:
+              type: string
       validation_rules:
         type: array
         description: Rules enforced in constructor
@@ -512,43 +187,66 @@ $defs:
           type: string
       immutability:
         type: boolean
-        const: true
+        default: true
         description: Value objects must be immutable
 
-  Repository:
+  repository:
     type: object
     description: Persistence abstraction for aggregates
     required: [id, name, aggregate_ref]
     properties:
       id:
-        $ref: "#/$defs/RepoId"
+        type: string
+        pattern: "^repo_[a-z0-9_]+$"
         description: Unique repository identifier
       name:
         type: string
         description: Repository name (e.g., CustomerRepository)
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Context this repository belongs to (ID reference)
       aggregate_ref:
-        $ref: "#/$defs/AggId"
+        type: string
+        pattern: "^agg_[a-z0-9_]+$"
         description: Aggregate this repository manages (ID reference)
       interface_methods:
         type: array
         description: Repository interface methods
         items:
-          $ref: "#/$defs/Method"
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            parameters:
+              type: array
+            returns:
+              type: string
+            query_type:
+              type: string
+              enum: [by_id, by_criteria, all, custom]
       persistence_strategy:
         type: string
         description: How persistence is implemented (JPA, MongoDB, etc.)
 
-  DomainService:
+  domain_service:
     type: object
     description: Stateless operation that doesn't belong to an entity
-    required: [id, name]
+    required: [id, name, bounded_context_ref]
     properties:
       id:
-        $ref: "#/$defs/SvcDomId"
+        type: string
+        pattern: "^svc_dom_[a-z0-9_]+$"
         description: Unique domain service identifier
       name:
         type: string
         description: Service name from ubiquitous language
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Context this service belongs to (ID reference)
       description:
         type: string
         description: What this service does and why it exists
@@ -556,25 +254,40 @@ $defs:
         type: array
         description: Service operations
         items:
-          $ref: "#/$defs/Method"
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            parameters:
+              type: array
+            returns:
+              type: string
       stateless:
         type: boolean
         default: true
         description: Domain services must be stateless
 
-  DomainEvent:
+  domain_event:
     type: object
     description: Something that happened in the domain
     required: [id, name, aggregate_ref]
     properties:
       id:
-        $ref: "#/$defs/EvtId"
+        type: string
+        pattern: "^evt_[a-z0-9_]+$"
         description: Unique event identifier
       name:
         type: string
         description: Event name in past tense (e.g., OrderPlaced)
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Context this event belongs to (ID reference)
       aggregate_ref:
-        $ref: "#/$defs/AggId"
+        type: string
+        pattern: "^agg_[a-z0-9_]+$"
         description: Aggregate that publishes this event (ID reference)
       description:
         type: string
@@ -583,13 +296,20 @@ $defs:
         type: array
         description: Data included in the event
         items:
-          $ref: "#/$defs/Attribute"
+          type: object
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+            description:
+              type: string
       immutable:
         type: boolean
-        const: true
+        default: true
         description: Events are immutable facts
 
-  ApplicationService:
+  application_service:
     type: object
     description: |
       A stateless service that orchestrates use case execution by coordinating domain objects,
@@ -599,11 +319,13 @@ $defs:
     required:
       - id
       - name
+      - bounded_context_ref
       - implements_commands
       - implements_queries
     properties:
       id:
-        $ref: "#/$defs/SvcAppId"
+        type: string
+        pattern: "^svc_app_[a-z0-9_]+$"
         description: Unique application service identifier (e.g., svc_app_user_management)
         examples:
           - "svc_app_user_management"
@@ -619,6 +341,11 @@ $defs:
           - "OrderApplicationService"
           - "ServicingProfileApplicationService"
 
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Reference to BoundedContext this service belongs to (ID reference to strategic schema)
+
       description:
         type: string
         description: What use cases this application service orchestrates
@@ -627,21 +354,128 @@ $defs:
         type: array
         description: Command interface(s) this service implements (ID references)
         items:
-          $ref: "#/$defs/CmdId"
+          type: string
+          pattern: "^cmd_[a-z0-9_]+$"
         minItems: 0
 
       implements_queries:
         type: array
         description: Query interface(s) this service implements (ID references)
         items:
-          $ref: "#/$defs/QryId"
+          type: string
+          pattern: "^qry_[a-z0-9_]+$"
         minItems: 0
 
       operations:
         type: array
         description: Use case operations provided by this service
         items:
-          $ref: "#/$defs/ApplicationServiceOperation"
+          type: object
+          required:
+            - name
+            - type
+          properties:
+            name:
+              type: string
+              pattern: "^[a-z][a-zA-Z]+$"
+              description: Operation method name (e.g., createUser, placeOrder)
+
+            type:
+              type: string
+              enum:
+                - command
+                - query
+              description: Whether this operation modifies state (command) or retrieves data (query)
+
+            description:
+              type: string
+              description: What this operation does
+
+            parameters:
+              type: array
+              description: Command or query parameters
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  type:
+                    type: string
+                  required:
+                    type: boolean
+
+            returns:
+              type: string
+              description: Return type (domain ID for creates, void for state changes, DTO for queries)
+
+            transaction_boundary:
+              type: object
+              description: Transaction scope for this operation
+              properties:
+                is_transactional:
+                  type: boolean
+                  description: True for commands, false for queries
+                  default: true
+
+                modifies_aggregates:
+                  type: array
+                  description: Aggregates modified by this operation (should be 0-1 for commands)
+                  items:
+                    type: string
+                    pattern: "^agg_[a-z0-9_]+$"
+                  maxItems: 1
+
+                consistency_type:
+                  type: string
+                  enum:
+                    - transactional
+                    - eventual
+                  description: Immediate (transactional) or deferred (eventual) consistency
+
+            workflow:
+              type: object
+              description: Orchestration workflow steps
+              properties:
+                validates_input:
+                  type: boolean
+                  description: Performs input/format validation
+                  default: true
+
+                loads_aggregates:
+                  type: array
+                  description: Aggregates loaded from repositories
+                  items:
+                    type: string
+                    pattern: "^agg_[a-z0-9_]+$"
+
+                invokes_domain_operations:
+                  type: array
+                  description: Domain operations invoked on aggregates
+                  items:
+                    type: string
+
+                invokes_domain_services:
+                  type: array
+                  description: Domain services invoked
+                  items:
+                    type: string
+                    pattern: "^svc_dom_[a-z0-9_]+$"
+
+                persists_aggregates:
+                  type: boolean
+                  description: Saves aggregates back to repository
+                  default: true
+
+                publishes_events:
+                  type: array
+                  description: Domain events published after successful execution
+                  items:
+                    type: string
+                    pattern: "^evt_[a-z0-9_]+$"
+
+                returns_dto:
+                  type: string
+                  description: DTO returned for queries
 
       dependencies:
         type: object
@@ -651,13 +485,15 @@ $defs:
             type: array
             description: Repositories used by this service (ID references)
             items:
-              $ref: "#/$defs/RepoId"
+              type: string
+              pattern: "^repo_[a-z0-9_]+$"
 
           domain_services:
             type: array
             description: Domain services used (ID references)
             items:
-              $ref: "#/$defs/SvcDomId"
+              type: string
+              pattern: "^svc_dom_[a-z0-9_]+$"
 
           event_publishers:
             type: array
@@ -717,7 +553,7 @@ $defs:
         type: string
         description: Implementation details specific to this service
 
-  CommandInterface:
+  command_interface:
     type: object
     description: |
       Command interface containing command definitions as nested records. Commands represent
@@ -726,10 +562,12 @@ $defs:
     required:
       - id
       - name
+      - bounded_context_ref
       - command_records
     properties:
       id:
-        $ref: "#/$defs/CmdId"
+        type: string
+        pattern: "^cmd_[a-z0-9_]+$"
         description: Unique command interface identifier (e.g., cmd_user_commands)
         examples:
           - "cmd_user_commands"
@@ -745,8 +583,14 @@ $defs:
           - "OrderCommands"
           - "ServicingProfileCommands"
 
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Reference to BoundedContext (ID reference)
+
       aggregate_ref:
-        $ref: "#/$defs/AggId"
+        type: string
+        pattern: "^agg_[a-z0-9_]+$"
         description: Primary aggregate this command interface operates on
 
       description:
@@ -757,7 +601,102 @@ $defs:
         type: array
         description: Nested command record definitions
         items:
-          $ref: "#/$defs/CommandRecord"
+          type: object
+          required:
+            - record_name
+            - intent
+            - parameters
+          properties:
+            record_name:
+              type: string
+              pattern: "^[A-Z][a-zA-Z]+Cmd$"
+              description: Command record name (e.g., CreateUserCmd, PlaceOrderCmd)
+              examples:
+                - "CreateUserCmd"
+                - "ActivateUserCmd"
+                - "PlaceOrderCmd"
+                - "EnrollServiceCmd"
+
+            intent:
+              type: string
+              pattern: "^[a-z][a-zA-Z]+$"
+              description: Imperative verb describing intent (create, activate, place, enroll)
+              examples:
+                - "createUser"
+                - "activateUser"
+                - "placeOrder"
+                - "enrollService"
+
+            description:
+              type: string
+              description: What this command does and why
+
+            parameters:
+              type: array
+              description: Command parameters (all required for command execution)
+              items:
+                type: object
+                required:
+                  - name
+                  - type
+                properties:
+                  name:
+                    type: string
+                    description: Parameter name
+
+                  type:
+                    type: string
+                    description: Parameter type (String, primitive, or value object)
+
+                  value_object_ref:
+                    type: string
+                    pattern: "^vo_[a-z0-9_]+$"
+                    description: Reference to SharedKernel value object if applicable
+
+                  required:
+                    type: boolean
+                    description: Whether parameter is required
+                    default: true
+
+                  description:
+                    type: string
+
+            returns:
+              type: string
+              enum:
+                - void
+                - domain_id
+                - acknowledgment
+                - result_status
+              description: |
+                What the command returns:
+                - void: State transitions (activate, deactivate)
+                - domain_id: Creation commands (return UserId, OrderId, etc.)
+                - acknowledgment: Async command accepted
+                - result_status: Success/failure indicator
+
+            return_type_ref:
+              type: string
+              pattern: "^vo_[a-z0-9_]+$"
+              description: Reference to value object for domain_id returns
+
+            modifies_aggregate:
+              type: string
+              pattern: "^agg_[a-z0-9_]+$"
+              description: Aggregate modified by this command (should be exactly one)
+
+            publishes_events:
+              type: array
+              description: Domain events published after successful execution
+              items:
+                type: string
+                pattern: "^evt_[a-z0-9_]+$"
+
+            audit_fields:
+              type: array
+              description: Fields for audit trail (e.g., reason, initiatedBy, approvedBy)
+              items:
+                type: string
 
       immutability:
         type: boolean
@@ -769,7 +708,7 @@ $defs:
         description: Architectural layer where commands are defined
         const: "api"
 
-  QueryInterface:
+  query_interface:
     type: object
     description: |
       Query interface containing query definitions and result DTOs as nested records. Queries
@@ -778,10 +717,12 @@ $defs:
     required:
       - id
       - name
+      - bounded_context_ref
       - query_methods
     properties:
       id:
-        $ref: "#/$defs/QryId"
+        type: string
+        pattern: "^qry_[a-z0-9_]+$"
         description: Unique query interface identifier (e.g., qry_user_queries)
         examples:
           - "qry_user_queries"
@@ -797,8 +738,14 @@ $defs:
           - "OrderQueries"
           - "ServicingProfileQueries"
 
+      bounded_context_ref:
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
+        description: Reference to BoundedContext (ID reference)
+
       aggregate_ref:
-        $ref: "#/$defs/AggId"
+        type: string
+        pattern: "^agg_[a-z0-9_]+$"
         description: Primary aggregate this query interface reads from
 
       description:
@@ -809,7 +756,125 @@ $defs:
         type: array
         description: Query method definitions
         items:
-          $ref: "#/$defs/QueryMethod"
+          type: object
+          required:
+            - method_name
+            - result_record_name
+          properties:
+            method_name:
+              type: string
+              pattern: "^(get|list|find|search)[A-Z][a-zA-Z]+$"
+              description: Query method name (e.g., getUserSummary, listOrders, findByStatus)
+              examples:
+                - "getUserSummary"
+                - "getOrderDetails"
+                - "listOrders"
+                - "findProductsByCategory"
+
+            description:
+              type: string
+              description: What data this query retrieves
+
+            parameters:
+              type: array
+              description: Query parameters (typically domain identifiers or filter criteria)
+              items:
+                type: object
+                required:
+                  - name
+                  - type
+                properties:
+                  name:
+                    type: string
+
+                  type:
+                    type: string
+
+                  value_object_ref:
+                    type: string
+                    pattern: "^vo_[a-z0-9_]+$"
+
+                  required:
+                    type: boolean
+                    default: true
+
+                  description:
+                    type: string
+
+            result_record_name:
+              type: string
+              pattern: "^[A-Z][a-zA-Z]+Summary$"
+              description: Name of result DTO record (e.g., UserSummary, OrderSummary)
+              examples:
+                - "UserSummary"
+                - "OrderDetailDTO"
+                - "ServicingProfileSummary"
+
+            result_structure:
+              type: object
+              description: Structure of the result DTO
+              properties:
+                fields:
+                  type: array
+                  description: Fields in the result DTO
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - type
+                    properties:
+                      name:
+                        type: string
+
+                      type:
+                        type: string
+                        description: Field type (String for IDs/enums, primitives for counts)
+
+                      serialization:
+                        type: string
+                        description: How complex types are serialized
+                        examples:
+                          - "UserId serialized to String"
+                          - "Status enum serialized to String"
+                          - "URN format for compound IDs"
+
+                      description:
+                        type: string
+
+                aggregate_counts:
+                  type: array
+                  description: Count fields for related entities (not full collections)
+                  items:
+                    type: object
+                    properties:
+                      field_name:
+                        type: string
+                      counted_entity:
+                        type: string
+
+            bypasses_domain_model:
+              type: boolean
+              description: Whether query reads directly from read model (CQRS pattern)
+              default: false
+
+            optimizations:
+              type: object
+              description: Query optimization strategies
+              properties:
+                denormalized:
+                  type: boolean
+                  description: Uses denormalized read model
+                  default: false
+
+                cached:
+                  type: boolean
+                  description: Results are cached
+                  default: false
+
+                indexed:
+                  type: boolean
+                  description: Database uses indexes for this query
+                  default: true
 
       result_characteristics:
         type: object

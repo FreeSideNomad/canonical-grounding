@@ -6,9 +6,9 @@ description: Strategic patterns for Domain-Driven Design - domains, bounded cont
 metadata:
   author: "Marina Music"
   created: "2025-10-04"
-  updated: "2025-10-24"
+  updated: "2025-10-18"
   license: "MIT"
-  version: "2.0.0"
+  version: "1.1.0"
   partition: "strategic"
   references:
     - "Eric Evans - Domain-Driven Design (2003)"
@@ -22,53 +22,14 @@ naming_conventions:
   bff_scope_id: "bff_<client_type>"
   bff_interface_id: "bff_if_<context>_<client_type>"
 
-type: object
-required: [system]
-additionalProperties: false
-properties:
-  system:
-    $ref: "#/$defs/System"
-
 $defs:
-  # ID Types
-  SysId:
-    type: string
-    pattern: "^sys_[a-z0-9_]+$"
-    description: "System identifier"
-
-  DomId:
-    type: string
-    pattern: "^dom_[a-z0-9_]+$"
-    description: "Domain identifier"
-
-  BcId:
-    type: string
-    pattern: "^bc_[a-z0-9_]+$"
-    description: "Bounded Context identifier"
-
-  CmId:
-    type: string
-    pattern: "^cm_[a-z0-9_]+_to_[a-z0-9_]+$"
-    description: "Context Mapping identifier"
-
-  BffId:
-    type: string
-    pattern: "^bff_[a-z0-9_]+$"
-    description: "BFF Scope identifier"
-
-  BffIfId:
-    type: string
-    pattern: "^bff_if_[a-z0-9_]+$"
-    description: "BFF Interface identifier"
-
-  # Core Types
-  System:
+  system:
     type: object
     description: The entire software system being modeled
-    required: [id, name]
+    required: [id, name, domains]
     properties:
       id:
-        $ref: "#/$defs/SysId"
+        type: string
         description: Unique system identifier
       name:
         type: string
@@ -81,37 +42,31 @@ $defs:
         description: System version
       domains:
         type: array
-        description: All domains in the system (full objects)
+        description: All domains in the system
         items:
-          $ref: "#/$defs/Domain"
+          type: string
+          pattern: "^dom_[a-z0-9_]+$"
       bounded_contexts:
         type: array
-        description: All bounded contexts in system (full objects)
+        description: All bounded contexts in system
         items:
-          $ref: "#/$defs/BoundedContext"
+          type: string
+          pattern: "^bc_[a-z0-9_]+$"
       context_mappings:
         type: array
-        description: Relationships between bounded contexts (full objects)
+        description: Relationships between bounded contexts
         items:
-          $ref: "#/$defs/ContextMapping"
-      bff_scopes:
-        type: array
-        description: BFF scopes defined in system (full objects)
-        items:
-          $ref: "#/$defs/BFFScope"
-      bff_interfaces:
-        type: array
-        description: BFF interfaces defined in system (full objects)
-        items:
-          $ref: "#/$defs/BFFInterface"
+          type: string
+          pattern: "^cm_[a-z0-9_]+_to_[a-z0-9_]+$"
 
-  Domain:
+  domain:
     type: object
     description: A sphere of knowledge and activity around which the system is organized
     required: [id, name, type]
     properties:
       id:
-        $ref: "#/$defs/DomId"
+        type: string
+        pattern: "^dom_[a-z0-9_]+$"
         description: Unique domain identifier
       name:
         type: string
@@ -129,9 +84,10 @@ $defs:
         description: Business importance level
       bounded_contexts:
         type: array
-        description: Bounded contexts within this domain (ID references)
+        description: Bounded contexts within this domain (IDs)
         items:
-          $ref: "#/$defs/BcId"
+          type: string
+          pattern: "^bc_[a-z0-9_]+$"
       investment_strategy:
         type: string
         description: How much to invest (best team, adequate, minimal, outsource)
@@ -139,19 +95,21 @@ $defs:
         type: string
         description: Additional context about this domain
 
-  BoundedContext:
+  bounded_context:
     type: object
     description: Explicit boundary within which a domain model is defined and applicable
     required: [id, name, domain_ref]
     properties:
       id:
-        $ref: "#/$defs/BcId"
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
         description: Unique bounded context identifier
       name:
         type: string
         description: Context name from ubiquitous language
       domain_ref:
-        $ref: "#/$defs/DomId"
+        type: string
+        pattern: "^dom_[a-z0-9_]+$"
         description: Parent domain (ID reference)
       description:
         type: string
@@ -208,22 +166,22 @@ $defs:
           type: string
           pattern: "^evt_[a-z0-9_]+$"
 
-  ContextMapping:
+  context_mapping:
     type: object
     description: Relationship between two bounded contexts
-    required: [id, name, upstream_context, downstream_context, relationship_type]
+    required: [id, upstream_context, downstream_context, relationship_type]
     properties:
       id:
-        $ref: "#/$defs/CmId"
-        description: Unique mapping identifier
-      name:
         type: string
-        description: Descriptive name for this context mapping relationship
+        pattern: "^cm_[a-z0-9_]+_to_[a-z0-9_]+$"
+        description: Unique mapping identifier
       upstream_context:
-        $ref: "#/$defs/BcId"
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
         description: Context that influences (ID reference)
       downstream_context:
-        $ref: "#/$defs/BcId"
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
         description: Context that is influenced (ID reference)
       relationship_type:
         type: string
@@ -269,82 +227,7 @@ $defs:
         type: string
         description: Additional context about this mapping
 
-  # BFF Supporting Types
-  BFFEndpoint:
-    type: object
-    description: API endpoint provided by a BFF scope
-    required: [path, method]
-    properties:
-      path:
-        type: string
-        description: Endpoint path
-      method:
-        type: string
-        enum: [GET, POST, PUT, PATCH, DELETE]
-        description: HTTP method
-      aggregates_from:
-        type: array
-        description: Bounded contexts called to assemble response
-        items:
-          $ref: "#/$defs/BcId"
-      description:
-        type: string
-
-  DataAggregation:
-    type: object
-    description: How the BFF aggregates data from multiple contexts
-    properties:
-      strategy:
-        type: string
-        enum: [parallel, sequential, conditional]
-        description: How downstream calls are orchestrated
-      example:
-        type: string
-        description: Example aggregation scenario
-
-  DataTransformation:
-    type: object
-    description: Data transformation applied for client
-    required: [from_context, transformation_type]
-    properties:
-      from_context:
-        $ref: "#/$defs/BcId"
-        description: Source bounded context
-      transformation_type:
-        type: string
-        enum: [format_conversion, data_enrichment, field_mapping, filtering, denormalization]
-        description: Type of transformation
-      description:
-        type: string
-
-  BFFProvides:
-    type: object
-    description: What the BFF provides to its client
-    properties:
-      endpoints:
-        type: array
-        description: API endpoints provided by this BFF
-        items:
-          $ref: "#/$defs/BFFEndpoint"
-      data_aggregation:
-        $ref: "#/$defs/DataAggregation"
-      transformations:
-        type: array
-        description: Data transformations applied for client
-        items:
-          $ref: "#/$defs/DataTransformation"
-      client_optimizations:
-        type: array
-        description: Client-specific optimizations
-        items:
-          type: string
-        examples:
-          - "Bandwidth optimization for mobile"
-          - "Image size reduction for mobile networks"
-          - "Pagination for large datasets"
-          - "Field selection for minimal payloads"
-
-  BFFScope:
+  bff_scope:
     type: object
     description: |
       Backend-for-Frontend (BFF) scope definition. A BFF serves exactly ONE client type
@@ -361,7 +244,8 @@ $defs:
       - owned_by_team
     properties:
       id:
-        $ref: "#/$defs/BffId"
+        type: string
+        pattern: "^bff_[a-z0-9_]+$"
         description: Unique BFF scope identifier (e.g., bff_web, bff_ios, bff_android)
         examples:
           - "bff_web"
@@ -401,7 +285,8 @@ $defs:
         type: array
         description: Multiple bounded contexts this BFF aggregates data from (ID references)
         items:
-          $ref: "#/$defs/BcId"
+          type: string
+          pattern: "^bc_[a-z0-9_]+$"
         minItems: 1
 
       owned_by_team:
@@ -417,8 +302,86 @@ $defs:
         description: Type of team owning this BFF (must be frontend-oriented)
 
       provides:
-        $ref: "#/$defs/BFFProvides"
+        type: object
         description: What the BFF provides to its client
+        properties:
+          endpoints:
+            type: array
+            description: API endpoints provided by this BFF
+            items:
+              type: object
+              properties:
+                path:
+                  type: string
+                  description: Endpoint path
+
+                method:
+                  type: string
+                  enum:
+                    - GET
+                    - POST
+                    - PUT
+                    - PATCH
+                    - DELETE
+
+                aggregates_from:
+                  type: array
+                  description: Bounded contexts called to assemble response
+                  items:
+                    type: string
+                    pattern: "^bc_[a-z0-9_]+$"
+
+                description:
+                  type: string
+
+          data_aggregation:
+            type: object
+            description: How the BFF aggregates data from multiple contexts
+            properties:
+              strategy:
+                type: string
+                enum:
+                  - parallel
+                  - sequential
+                  - conditional
+                description: How downstream calls are orchestrated
+
+              example:
+                type: string
+                description: Example aggregation scenario
+
+          transformations:
+            type: array
+            description: Data transformations applied for client
+            items:
+              type: object
+              properties:
+                from_context:
+                  type: string
+                  pattern: "^bc_[a-z0-9_]+$"
+
+                transformation_type:
+                  type: string
+                  enum:
+                    - format_conversion
+                    - data_enrichment
+                    - field_mapping
+                    - filtering
+                    - denormalization
+
+                description:
+                  type: string
+
+          client_optimizations:
+            type: array
+            description: Client-specific optimizations
+            items:
+              type: string
+            examples:
+              - "Bandwidth optimization for mobile"
+              - "Image size reduction for mobile networks"
+              - "Pagination for large datasets"
+              - "Field selection for minimal payloads"
 
       responsibilities:
         type: object
@@ -515,124 +478,7 @@ $defs:
             description: Do NOT serve multiple client types from one BFF
             const: false
 
-  # BFF Interface Supporting Types
-  DTOField:
-    type: object
-    description: Field in a DTO structure
-    required: [name, type]
-    properties:
-      name:
-        type: string
-        description: Field name
-      type:
-        type: string
-        description: Field type
-      required:
-        type: boolean
-        description: Whether field is required
-
-  RequestDTO:
-    type: object
-    description: Request DTO structure (separate from API command records)
-    properties:
-      name:
-        type: string
-      fields:
-        type: array
-        items:
-          $ref: "#/$defs/DTOField"
-
-  ResponseDTO:
-    type: object
-    description: Response DTO structure
-    properties:
-      name:
-        type: string
-      fields:
-        type: array
-        items:
-          $ref: "#/$defs/DTOField"
-
-  BFFInterfaceEndpoint:
-    type: object
-    description: Endpoint provided by a BFF interface
-    required: [path, method, operation_type]
-    properties:
-      path:
-        type: string
-        description: Endpoint path relative to base_path
-      method:
-        type: string
-        enum: [GET, POST, PUT, PATCH, DELETE]
-        description: HTTP method
-      operation_type:
-        type: string
-        enum: [command, query, action]
-        description: Type of operation (aligns with CQRS)
-      description:
-        type: string
-      delegates_to_commands:
-        type: array
-        description: Commands this endpoint delegates to (ID references)
-        items:
-          type: string
-          pattern: "^cmd_[a-z0-9_]+$"
-      delegates_to_queries:
-        type: array
-        description: Queries this endpoint delegates to (ID references)
-        items:
-          type: string
-          pattern: "^qry_[a-z0-9_]+$"
-      request_dto:
-        $ref: "#/$defs/RequestDTO"
-      response_dto:
-        $ref: "#/$defs/ResponseDTO"
-      aggregates_data_from:
-        type: array
-        description: Bounded contexts called to assemble this response
-        items:
-          $ref: "#/$defs/BcId"
-
-  ValueObjectConversion:
-    type: object
-    description: How the BFF interface converts between strings and value objects
-    properties:
-      from_string:
-        type: array
-        description: Value objects constructed from string URNs
-        items:
-          type: object
-          properties:
-            value_object_ref:
-              type: string
-              pattern: "^vo_[a-z0-9_]+$"
-            from_field:
-              type: string
-            method:
-              type: string
-              examples:
-                - "UserId.of(string)"
-                - "ClientId.of(urn)"
-                - "ServicingProfileId.fromUrn(urn)"
-      to_string:
-        type: array
-        description: Value objects serialized to strings
-        items:
-          type: object
-          properties:
-            value_object_ref:
-              type: string
-              pattern: "^vo_[a-z0-9_]+$"
-            to_field:
-              type: string
-            method:
-              type: string
-              examples:
-                - "userId.id()"
-                - "clientId.urn()"
-                - "profileId.urn()"
-
-  BFFInterface:
+  bff_interface:
     type: object
     description: |
       Concrete BFF interface implementation for a specific bounded context accessed by a BFF.
@@ -647,7 +493,8 @@ $defs:
       - base_path
     properties:
       id:
-        $ref: "#/$defs/BffIfId"
+        type: string
+        pattern: "^bff_if_[a-z0-9_]+$"
         description: Unique BFF interface identifier
         examples:
           - "bff_if_user_web"
@@ -662,18 +509,21 @@ $defs:
           - "Order Processing iOS BFF Interface"
 
       bff_scope_ref:
-        $ref: "#/$defs/BffId"
+        type: string
+        pattern: "^bff_[a-z0-9_]+$"
         description: Reference to the BFF scope this interface belongs to
 
       primary_bounded_context_ref:
-        $ref: "#/$defs/BcId"
+        type: string
+        pattern: "^bc_[a-z0-9_]+$"
         description: Primary bounded context this interface aggregates from
 
       additional_context_refs:
         type: array
         description: Additional bounded contexts called for data aggregation
         items:
-          $ref: "#/$defs/BcId"
+          type: string
+          pattern: "^bc_[a-z0-9_]+$"
 
       base_path:
         type: string
@@ -688,11 +538,130 @@ $defs:
         type: array
         description: Endpoints provided by this BFF interface
         items:
-          $ref: "#/$defs/BFFInterfaceEndpoint"
+          type: object
+          required:
+            - path
+            - method
+            - operation_type
+          properties:
+            path:
+              type: string
+              description: Endpoint path relative to base_path
+
+            method:
+              type: string
+              enum:
+                - GET
+                - POST
+                - PUT
+                - PATCH
+                - DELETE
+
+            operation_type:
+              type: string
+              enum:
+                - command
+                - query
+                - action
+              description: Type of operation (aligns with CQRS)
+
+            description:
+              type: string
+
+            delegates_to_commands:
+              type: array
+              description: Commands this endpoint delegates to (ID references)
+              items:
+                type: string
+                pattern: "^cmd_[a-z0-9_]+$"
+
+            delegates_to_queries:
+              type: array
+              description: Queries this endpoint delegates to (ID references)
+              items:
+                type: string
+                pattern: "^qry_[a-z0-9_]+$"
+
+            request_dto:
+              type: object
+              description: Request DTO structure (separate from API command records)
+              properties:
+                name:
+                  type: string
+                fields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      type:
+                        type: string
+                      required:
+                        type: boolean
+
+            response_dto:
+              type: object
+              description: Response DTO structure
+              properties:
+                name:
+                  type: string
+                fields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      type:
+                        type: string
+
+            aggregates_data_from:
+              type: array
+              description: Bounded contexts called to assemble this response
+              items:
+                type: string
+                pattern: "^bc_[a-z0-9_]+$"
 
       value_object_conversion:
-        $ref: "#/$defs/ValueObjectConversion"
+        type: object
         description: How the BFF interface converts between strings and value objects
+        properties:
+          from_string:
+            type: array
+            description: Value objects constructed from string URNs
+            items:
+              type: object
+              properties:
+                value_object_ref:
+                  type: string
+                  pattern: "^vo_[a-z0-9_]+$"
+                from_field:
+                  type: string
+                method:
+                  type: string
+                  examples:
+                    - "UserId.of(string)"
+                    - "ClientId.of(urn)"
+                    - "ServicingProfileId.fromUrn(urn)"
+
+          to_string:
+            type: array
+            description: Value objects serialized to strings
+            items:
+              type: object
+              properties:
+                value_object_ref:
+                  type: string
+                  pattern: "^vo_[a-z0-9_]+$"
+                to_field:
+                  type: string
+                method:
+                  type: string
+                  examples:
+                    - "userId.id()"
+                    - "clientId.urn()"
+                    - "profileId.urn()"
 
       execution_model:
         type: string
