@@ -1,0 +1,21 @@
+# Markdown Converter Dependencies
+#
+# Install with: pip install -r requirements.txt
+#
+
+# Core dependencies
+markdown>=3.5.1         # Markdown to HTML conversion
+weasyprint>=60.0        # HTML to PDF conversion
+pygments>=2.17.0        # Syntax highlighting for code blocks
+
+# Optional but recommended
+pillow>=10.1.0          # Image processing
+cairocffi>=1.6.0        # Cairo graphics (for WeasyPrint)
+cffi>=1.16.0            # C Foreign Function Interface
+
+# Markdown extensions (included in markdown, but good to know)
+# - markdown.extensions.extra (tables, fenced code, etc.)
+# - markdown.extensions.codehilite (syntax highlighting)
+# - markdown.extensions.toc (table of contents)
+# - markdown.extensions.nl2br (newlines to <br>)
+# - markdown.extensions.sane_lists (better list handling)
