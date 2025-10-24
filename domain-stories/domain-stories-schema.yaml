@@ -67,20 +67,20 @@ $defs:
     pattern: "^agg_[a-z0-9_]+$"
     description: "Aggregate ID"
 
-  RepId:
+  RepoId:
     type: string
-    pattern: "^rep_[a-z0-9_]+$"
-    description: "Repository ID"
+    pattern: "^repo_[a-z0-9_]+$"
+    description: "Repository identifier"
 
-  AppSvcId:
+  SvcAppId:
     type: string
     pattern: "^svc_app_[a-z0-9_]+$"
-    description: "Application Service ID"
+    description: "Application Service identifier"
 
-  DomSvcId:
+  SvcDomId:
     type: string
-    pattern: "^dom_svc_[a-z0-9_]+$"
-    description: "Domain Service ID"
+    pattern: "^svc_dom_[a-z0-9_]+$"
+    description: "Domain Service identifier"
 
   WobjId:
     type: string
@@ -227,7 +227,7 @@ $defs:
     additionalProperties: false
     required: [repository_id, aggregate_id, name]
     properties:
-      repository_id: { $ref: "#/$defs/RepId" }
+      repository_id: { $ref: "#/$defs/RepoId" }
       name: { type: string }
       aggregate_id: { $ref: "#/$defs/AggId" }
       operations:
@@ -240,7 +240,7 @@ $defs:
     additionalProperties: false
     required: [app_service_id, name]
     properties:
-      app_service_id: { $ref: "#/$defs/AppSvcId" }
+      app_service_id: { $ref: "#/$defs/SvcAppId" }
       name: { type: string }
       description: { type: string }
       commands_handled:
@@ -261,7 +261,7 @@ $defs:
     additionalProperties: false
     required: [domain_service_id, name]
     properties:
-      domain_service_id: { $ref: "#/$defs/DomSvcId" }
+      domain_service_id: { $ref: "#/$defs/SvcDomId" }
       name: { type: string }
       description: { type: string }
       operates_on:
@@ -300,11 +300,11 @@ $defs:
         default: []
       invokes_app_services:
         type: array
-        items: { $ref: "#/$defs/AppSvcId" }
+        items: { $ref: "#/$defs/SvcAppId" }
         default: []
       invokes_domain_services:
         type: array
-        items: { $ref: "#/$defs/DomSvcId" }
+        items: { $ref: "#/$defs/SvcDomId" }
         default: []
       emits_events:
         type: array
@@ -363,11 +363,11 @@ $defs:
         default: []
       calls_app_service_ids:
         type: array
-        items: { $ref: "#/$defs/AppSvcId" }
+        items: { $ref: "#/$defs/SvcAppId" }
         default: []
       calls_domain_service_ids:
         type: array
-        items: { $ref: "#/$defs/DomSvcId" }
+        items: { $ref: "#/$defs/SvcDomId" }
         default: []
 
   Event:

@@ -1,0 +1,3371 @@
+version: 0.1.0
+domain_stories:
+- domain_story_id: dst_create_user_initial
+  title: Admin creates user (approval required)
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_create_user
+    name: create_user
+    actor_ids:
+    - act_admin
+    target_aggregate_id: agg_user_account
+    parameters:
+    - name: email
+      type: string
+      required: true
+    - name: temp_password
+      type: string
+    invokes_app_services:
+    - svc_app_identity
+    emits_events:
+    - evt_user_created
+  - command_id: cmd_request_admin_approval
+    name: request_admin_approval
+    actor_ids:
+    - act_system_okta
+    target_aggregate_id: agg_user_account
+    parameters:
+    - name: user_id
+      type: uuid
+      required: true
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities:
+  - activity_id: actv_persist_user
+    name: persist_user
+    initiated_by_command_id: cmd_create_user
+    uses_work_object_ids:
+    - wobj_user_profile
+    results_in_event_ids:
+    - evt_user_created
+    calls_app_service_ids:
+    - svc_app_identity
+  events:
+  - event_id: evt_user_created
+    name: user_created
+    affected_aggregate_id: agg_user_account
+    payload:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    caused_by:
+      activity_id: actv_persist_user
+    policies_triggered:
+    - pol_request_admin_approval
+  policies:
+  - policy_id: pol_request_admin_approval
+    name: request_admin_approval
+    when_event_id: evt_user_created
+    issues_command_id: cmd_request_admin_approval
+  business_rules: []
+- domain_story_id: dst_user_approval
+  title: Second admin approves user
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_approve_user
+    name: approve_user
+    actor_ids:
+    - act_admin_approver
+    target_aggregate_id: agg_user_account
+    parameters:
+    - name: user_id
+      type: uuid
+      required: true
+    emits_events:
+    - evt_user_approved
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities:
+  - activity_id: actv_mark_user_active
+    name: mark_user_active
+    initiated_by_command_id: cmd_approve_user
+    uses_work_object_ids:
+    - wobj_user_profile
+    results_in_event_ids:
+    - evt_user_approved
+    calls_app_service_ids:
+    - svc_app_identity
+  events:
+  - event_id: evt_user_approved
+    name: user_approved
+    affected_aggregate_id: agg_user_account
+    payload:
+    - name: user_id
+      type: uuid
+    caused_by:
+      activity_id: actv_mark_user_active
+  policies: []
+  business_rules: []
+- domain_story_id: dst_send_activation
+  title: Admin sends activation invite
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_send_activation
+    name: send_activation
+    actor_ids:
+    - act_admin
+    target_aggregate_id: agg_user_account
+    parameters:
+    - name: user_id
+      type: uuid
+      required: true
+    emits_events:
+    - evt_activation_sent
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities:
+  - activity_id: actv_send_okta_invite
+    name: send_okta_invite
+    initiated_by_command_id: cmd_send_activation
+    results_in_event_ids:
+    - evt_activation_sent
+    calls_app_service_ids:
+    - svc_app_identity
+  events:
+  - event_id: evt_activation_sent
+    name: activation_sent
+    affected_aggregate_id: agg_user_account
+    payload:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    caused_by:
+      activity_id: actv_send_okta_invite
+  policies: []
+  business_rules: []
+- domain_story_id: dst_first_time_registration
+  title: User completes first-time Okta registration
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_complete_registration
+    name: complete_registration
+    actor_ids:
+    - act_user
+    target_aggregate_id: agg_user_account
+    parameters:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: mfa_factor
+      type: string
+    emits_events:
+    - evt_user_registered
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities:
+  - activity_id: actv_register_in_okta
+    name: register_in_okta
+    initiated_by_command_id: cmd_complete_registration
+    uses_work_object_ids:
+    - wobj_user_profile
+    results_in_event_ids:
+    - evt_user_registered
+    calls_app_service_ids:
+    - svc_app_identity
+  events:
+  - event_id: evt_user_registered
+    name: user_registered
+    affected_aggregate_id: agg_user_account
+    payload:
+    - name: user_id
+      type: uuid
+    - name: mfa_enrolled
+      type: boolean
+    caused_by:
+      activity_id: actv_register_in_okta
+  policies: []
+  business_rules: []
+- domain_story_id: dst_assign_permissions
+  title: Admin assigns permission set with approval
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_assign_permissions
+    name: assign_permissions
+    actor_ids:
+    - act_admin
+    target_aggregate_id: agg_user_account
+    parameters:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: permission_set
+      type: string
+      required: true
+    emits_events:
+    - evt_permissions_assigned
+  - command_id: cmd_approve_permissions
+    name: approve_permissions
+    actor_ids:
+    - act_admin_approver
+    target_aggregate_id: agg_user_account
+    parameters:
+    - name: user_id
+      type: uuid
+      required: true
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities:
+  - activity_id: actv_attach_permissions
+    name: attach_permissions
+    initiated_by_command_id: cmd_assign_permissions
+    uses_work_object_ids:
+    - wobj_permission_set
+    results_in_event_ids:
+    - evt_permissions_assigned
+  events:
+  - event_id: evt_permissions_assigned
+    name: permissions_assigned
+    affected_aggregate_id: agg_user_account
+    payload:
+    - name: user_id
+      type: uuid
+    - name: permission_set
+      type: string
+    caused_by:
+      activity_id: actv_attach_permissions
+    policies_triggered:
+    - pol_permissions_change_requires_approval
+  policies:
+  - policy_id: pol_permissions_change_requires_approval
+    name: permissions_change_requires_approval
+    when_event_id: evt_permissions_assigned
+    issues_command_id: cmd_approve_permissions
+  business_rules: []
+- domain_story_id: dst_define_rule
+  title: Admin defines approval rule template
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_define_rule
+    name: define_approval_rule
+    actor_ids:
+    - act_admin
+    target_aggregate_id: agg_approval_policy
+    parameters:
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    emits_events:
+    - evt_rule_defined
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities:
+  - activity_id: actv_store_rule
+    name: store_rule
+    initiated_by_command_id: cmd_define_rule
+    uses_work_object_ids:
+    - wobj_approval_rule
+    results_in_event_ids:
+    - evt_rule_defined
+    calls_app_service_ids:
+    - svc_app_policy
+  events:
+  - event_id: evt_rule_defined
+    name: approval_rule_defined
+    affected_aggregate_id: agg_approval_policy
+    payload:
+    - name: rule_id
+      type: uuid
+    - name: scope
+      type: string
+    caused_by:
+      activity_id: actv_store_rule
+  policies: []
+  business_rules: []
+- domain_story_id: dst_assign_rule
+  title: Admin assigns rule to payment type with approval
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_assign_rule
+    name: assign_rule_to_payment_type
+    actor_ids:
+    - act_admin
+    target_aggregate_id: agg_approval_policy
+    parameters:
+    - name: payment_type
+      type: string
+    - name: rule_id
+      type: uuid
+    emits_events:
+    - evt_rule_assigned
+  - command_id: cmd_approve_rule_assignment
+    name: approve_rule_assignment
+    actor_ids:
+    - act_admin_approver
+    target_aggregate_id: agg_approval_policy
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities:
+  - activity_id: actv_link_rule
+    name: link_rule
+    initiated_by_command_id: cmd_assign_rule
+    uses_work_object_ids:
+    - wobj_approval_rule
+    results_in_event_ids:
+    - evt_rule_assigned
+  events:
+  - event_id: evt_rule_assigned
+    name: approval_rule_assigned
+    affected_aggregate_id: agg_approval_policy
+    payload:
+    - name: payment_type
+      type: string
+    - name: rule_id
+      type: uuid
+    caused_by:
+      activity_id: actv_link_rule
+    policies_triggered:
+    - pol_rule_assignment_requires_approval
+  policies:
+  - policy_id: pol_rule_assignment_requires_approval
+    name: rule_assignment_requires_approval
+    when_event_id: evt_rule_assigned
+    issues_command_id: cmd_approve_rule_assignment
+  business_rules: []
+- domain_story_id: dst_dual_control_policy
+  title: Dual-control policy for admin actions
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_any_admin_action
+    name: any_admin_action
+    actor_ids:
+    - act_admin
+    parameters:
+    - name: action
+      type: string
+  - command_id: cmd_second_admin_approve
+    name: second_admin_approve
+    actor_ids:
+    - act_admin_approver
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_admin_action_logged
+    name: admin_action_logged
+    affected_aggregate_id: agg_audit_log
+    payload:
+    - name: actor
+      type: string
+    - name: action
+      type: string
+    caused_by:
+      command_id: cmd_any_admin_action
+    policies_triggered:
+    - pol_second_admin_approval
+  policies:
+  - policy_id: pol_second_admin_approval
+    name: second_admin_approval_required
+    when_event_id: evt_admin_action_logged
+    issues_command_id: cmd_second_admin_approve
+  business_rules: []
+- domain_story_id: dst_workflow_approve
+  title: Approval workflow step (approve)
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_approve_change
+    name: approve_change
+    actor_ids:
+    - act_admin_approver
+    parameters:
+    - name: change_id
+      type: uuid
+    emits_events:
+    - evt_change_approved
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_change_approved
+    name: change_approved
+    payload:
+    - name: change_id
+      type: uuid
+    caused_by:
+      command_id: cmd_approve_change
+  policies: []
+  business_rules: []
+- domain_story_id: dst_workflow_reject
+  title: Approval workflow step (reject)
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_reject_change
+    name: reject_change
+    actor_ids:
+    - act_admin_approver
+    parameters:
+    - name: change_id
+      type: uuid
+    - name: reason
+      type: string
+    emits_events:
+    - evt_change_rejected
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_change_rejected
+    name: change_rejected
+    payload:
+    - name: change_id
+      type: uuid
+    - name: reason
+      type: string
+    caused_by:
+      command_id: cmd_reject_change
+  policies: []
+  business_rules: []
+- domain_story_id: dst_add_group
+  title: Admin adds user to group (dual control)
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_add_group
+    name: add_user_to_group
+    actor_ids:
+    - act_admin
+    parameters:
+    - name: user_id
+      type: uuid
+    - name: group
+      type: string
+    emits_events:
+    - evt_group_added
+  - command_id: cmd_second_admin_approve
+    name: second_admin_approve
+    actor_ids:
+    - act_admin_approver
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_group_added
+    name: group_added
+    payload:
+    - name: user_id
+      type: uuid
+    - name: group
+      type: string
+    caused_by:
+      command_id: cmd_add_group
+    policies_triggered:
+    - pol_second_admin_approval
+  policies:
+  - policy_id: pol_second_admin_approval
+    name: second_admin_approval_required
+    when_event_id: evt_group_added
+    issues_command_id: cmd_second_admin_approve
+  business_rules: []
+- domain_story_id: dst_remove_group
+  title: Admin removes user from group (dual control)
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_remove_group
+    name: remove_user_from_group
+    actor_ids:
+    - act_admin
+    parameters:
+    - name: user_id
+      type: uuid
+    - name: group
+      type: string
+    emits_events:
+    - evt_group_removed
+  - command_id: cmd_second_admin_approve
+    name: second_admin_approve
+    actor_ids:
+    - act_admin_approver
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_group_removed
+    name: group_removed
+    payload:
+    - name: user_id
+      type: uuid
+    - name: group
+      type: string
+    caused_by:
+      command_id: cmd_remove_group
+    policies_triggered:
+    - pol_second_admin_approval
+  policies:
+  - policy_id: pol_second_admin_approval
+    name: second_admin_approval_required
+    when_event_id: evt_group_removed
+    issues_command_id: cmd_second_admin_approve
+  business_rules: []
+- domain_story_id: dst_enroll_mfa
+  title: User enrolls MFA on first login
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_enroll_mfa
+    name: enroll_mfa
+    actor_ids:
+    - act_user
+    parameters:
+    - name: factor
+      type: string
+    emits_events:
+    - evt_mfa_enrolled
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_mfa_enrolled
+    name: mfa_enrolled
+    payload:
+    - name: factor
+      type: string
+    caused_by:
+      command_id: cmd_enroll_mfa
+  policies: []
+  business_rules: []
+- domain_story_id: dst_password_reset
+  title: User requests password reset
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_request_reset
+    name: request_password_reset
+    actor_ids:
+    - act_user
+    parameters:
+    - name: email
+      type: string
+    emits_events:
+    - evt_reset_requested
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_reset_requested
+    name: password_reset_requested
+    payload:
+    - name: email
+      type: string
+    caused_by:
+      command_id: cmd_request_reset
+  policies: []
+  business_rules: []
+- domain_story_id: dst_lockout_unlock
+  title: Lockout and admin unlock (dual control)
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_failed_logins
+    name: failed_logins
+    actor_ids:
+    - act_system_okta
+  - command_id: cmd_unlock_account
+    name: unlock_account
+    actor_ids:
+    - act_admin
+    parameters:
+    - name: user_id
+      type: uuid
+  - command_id: cmd_second_admin_approve
+    name: second_admin_approve
+    actor_ids:
+    - act_admin_approver
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_account_locked
+    name: account_locked
+    payload:
+    - name: user_id
+      type: uuid
+    caused_by:
+      command_id: cmd_failed_logins
+    policies_triggered:
+    - pol_admin_unlock_requires_approval
+  policies:
+  - policy_id: pol_admin_unlock_requires_approval
+    name: admin_unlock_requires_approval
+    when_event_id: evt_account_locked
+    issues_command_id: cmd_second_admin_approve
+  business_rules: []
+- domain_story_id: dst_entitlement_review
+  title: Entitlement review (dual control)
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_launch_entitlement_review
+    name: launch_entitlement_review
+    actor_ids:
+    - act_admin
+    emits_events:
+    - evt_entitlement_review_launched
+  - command_id: cmd_second_admin_approve
+    name: second_admin_approve
+    actor_ids:
+    - act_admin_approver
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_entitlement_review_launched
+    name: entitlement_review_launched
+    payload:
+    - name: launched_by
+      type: string
+    caused_by:
+      command_id: cmd_launch_entitlement_review
+    policies_triggered:
+    - pol_second_admin_approval
+  policies:
+  - policy_id: pol_second_admin_approval
+    name: second_admin_approval_required
+    when_event_id: evt_entitlement_review_launched
+    issues_command_id: cmd_second_admin_approve
+  business_rules: []
+- domain_story_id: dst_deactivate_user
+  title: Deactivate user (dual control)
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_deactivate_user
+    name: deactivate_user
+    actor_ids:
+    - act_admin
+    parameters:
+    - name: user_id
+      type: uuid
+    emits_events:
+    - evt_user_deactivated
+  - command_id: cmd_second_admin_approve
+    name: second_admin_approve
+    actor_ids:
+    - act_admin_approver
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_user_deactivated
+    name: user_deactivated
+    payload:
+    - name: user_id
+      type: uuid
+    caused_by:
+      command_id: cmd_deactivate_user
+    policies_triggered:
+    - pol_second_admin_approval
+  policies:
+  - policy_id: pol_second_admin_approval
+    name: second_admin_approval_required
+    when_event_id: evt_user_deactivated
+    issues_command_id: cmd_second_admin_approve
+  business_rules: []
+- domain_story_id: dst_reassign_approver
+  title: Reassign approvals (dual control)
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_reassign_approver
+    name: reassign_approver
+    actor_ids:
+    - act_admin
+    parameters:
+    - name: from_admin
+      type: string
+    - name: to_admin
+      type: string
+    emits_events:
+    - evt_approver_reassigned
+  - command_id: cmd_second_admin_approve
+    name: second_admin_approve
+    actor_ids:
+    - act_admin_approver
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_approver_reassigned
+    name: approver_reassigned
+    payload:
+    - name: from_admin
+      type: string
+    - name: to_admin
+      type: string
+    caused_by:
+      command_id: cmd_reassign_approver
+    policies_triggered:
+    - pol_second_admin_approval
+  policies:
+  - policy_id: pol_second_admin_approval
+    name: second_admin_approval_required
+    when_event_id: evt_approver_reassigned
+    issues_command_id: cmd_second_admin_approve
+  business_rules: []
+- domain_story_id: dst_audit_export
+  title: Admin exports audit feed
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands: []
+  queries:
+  - query_id: qry_export_audit
+    name: export_audit_feed
+    actor_ids:
+    - act_admin
+    parameters:
+    - name: from
+      type: datetime
+    - name: to
+      type: datetime
+    returns_read_model_id: rmdl_audit_feed
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events: []
+  policies: []
+  business_rules: []
+- domain_story_id: dst_access_cert_complete
+  title: Access certification completed (dual control)
+  description: ''
+  actors:
+  - actor_id: act_admin
+    name: Admin
+    kind: person
+    description: Bank administrator
+  - actor_id: act_admin_approver
+    name: Admin Approver
+    kind: person
+    description: Second admin for approvals
+  - actor_id: act_user
+    name: User
+    kind: person
+    description: Corporate customer user
+  - actor_id: act_system_okta
+    name: Okta IdP
+    kind: system
+    description: Identity provider
+  - actor_id: act_core_banking
+    name: Core Banking
+    kind: system
+    description: Core platform
+  work_objects:
+  - work_object_id: wobj_user_profile
+    name: UserProfile
+    attributes:
+    - name: user_id
+      type: uuid
+      required: true
+    - name: email
+      type: string
+      required: true
+    - name: status
+      type: enum
+      required: true
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_permission_set
+    name: PermissionSet
+    attributes:
+    - name: name
+      type: string
+      required: true
+    - name: entitlements
+      type: json
+    aggregate_id: agg_user_account
+  - work_object_id: wobj_approval_rule
+    name: ApprovalRule
+    attributes:
+    - name: rule_id
+      type: uuid
+      required: true
+    - name: scope
+      type: string
+    - name: threshold
+      type: money
+    aggregate_id: agg_approval_policy
+  - work_object_id: wobj_audit_record
+    name: AuditRecord
+    attributes:
+    - name: event_time
+      type: datetime
+      required: true
+    - name: actor
+      type: string
+      required: true
+    - name: action
+      type: string
+      required: true
+    aggregate_id: agg_audit_log
+  aggregates:
+  - aggregate_id: agg_user_account
+    name: UserAccount
+    root_work_object_id: wobj_user_profile
+    work_object_ids:
+    - wobj_user_profile
+    - wobj_permission_set
+  - aggregate_id: agg_approval_policy
+    name: ApprovalPolicy
+    root_work_object_id: wobj_approval_rule
+    work_object_ids:
+    - wobj_approval_rule
+  - aggregate_id: agg_audit_log
+    name: AuditLog
+    root_work_object_id: wobj_audit_record
+    work_object_ids:
+    - wobj_audit_record
+  repositories:
+  - repository_id: repo_user_repository
+    name: UserRepository
+    aggregate_id: agg_user_account
+  - repository_id: repo_policy_repository
+    name: PolicyRepository
+    aggregate_id: agg_approval_policy
+  - repository_id: repo_audit_repository
+    name: AuditRepository
+    aggregate_id: agg_audit_log
+  application_services:
+  - app_service_id: svc_app_identity
+    name: IdentityApplicationService
+    commands_handled: []
+    queries_handled: []
+  - app_service_id: svc_app_policy
+    name: PolicyApplicationService
+    commands_handled: []
+    queries_handled: []
+  domain_services:
+  - domain_service_id: svc_dom_policy_eval
+    name: PolicyEvaluationService
+    operates_on:
+    - agg_approval_policy
+  - domain_service_id: svc_dom_audit
+    name: AuditService
+    operates_on:
+    - agg_audit_log
+  commands:
+  - command_id: cmd_complete_cert
+    name: complete_access_certification
+    actor_ids:
+    - act_admin
+    emits_events:
+    - evt_access_cert_completed
+  - command_id: cmd_second_admin_approve
+    name: second_admin_approve
+    actor_ids:
+    - act_admin_approver
+  queries: []
+  read_models:
+  - read_model_id: rmdl_user_summary
+    name: UserSummaryView
+    attributes:
+    - name: user_id
+      type: uuid
+    - name: email
+      type: string
+    - name: status
+      type: string
+  - read_model_id: rmdl_audit_feed
+    name: AuditFeed
+    attributes:
+    - name: event_time
+      type: datetime
+    - name: actor
+      type: string
+    - name: action
+      type: string
+  activities: []
+  events:
+  - event_id: evt_access_cert_completed
+    name: access_certification_completed
+    payload:
+    - name: period
+      type: string
+    caused_by:
+      command_id: cmd_complete_cert
+    policies_triggered:
+    - pol_second_admin_approval
+  policies:
+  - policy_id: pol_second_admin_approval
+    name: second_admin_approval_required
+    when_event_id: evt_access_cert_completed
+    issues_command_id: cmd_second_admin_approve
+  business_rules: []
