@@ -54,7 +54,7 @@ pre {
 ### PDF Output
 
 **File:** `output/ddd-guide.pdf`
-- **Size:** 1.0MB (1.0M)
+- **Size:** 999KB
 - **Version:** PDF 1.7
 - **Format:** A4 with 2cm margins
 
@@ -64,10 +64,11 @@ pre {
 - ✅ Professional typography (Georgia serif)
 - ✅ Proper page breaks (no orphaned headers)
 - ✅ Code blocks don't break across pages
-- ✅ Clickable table of contents
+- ✅ Clickable table of contents (no blank page after)
 - ✅ Working hyperlinks (internal and external)
 - ✅ Syntax highlighted code
 - ✅ Print-ready quality
+- ✅ Clean headings (no pilcrow symbols)
 
 **PDF Specifications:**
 - Font: Georgia, Times New Roman (serif)
@@ -145,7 +146,7 @@ All code blocks received appropriate syntax highlighting.
 
 | Metric | Source (MD) | HTML | PDF |
 |--------|-------------|------|-----|
-| **Size** | 328.7KB | 926KB | 1.0MB |
+| **Size** | 328.7KB | 926KB | 999KB |
 | **Lines** | 10,234 | 10,418 | N/A |
 | **Format** | Plain text | HTML+CSS | PDF 1.7 |
 | **Portable** | ✅ | ✅ | ✅ |

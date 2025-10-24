@@ -195,6 +195,7 @@ hr {
     padding: 20px;
     margin: 30px 0;
     page-break-inside: avoid;
+    page-break-after: avoid;  /* Prevent blank page after TOC */
 }
 
 .toc h2 {
@@ -270,7 +271,7 @@ class MarkdownConverter:
                     'linenums': False,
                 },
                 'toc': {
-                    'permalink': True,
+                    'permalink': False,  # Disable to remove ¶ symbols in PDF
                     'toc_depth': 6,
                 }
             }
